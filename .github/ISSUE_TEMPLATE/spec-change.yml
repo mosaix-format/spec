@@ -1,0 +1,47 @@
+name: Specification change
+description: Report a case the current text of the specification gets wrong.
+title: "[spec] "
+labels: ["specification"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The specification changes only from concrete cases. Please describe one. Questions without a case are better asked in the FAQ at https://mosaixformat.org/spec.html#faq.
+  - type: textarea
+    id: case
+    attributes:
+      label: The case the current text gets wrong
+      description: What does the specification say, and why does it not match the intent in this case?
+    validations:
+      required: true
+  - type: textarea
+    id: excerpt
+    attributes:
+      label: A note or vault excerpt that shows it
+      description: Frontmatter and body of the note, or the relevant part of the vault tree. Redact anything private.
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: checker
+    attributes:
+      label: What the checker reports
+      description: Output of `python audit_reference.py /path/to/vault --verbose`, if relevant.
+      render: shell
+    validations:
+      required: false
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: What the specification should say, or what the checker should report.
+    validations:
+      required: true
+  - type: input
+    id: section
+    attributes:
+      label: Section of the specification
+      description: The section the case falls under.
+      placeholder: "§3.1"
+    validations:
+      required: false

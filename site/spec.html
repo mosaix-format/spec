@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mosaix Format — Specification 1.0</title>
+<meta name="description" content="The Mosaix Format specification, version 1.0: the note, the nine core keys, links and the graph, vault structure, composed documents, the eight rules, conformance, and reference material.">
+<link rel="canonical" href="https://mosaixformat.org/spec.html">
+<link rel="alternate" type="text/markdown" href="Mosaix-Format-v1.0.en.md" title="Specification (Markdown)">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="fonts/plex.css">
+<style>
+  :root{--paper:#efeae0;--paper2:#e4ded1;--ink:#14130f;--ink2:#4a4741;--ink3:#615c53;--line:#d2cbbb;--gold:#c9a227;--red:#9b3b2a;--green:#2a7d3f;
+    --sans:"IBM Plex Sans",system-ui,sans-serif;--serif:"IBM Plex Serif",Georgia,serif;--mono:"IBM Plex Mono",Menlo,monospace;--w:1160px}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:80px}
+  body{margin:0;background:var(--paper);color:var(--ink);font:16.5px/1.65 var(--serif);-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--w);margin:0 auto;padding:0 24px}
+  nav.top{display:flex;align-items:center;justify-content:space-between;padding:20px 0;font:14px var(--sans);gap:12px;border-bottom:1px solid var(--line)}
+  nav.top .brand{display:flex;align-items:center;gap:12px;font-weight:600;font-size:18px}
+  nav.top .brand svg{width:28px;height:28px}
+  nav.top ul{list-style:none;display:flex;gap:22px;margin:0;padding:0}
+  nav.top ul a{color:var(--ink2)}nav.top ul a.on{color:var(--ink);border-bottom:1px solid var(--ink)}
+  nav.top .ver{font:12px var(--mono);color:var(--ink3);border:1px solid var(--line);padding:3px 8px;white-space:nowrap}
+  .mono{font-family:var(--mono)}
+  .rlab{font:12px var(--mono);color:var(--ink3);margin:0 0 10px;letter-spacing:.08em;text-transform:uppercase}
+
+  .layout{display:grid;grid-template-columns:250px 1fr;gap:64px;padding:48px 0 120px}
+  /* ---- TOC ---- */
+  .toc{position:sticky;top:24px;align-self:start;font:13.5px var(--sans);max-height:calc(100vh - 48px);overflow:auto;padding-right:8px}
+  .toc .h{font:12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin:18px 0 8px}
+  .toc .h:first-child{margin-top:0}
+  .toc a{display:block;padding:5px 0 5px 12px;border-left:1px solid var(--line);color:var(--ink2);line-height:1.35}
+  .toc a.on{border-left-color:var(--ink);color:var(--ink)}
+  .toc a.sub{padding-left:24px;font-size:12.5px;color:var(--ink3)}
+  .toc .lang{margin-top:22px;display:flex;gap:6px;font:12px var(--mono)}
+  .toc .lang a{border:1px solid var(--line);padding:3px 8px;display:inline-block}
+  .toc .lang a.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .toc .dl{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px}
+  .toc .dl a{border:0;padding:4px 0;color:var(--ink)}
+  .toc .dl a::before{content:"↓ ";color:var(--ink3)}
+  /* ---- document ---- */
+  .doc{max-width:720px;min-width:0}
+  .doc h1{font:600 46px/1.05 var(--sans);letter-spacing:-.03em;margin:0 0 10px}
+  .doc .meta{font:12.5px var(--mono);color:var(--ink3);margin-bottom:8px}
+  .doc .lede{font-size:19px;color:var(--ink2);margin:0 0 44px;padding-left:16px;border-left:3px solid var(--gold)}
+  .doc h2{font:600 26px/1.2 var(--sans);letter-spacing:-.02em;margin:60px 0 14px;padding-top:22px;border-top:1px solid var(--ink)}
+  .doc h2 .no{font:500 12px var(--mono);color:var(--ink3);display:block;margin-bottom:8px;letter-spacing:.08em}
+  .doc h3{font:600 17.5px var(--sans);margin:34px 0 8px}
+  .doc h4{font:600 15px var(--sans);margin:24px 0 6px;color:var(--ink2)}
+  .doc p{margin:0 0 16px}
+  .doc ul,.doc ol{margin:0 0 16px;padding-left:22px}
+  .doc li{margin-bottom:6px}
+  .doc code{font:.88em var(--mono);background:var(--paper2);padding:1px 5px}
+  .doc pre{font:13px/1.65 var(--mono);background:var(--paper2);padding:16px 18px;overflow-x:auto;margin:0 0 18px;white-space:pre}
+  .doc pre .k{color:var(--ink3)}.doc pre .hl{background:var(--gold);color:var(--ink);padding:0 3px}
+  .doc table{border-collapse:collapse;width:100%;font:14px/1.5 var(--sans);margin:12px 0 24px}
+  .doc th{text-align:left;font:12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);padding:8px 12px 8px 0;border-bottom:1px solid var(--ink);vertical-align:bottom}
+  .doc td{padding:10px 12px 10px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  .doc td:first-child{font:500 13px var(--mono);white-space:nowrap}
+  .doc .req{font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border:1px solid var(--line);margin-left:6px;vertical-align:middle;color:var(--ink3)}
+  .doc .req.must{border-color:var(--ink);color:var(--ink)}
+  .kw{font:600 12.5px var(--mono);letter-spacing:.04em}
+  .note{padding:14px 18px;border-left:3px solid var(--gold);background:transparent;margin:0 0 20px;font-size:15px}
+  .note b{font-family:var(--sans)}
+  .warn{border-left-color:var(--red)}
+  .rules{list-style:none;padding:0;margin:0 0 20px}
+  .rules li{display:grid;grid-template-columns:52px 1fr;gap:14px;padding:14px 0;border-top:1px solid var(--line)}
+  .rules li:last-child{border-bottom:1px solid var(--line)}
+  .rules .r{font:500 13px var(--mono);color:var(--ink3);padding-top:3px}
+  .rules b{display:block;font:600 16px var(--sans);margin-bottom:4px}
+  .rules p{margin:0;color:var(--ink2);font-size:15px}
+  .axes{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin:0 0 20px}
+  .axes table{margin:8px 0 0}
+  .marker{display:inline-block;width:12px;height:12px;vertical-align:-1px;margin-right:6px;background:var(--ink)}
+  .marker.o{background:transparent;outline:2px solid var(--ink);outline-offset:-2px}.marker.l{background:var(--paper2);outline:1px solid var(--line)}.marker.g{background:var(--gold)}
+  .tree{font:13px/1.7 var(--mono);background:var(--paper2);padding:16px 18px;margin:0 0 18px;white-space:pre}
+  .tree .c{color:var(--ink3)}
+  .steps{counter-reset:s;list-style:none;padding:0;margin:0 0 20px}
+  .steps li{counter-increment:s;display:grid;grid-template-columns:36px 1fr;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+  .steps li::before{content:counter(s,decimal-leading-zero);font:500 13px var(--mono);color:var(--ink3);padding-top:3px}
+  .steps li:last-child{border-bottom:1px solid var(--line)}
+  .faq dt{font:600 16px var(--sans);margin:18px 0 4px}
+  .faq dd{margin:0 0 6px;color:var(--ink2)}
+  footer{border-top:1px solid var(--line);padding:30px 0 48px;font:13px var(--sans);color:var(--ink3);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  footer .fb{display:flex;align-items:center;gap:10px}footer svg{width:20px;height:20px;color:var(--ink)}
+  footer a{text-decoration:underline}
+  @media (max-width:900px){.layout{grid-template-columns:1fr;gap:28px}.toc{position:static;max-height:none;display:flex;flex-wrap:wrap;gap:4px 14px;border-bottom:1px solid var(--line);padding-bottom:16px}.toc .h{width:100%;margin:10px 0 4px}.toc a{border-left:0;padding:4px 0}.toc a.sub{display:none}.toc .lang,.toc .dl{width:100%}.axes{grid-template-columns:1fr}.doc h1{font-size:34px}nav.top ul{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="top">
+  <a class="brand" href="index.html" aria-label="Mosaix home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>mosaix</a>
+  <ul><li><a href="index.html">Format</a></li><li><a class="on" href="spec.html">Specification</a></li><li><a href="#checker">Check a vault</a></li><li><a href="https://github.com/mosaix-format/spec">GitHub ↗</a></li></ul>
+  <span class="ver">v1.0.0 · 2026-09-04</span>
+</nav>
+
+<div class="layout">
+<aside class="toc" id="toc">
+  <div class="h">Start here</div>
+  <a href="#overview">Overview</a>
+  <a href="#quickstart">Quick start</a>
+  <a href="#vocabulary">Vocabulary</a>
+  <div class="h">Specification</div>
+  <a href="#s0">0 · Status</a>
+  <a href="#s1">1 · Purpose</a>
+  <a href="#s2">2 · Substrate</a>
+  <a href="#s3">3 · The note</a>
+  <a class="sub" href="#s31">3.1 CORE frontmatter</a>
+  <a class="sub" href="#s32">3.2 Reliability axes</a>
+  <a class="sub" href="#s33">3.3 Domain keys</a>
+  <a class="sub" href="#s34">3.4 Note types</a>
+  <a href="#s4">4 · Links and the graph</a>
+  <a href="#s5">5 · Vault structure</a>
+  <a href="#s6">6 · Composed documents</a>
+  <a href="#s7">7 · Rules R1–R8</a>
+  <a href="#s8">8 · Out of scope</a>
+  <a href="#s9">9 · Host profile: Obsidian</a>
+  <a href="#s10">10 · Conformance</a>
+  <a href="#s11">11 · Versioning</a>
+  <a href="#s12">12 · Provenance</a>
+  <div class="h">Reference</div>
+  <a href="#metasyntax">Meta note syntax</a>
+  <a href="#anatomy">Anatomy of a real vault</a>
+  <a href="#migrate">Migrating an existing vault</a>
+  <a href="#migrate-it" class="sub">— in another language</a>
+  <a href="#filenames">File names and characters</a>
+  <a href="#attachments">Attachments and images</a>
+  <a href="#entities">Entity types</a>
+  <a href="#scale">Scale</a>
+  <a href="#checker">The checker</a>
+  <a href="#templates">Note templates</a>
+  <a href="#errors">Errors and warnings</a>
+  <a href="#agents">Working with agents</a>
+  <a href="#compared">Compared with</a>
+  <a href="#faq">FAQ</a>
+  <a href="#license">License</a>
+  <div class="lang"><a class="on" href="#">EN</a><a href="Mosaix-Format-v1.0.it.md" download title="Traduzione di cortesia (Markdown)">IT ↓</a></div>
+  <div class="dl"><a href="audit_reference.py" download>audit_reference.py</a><a href="Mosaix-Format-v1.0.en.md" download>Specification (Markdown)</a><a href="mosaix-example-vault.zip" download>Example vault (.zip)</a><a href="mosaix-bakery-vault.zip" download>Second example: a bakery (.zip)</a><a href="badge.svg" download>Conformance badge (.svg)</a></div>
+</aside>
+
+<article class="doc">
+  <div class="meta">Mosaix Format · Specification and reference · v1.0.0 · 2026-09-04 · CC BY-SA 4.0 · English is normative</div>
+  <h1>Mosaix Format</h1>
+  <p class="lede">A file-level format for knowledge vaults made of atomic, self-describing notes. Machines retrieve one note at a time and have enough context to act. People read many notes as one document. Nothing is silently lost.</p>
+
+  <!-- ================= START HERE ================= -->
+  <h2 id="overview"><span class="no">START HERE</span>Overview</h2>
+  <p>A Mosaix vault is a folder of Markdown files. Each file is a <b>note</b>, and each note answers exactly one question. Above the body, in YAML frontmatter, every note carries nine keys that a machine reads before the text: a one-sentence summary, search keywords, the named entities, the typed relations between them, the notes it links to, and a hash of the body so that stale metadata can be detected.</p>
+  <p>Three folders are reserved (<code>_meta/</code>, <code>_synthesis/</code>, <code>_inbox/</code>), one note type composes many notes into a readable document without copying them, and eight rules govern the vault: five are checked from the files, three are commitments the vault makes in writing.</p>
+  <p>The format fixes <em>what a note carries</em> and <em>which rules the vault obeys</em>. It does not fix how notes are produced, enriched, searched, ranked, composed, or edited. Those are implementations, and different implementations can compete while reading and writing the same vaults.</p>
+  <div class="note"><b>Who it is for.</b> Teams that keep knowledge about a domain (a client, a product, a market, a codebase) and want both people and language models to work from the same files, with a record of what is true, what is decided, and what is still open.</div>
+
+  <h2 id="quickstart"><span class="no">START HERE</span>Quick start</h2>
+  <ol class="steps">
+    <li><div><b>Create the skeleton.</b> A folder with <code>Home.md</code> (the map of content), <code>_meta/Conventions.md</code>, <code>_meta/Open questions.md</code>, and the folders you need. Numbered prefixes (<code>01-</code>, <code>02-</code>) are a reading order, not a build order.</div></li>
+    <li><div><b>Write one note per question.</b> If a draft answers two questions, split it. Put the nine CORE keys above the body (§3.1). Link every note from at least one other note or from <code>Home.md</code>.</div></li>
+    <li><div><b>Declare your taxonomy.</b> Every tag and every domain key you use goes in <code>_meta/Conventions.md</code>, together with the reliability convention you chose (§3.2) and <code>mosaix: "1.0"</code>.</div></li>
+    <li><div><b>Record what you don't know.</b> Contradictions, unconfirmed numbers, open decisions: one entry each in <code>_meta/Open questions.md</code>, with the competing versions, dates, sources and the consequence of choosing.</div></li>
+    <li><div><b>Run the checker.</b> <code>python audit_reference.py path/to/vault</code>. Exit code 0 means conformant. Fix errors note by note; warnings are advice.</div></li>
+    <li><div><b>Compose when people need to read.</b> A note with <code>type: document</code> and <code>fragments</code> lists the notes to read together. The fragments stay separate; the document is the view (§6).</div></li>
+  </ol>
+  <pre><span class="k"># the smallest conformant vault</span>
+my-vault/
+├── Home.md                      <span class="k">← type: moc, links every note</span>
+├── _meta/
+│   ├── Conventions.md           <span class="k">← taxonomy, reliability convention, mosaix: "1.0"</span>
+│   └── Open questions.md        <span class="k">← the ledger (R6)</span>
+├── _synthesis/
+│   └── Overview.md              <span class="k">← optional: a synthesis to hand to a newcomer or a model</span>
+└── 01-Topic/
+    ├── First question.md
+    └── Second question.md</pre>
+
+  <h2 id="vocabulary"><span class="no">START HERE</span>Vocabulary</h2>
+  <table>
+    <tr><th>Term</th><th>Meaning</th></tr>
+    <tr><td>vault</td><td>A directory tree of Markdown notes about one domain. The unit of conformance.</td></tr>
+    <tr><td>note · tile</td><td>One <code>.md</code> file answering one question, with CORE frontmatter. "Tile" is the same thing seen from the mosaic.</td></tr>
+    <tr><td>CORE</td><td>The nine frontmatter keys every note carries (§3.1).</td></tr>
+    <tr><td>MOC</td><td>Map of content: an entry note that narrates an area and links its notes. Every vault has at least one.</td></tr>
+    <tr><td>synthesis</td><td>A note in <code>_synthesis/</code> written to be read alone as context for a task. Never a substitute for the notes it summarises.</td></tr>
+    <tr><td>composed document</td><td>A note of type <code>document</code> that lists other notes as its fragments, in reading order, without copying them (§6).</td></tr>
+    <tr><td>ledger</td><td>The open-questions note in <code>_meta/</code> where contradictions and unknowns are recorded (R6).</td></tr>
+    <tr><td>meta note</td><td>The note that declares the vault's conventions: folders, taxonomy, domain keys, reliability markers, target version (§5.4).</td></tr>
+    <tr><td>stale</td><td>Metadata whose <code>rev</code> no longer matches the body: the body changed after the keys were computed.</td></tr>
+    <tr><td>superseded</td><td>A note that is no longer valid, marked as such and kept in place because others link to it (R7).</td></tr>
+    <tr><td>cluster</td><td>A note plus its direct dependencies: what an agent receives to work on one tile (see <a href="#agents">Working with agents</a>).</td></tr>
+  </table>
+
+  <!-- ================= SPEC ================= -->
+  <h2 id="s0"><span class="no">§0</span>Status of this document</h2>
+  <p>This document specifies the <b>Mosaix Format</b>, version 1.0. The name comes from the mosaic: every note is a tile that stands on its own, and the picture exists only in the whole. It is licensed under CC BY-SA 4.0: you may copy, adapt and redistribute it, including commercially, provided you credit the author and release derivatives under the same license. The name "Mosaix Format" and its version numbering are part of the specification: a vault may claim conformance to "Mosaix 1.0" only if it satisfies §10.</p>
+  <p>The key words <span class="kw">MUST</span>, <span class="kw">MUST NOT</span>, <span class="kw">SHOULD</span>, <span class="kw">SHOULD NOT</span> and <span class="kw">MAY</span> are to be interpreted as described in RFC 2119.</p>
+
+  <h2 id="s1"><span class="no">§1</span>Purpose</h2>
+  <p>A vault in this format is a body of knowledge about one domain (a client, a product, a codebase, a project) written so that:</p>
+  <ol>
+    <li><b>a machine can retrieve one note at a time</b> and have enough context to act, without reading the rest of the vault;</li>
+    <li><b>a human can read many notes as one document</b>, without opening them one by one;</li>
+    <li><b>nothing is silently lost or overwritten</b>: contradictions are recorded, superseded notes are marked, machine edits are proposed rather than applied.</li>
+  </ol>
+  <p>The format is deliberately small. It fixes what a note carries and which rules the vault obeys. It does not fix how notes are produced, enriched, searched, ranked, composed or edited: those are implementations (§8).</p>
+
+  <h2 id="s2"><span class="no">§2</span>Substrate</h2>
+  <p>A Mosaix vault is a directory tree of plain-text files.</p>
+  <ul>
+    <li>Notes are UTF-8 files with the <code>.md</code> extension containing CommonMark Markdown.</li>
+    <li>Each note <span class="kw">MAY</span> start with a YAML frontmatter block delimited by <code>---</code> lines.</li>
+    <li>Notes reference each other with <b>wikilinks</b>: <code>[[Note title]]</code>, optionally <code>[[Note title|display text]]</code>, optionally with a heading <code>[[Note title#Heading]]</code>. A wikilink resolves by the target note's <b>basename without extension</b>, matched case-sensitively, anywhere in the vault.</li>
+    <li>Embeds use <code>![[Note title]]</code> and <code>![[file.ext]]</code>, resolved the same way.</li>
+    <li>Tags are <code>#tag</code> or <code>#namespace/tag</code> tokens in the body, or entries of the <code>tags</code> frontmatter list. The two forms are equivalent.</li>
+  </ul>
+  <p>Any tool that reads Markdown files from disk can read a Mosaix vault. No application is required. Obsidian is the reference host application (§9), not a dependency.</p>
+
+  <h2 id="s3"><span class="no">§3</span>The note (the "tile")</h2>
+  <p>A <b>note</b> answers one question. If a draft answers two, it is two notes. The body length is not constrained; the <em>scope</em> is.</p>
+
+  <h3 id="s31">3.1 Frontmatter — CORE <span class="req must">required for conformance</span></h3>
+  <table>
+    <tr><th>Key</th><th>Type</th><th>Written by</th><th>Purpose</th></tr>
+    <tr><td>title</td><td>string</td><td>human, or derived from the filename</td><td>the name of the node</td></tr>
+    <tr><td>updated</td><td>date <code>YYYY-MM-DD</code></td><td>human or system</td><td>last substantive change; drives staleness of the note</td></tr>
+    <tr><td>tags</td><td>list of strings</td><td>human</td><td>taxonomy and filtering; every tag declared in the meta note</td></tr>
+    <tr><td>summary</td><td>string, 120–240 chars</td><td>human or enrichment</td><td>one declarative sentence saying what the note contains; the unit a machine reads first</td></tr>
+    <tr><td>keywords</td><td>6–8 lowercase strings</td><td>human or enrichment</td><td>how someone would search for this note: synonyms, spoken phrasings, questions. <span class="kw">MUST NOT</span> duplicate <code>tags</code></td></tr>
+    <tr><td>entities</td><td>list of <code>{name, type}</code></td><td>enrichment or human</td><td>named things in the note; <code>type</code> <span class="kw">MUST</span> be one of <code>person</code>, <code>company</code>, <code>product</code>, <code>project</code>, <code>tool</code>, <code>place</code>, <code>document</code>, <code>event</code>, or a type declared in the meta note</td></tr>
+    <tr><td>relations</td><td>list of <code>{from, type, to}</code></td><td>enrichment or human</td><td>typed links between named entities; <code>type</code> is a short verb phrase (<code>owns</code>, <code>depends on</code>, <code>supplies</code>)</td></tr>
+    <tr><td>links</td><td>list of strings</td><td>enrichment or human</td><td>wikilink targets this note points to; each <span class="kw">MUST</span> resolve to an existing note</td></tr>
+    <tr><td>rev</td><td>12 hex chars</td><td>system</td><td>hash of the body when <code>entities</code>, <code>relations</code> and <code>links</code> were last computed; a mismatch with the current body means the metadata is stale</td></tr>
+  </table>
+  <ul>
+    <li><code>summary</code> <span class="kw">MUST NOT</span> repeat the title and <span class="kw">MUST NOT</span> begin with "This note…" or its equivalent. It is written for a reader who has not opened the note.</li>
+    <li><b>Aliases.</b> A vault <span class="kw">MAY</span> write any CORE key under an alias declared in its meta note. Recognised by default, so that vaults created before this version stay conformant: <code>mcp_entita → entities</code>, <code>mcp_relazioni → relations</code>, <code>mcp_collegamenti → links</code>, <code>mcp_rev → rev</code>, <code>aggiornato → updated</code>, <code>titolo → title</code>, <code>riassunto → summary</code>, <code>parole_chiave → keywords</code>; inside items, <code>nome → name</code>, <code>tipo → type</code>, <code>da → from</code>, <code>a → to</code>; and the Italian entity-type values (<code>persona azienda prodotto progetto strumento luogo documento evento</code>) map to the English ones. Checkers report by canonical name.</li>
+    <li><code>entities</code> <span class="kw">SHOULD</span> list at most 12 items. A note that names more things than that is usually answering more than one question (R1); the checker reports the excess as a warning. MOCs and the meta note are exempt: listing is their job.</li>
+    <li>The canonical key order is <code>title · updated · [domain keys] · summary · keywords · entities · relations · links · rev</code>. Tools <span class="kw">SHOULD</span> preserve it.</li>
+    <li><b>The body is never touched by metadata operations.</b> Any process that rewrites frontmatter <span class="kw">MUST</span> leave the body byte-identical.</li>
+  </ul>
+  <pre><span class="k">---</span>
+title: Portwest — player card
+updated: 2026-08-12
+tags: [player, ppe, competitor]
+<span class="hl">summary: "Irish PPE manufacturer present in 130+ countries with an own-brand line that undercuts distributors on price; the reference competitor for price."</span>
+keywords: [portwest, price competitor, own brand, irish ppe manufacturer, 130 countries, private label]
+entities:
+  - {name: Portwest, type: company}
+relations:
+  - {from: Portwest, type: competes with, to: Ateş}
+links: [PPE consolidation 2025, Strategic scenarios]
+<span class="hl">rev: a81c0d33ef21</span>
+<span class="k">---</span>
+# Portwest — player card
+
+Sells in 130+ countries. Own-brand line undercuts distributors. ✅ sourced (company site, 2026-07).
+See [[PPE consolidation 2025]] and [[Strategic scenarios]].</pre>
+
+  <h3 id="s32">3.2 Frontmatter — reliability axes <span class="req">recommended</span></h3>
+  <p>Two independent questions, answered by two independent markers. They <span class="kw">MAY</span> be expressed as frontmatter keys, as tags, or as inline symbols in the body; a vault <span class="kw">MUST</span> choose one convention and document it in its meta note.</p>
+  <div class="axes">
+    <div><div class="rlab">Axis A — is it true?</div>
+      <table><tr><th>Marker</th><th>Meaning</th></tr>
+      <tr><td>✅ sourced</td><td>comes from a document, a system, or a working conversation; the source is named</td></tr>
+      <tr><td>⚠️ to confirm</td><td>hypothesis, draft, placeholder; not yet validated</td></tr></table></div>
+    <div><div class="rlab">Axis B — does it exist?</div>
+      <table><tr><th>Marker</th><th>Meaning</th></tr>
+      <tr><td>🟢 implemented</td><td>exists and works as described</td></tr>
+      <tr><td>🟡 decided</td><td>decided, not built</td></tr>
+      <tr><td>⚠️ open</td><td>undecided</td></tr>
+      <tr><td>❌ excluded</td><td>decided against</td></tr></table></div>
+  </div>
+  <p>A statement may be ✅ sourced and 🟡 not implemented: a verified fact about something that does not yet exist. Keeping the axes separate is what lets a reader, months later, tell an intention from a fact.</p>
+
+  <h3 id="s33">3.3 Frontmatter — domain keys <span class="req">per vault</span></h3>
+  <p>A vault <span class="kw">MAY</span> add any keys it needs (<code>campaign</code>, <code>client</code>, <code>country</code>, <code>reliability</code>, <code>stage</code>…). Domain keys <span class="kw">MUST</span> be declared in the meta note with their allowed values. Undeclared keys are a conformance warning, not an error.</p>
+
+  <h3 id="s34">3.4 Note types</h3>
+  <p>The <code>type</code> key (or a <code>#type/...</code> tag) <span class="kw">MAY</span> classify notes. Three types have format-level meaning:</p>
+  <table>
+    <tr><th>type</th><th>Role</th></tr>
+    <tr><td>moc</td><td>Map of content: an entry point that narrates an area and lists its notes. A vault <span class="kw">MUST</span> have at least one, usually <code>Home</code> or <code>00-Index</code>.</td></tr>
+    <tr><td>synthesis</td><td>A synthesis written to be read alone as context for a task; lives in <code>_synthesis/</code> (§5.2).</td></tr>
+    <tr><td>document</td><td>A composed document: a note whose frontmatter lists the notes it is assembled from (§6).</td></tr>
+  </table>
+
+  <h2 id="s4"><span class="no">§4</span>Links and the graph</h2>
+  <ul>
+    <li>A note <span class="kw">MUST</span> have at least one incoming wikilink from another note, or from a MOC. A note with no incoming link is an <b>orphan</b> and is a conformance error.</li>
+    <li>Every wikilink <span class="kw">MUST</span> resolve. An unresolved wikilink is a conformance error.</li>
+    <li><code>links</code> is the machine-readable mirror of the note's outbound links. It <span class="kw">MAY</span> be a subset of the wikilinks in the body; it <span class="kw">MUST NOT</span> contain targets that do not exist.</li>
+    <li>The notes, their <code>entities</code>, <code>relations</code> and wikilinks together form the vault graph. The graph is derived from files; it is never the source of truth.</li>
+  </ul>
+
+  <h2 id="s5"><span class="no">§5</span>Vault structure</h2>
+  <h3>5.1 Free layout, reserved names</h3>
+  <p>Folders are free. Numbered prefixes (<code>00-Index</code>, <code>01-Azienda</code>, …) are a common convention and are read as a <b>reading order</b>, not a build order. Three folder names are reserved:</p>
+  <table>
+    <tr><th>Folder</th><th>Content</th></tr>
+    <tr><td>_meta/</td><td>the vault's own governance: meta note, taxonomy, open questions</td></tr>
+    <tr><td>_synthesis/</td><td>synthesis notes written to be consumed alone as context</td></tr>
+    <tr><td>_inbox/</td><td>material that has entered the vault but has not yet been turned into notes; nothing in <code>_inbox/</code> counts toward conformance</td></tr>
+  </table>
+  <p>A vault <span class="kw">MAY</span> additionally keep a <code>_private/</code> folder excluded from version control for personal working material. Nothing in <code>_private/</code> is part of the vault. Folders holding content exports that are not notes (platform payloads, generated copies) <span class="kw">MAY</span> be declared as <b>payload</b> in the meta note and are then excluded from the frontmatter check.</p>
+  <h3>5.2 Synthesis notes</h3>
+  <p>A <code>_synthesis/</code> note condenses an area of the vault into a text that can be read alone. It <span class="kw">MUST</span> link to the notes it summarises. It is the recommended unit to hand to a machine or a newcomer before any task in that area. It is <em>not</em> a substitute for the notes: when it disagrees with a note, the note wins and the synthesis is stale.</p>
+  <h3>5.3 Open questions ledger</h3>
+  <p>The vault <span class="kw">MUST</span> have one note that lists what is not yet known or is contradictory. Its canonical location is <code>_meta/Open questions.md</code> (<code>Assunzioni da confermare.md</code> and <code>Domande aperte.md</code> are recognised aliases). Each entry records: the question, the competing versions with their dates and sources, the practical consequence of choosing one over the other, and who is expected to resolve it.</p>
+  <pre><span class="k">## #12 · Launch date of the online platform</span>
+A: 26 Oct 2026   (Roadmap.docx, edited 2026-07-22)
+B: 25 Nov 2026   (Master index.md, edited 2026-08-05)
+C: 27 Jan 2027   (Timing rules.md, decided with partners 2026-08-29)
+consequence: the email schedule shifts by 90 days; every DEM date depends on this
+owner: partners · status: C assumed, A and B superseded and kept</pre>
+  <h3 id="s54">5.4 Meta note</h3>
+  <p>The vault <span class="kw">MUST</span> have a note (<code>_meta/Conventions.md</code>, or a <code>README.md</code> / <code>CLAUDE.md</code> at the root) that states: the folder contract (which question each folder answers), the reliability convention chosen (§3.2), the domain keys and their values (§3.3), the tag taxonomy with every tag in use, any aliases for CORE keys and any additional entity types, and the people responsible for areas. The taxonomy <span class="kw">MAY</span> live in its own note inside <code>_meta/</code>. <b>A tag used in a note and absent from the taxonomy is a conformance warning.</b> The taxonomy is updated in the same change that introduces the tag.</p>
+
+  <h2 id="s6"><span class="no">§6</span>Composed documents</h2>
+  <p>Atomic notes are for machines. Humans read documents. The format therefore defines a note type that is a <b>view over other notes</b> without duplicating them. A note with <code>type: document</code> <span class="kw">MUST</span> carry:</p>
+  <table>
+    <tr><th>Key</th><th>Type</th><th>Meaning</th></tr>
+    <tr><td>fragments</td><td>ordered list of note titles</td><td>the notes that make up the document, in reading order</td></tr>
+    <tr><td>pool</td><td>list of note titles (optional)</td><td>candidate notes considered but not included</td></tr>
+    <tr><td>layout</td><td>map (optional)</td><td>presentation hints (cover, sections, page format); free-form</td></tr>
+  </table>
+  <p>Its body <span class="kw">MAY</span> contain narrative connecting the fragments and <span class="kw">MAY</span> embed them with <code>![[Note]]</code>. The rule is: <b>the fragments stay atomic and separate; the document is only the view that joins them.</b> An edit made while reading the composed document belongs to the fragment's note, not to the document. Because the composed document is itself a note, it inherits versioning, review, search and linking for free. No second storage channel is needed.</p>
+  <pre><span class="k">---</span>
+title: Market entry brief — PPE, Europe
+type: document
+updated: 2026-09-03
+tags: [composed-document, brief]
+summary: "Board-ready brief on entering the European PPE market, assembled from five notes: consolidation, the price competitor, an open question, the fair calendar and the recommended scenario."
+keywords: [market entry brief, ppe europe, board document, composed brief, five fragments, reading order]
+fragments: [PPE consolidation 2025, Portwest — player card, Open question #33 — Albania, PPE trade fairs Europe 2026, Strategic scenarios]
+pool: [Turkish footwear cost model]
+layout:
+  cover: {title: Market entry brief — PPE, Europe, subtitle: Board reading, date: 2026-09-03}
+  page: A4
+  sections:
+    - {title: Market, fragments: [PPE consolidation 2025, Portwest — player card]}
+    - {title: What we do not know, fragments: [Open question #33 — Albania]}
+    - {title: Recommendation, fragments: [PPE trade fairs Europe 2026, Strategic scenarios]}
+  show: [summary, status]          <span class="k"># what of each fragment's frontmatter is printed</span>
+links: [PPE consolidation 2025, Portwest — player card, Open question #33 — Albania, PPE trade fairs Europe 2026, Strategic scenarios]
+rev: 2233bbcc44dd
+<span class="k">---</span>
+# Market entry brief — PPE, Europe
+
+Read the five fragments in order. ![[PPE consolidation 2025]] …</pre>
+  <p><code>layout</code> is free-form: the keys above are the ones the reference implementations use (<code>cover</code>, <code>page</code>, <code>sections</code>, <code>show</code>). A tool <span class="kw">MUST</span> ignore layout keys it does not understand, and a document with no <code>layout</code> is printed as its fragments in order.</p>
+
+  <h2 id="s7"><span class="no">§7</span>Rules of the vault</h2>
+  <p>A conforming vault obeys the following. R1–R5 are verifiable from files; R6–R8 are process rules the meta note commits to.</p>
+  <ul class="rules">
+    <li><span class="r">R1</span><div><b>Atomicity</b><p>One note answers one question. If a draft answers two, it is two notes.</p></div></li>
+    <li><span class="r">R2</span><div><b>Self-description</b><p>Every note carries the CORE frontmatter (§3.1).</p></div></li>
+    <li><span class="r">R3</span><div><b>Connectedness</b><p>No orphans, no broken links (§4).</p></div></li>
+    <li><span class="r">R4</span><div><b>Declared taxonomy</b><p>Every tag and every domain key is declared in the meta note (§5.4).</p></div></li>
+    <li><span class="r">R5</span><div><b>Composition over duplication</b><p>Content that must be read together is joined with a composed document (§6) or a synthesis (§5.2), never copied.</p></div></li>
+    <li><span class="r">R6</span><div><b>Record, don't resolve</b><p>A contradiction between notes is entered in the open-questions ledger with both versions. Nobody picks a winner silently. Numbers, prices, dates and commitments to third parties are never chosen on behalf of the owner.</p></div></li>
+    <li><span class="r">R7</span><div><b>Supersede, don't delete</b><p>A note that is no longer valid is marked superseded (<code>status: superseded</code>, <code>#status/archived</code>, or a banner) and left in place, because other notes link to it. Deletion is reserved for notes that were created in error.</p></div></li>
+    <li><span class="r">R8</span><div><b>Propose, don't apply</b><p>Any automated process that writes to the vault writes to a branch, a pull request, or a staging area that a human reviews. Automated processes never write to the vault's main line. <code>rev</code> is the mechanism that lets a reviewer see whether a proposal was made against the current body.</p></div></li>
+  </ul>
+
+  <h2 id="s8"><span class="no">§8</span>Out of scope</h2>
+  <p>The following are <b>not</b> defined by this specification. They are implementations, and different implementations may compete on them while producing and consuming conformant vaults:</p>
+  <ul>
+    <li>how <code>summary</code>, <code>keywords</code>, <code>entities</code>, <code>relations</code>, <code>links</code> are generated (enrichment);</li>
+    <li>how documents are turned into notes (ingest, splitting, deduplication);</li>
+    <li>how notes are retrieved for a task (search, ranking, embeddings, context budgets);</li>
+    <li>how composed documents are edited, paginated or printed (editors);</li>
+    <li>how the vault is exposed to agents (MCP tools, APIs) or synchronised (git, mirrors);</li>
+    <li>how the graph is visualised.</li>
+  </ul>
+  <p>A vault produced by hand, with no tooling, can be fully conformant.</p>
+
+  <h2 id="s9"><span class="no">§9</span>Host application profile: Obsidian</h2>
+  <p>Obsidian is the reference host: its wikilink and embed resolution, tag syntax and frontmatter handling match §2 exactly. A vault <span class="kw">MAY</span> additionally use Obsidian features; they are <b>outside the format</b> and <span class="kw">MUST NOT</span> be required by any rule:</p>
+  <ul>
+    <li>Dataview queries, Bases (<code>.base</code>), Canvas, map plugins: views, not content. They <span class="kw">SHOULD</span> live inside notes so they are versioned with the vault.</li>
+    <li>Callouts (<code>&gt; [!tip]</code>): a vault <span class="kw">MAY</span> assign meaning to callout kinds; if so, the meaning is documented in the meta note.</li>
+    <li>The <code>.obsidian/</code> folder is host state, not vault content; <code>workspace.json</code> <span class="kw">SHOULD</span> be excluded from version control.</li>
+  </ul>
+  <p>Other hosts known to read the substrate: Logseq, Foam, Dendron, Zettlr, and Markdown editors with wikilink extensions.</p>
+
+  <h2 id="s10"><span class="no">§10</span>Conformance</h2>
+  <p>A vault is <b>Mosaix 1.0 conformant</b> when a check over its files reports zero errors for:</p>
+  <table>
+    <tr><th>Check</th><th>Rule</th></tr>
+    <tr><td>frontmatter present</td><td>on every note outside <code>_inbox/</code>, <code>_private/</code> and declared payload folders · R2</td></tr>
+    <tr><td>core keys present</td><td><code>title</code>, <code>updated</code>, <code>tags</code>, <code>summary</code>, <code>keywords</code>, <code>rev</code> (canonical or aliased) · R2</td></tr>
+    <tr><td>summary length</td><td>120–240 characters · R2</td></tr>
+    <tr><td>keywords count</td><td>6–8 · R2</td></tr>
+    <tr><td>entity coverage</td><td><code>entities</code> on ≥ 80% of notes; each <code>type</code> in the allowed set · R2</td></tr>
+    <tr><td>links resolve</td><td>every wikilink and every <code>links</code> entry · R3</td></tr>
+    <tr><td>no orphans</td><td>every note has an incoming link · R3</td></tr>
+    <tr><td>MOC present</td><td>at least one <code>type: moc</code> note · §3.4</td></tr>
+    <tr><td>governance present</td><td>open-questions ledger and meta note exist · §5.3, §5.4</td></tr>
+    <tr><td>documents well-formed</td><td>every <code>type: document</code> lists ≥ 2 <code>fragments</code>, all resolving · §6</td></tr>
+  </table>
+  <p>and zero or more <b>warnings</b> for: tags not declared in the taxonomy, domain keys not declared, <code>rev</code> older than the body (stale metadata), notes without any reliability marker, more than 12 <code>entities</code> on a note that is not a MOC. A reference checker, <code>audit_reference.py</code>, accompanies this specification. It uses only the Python standard library and produces the table above. Its output is the conformance report.</p>
+
+  <h2 id="s11"><span class="no">§11</span>Versioning of this specification</h2>
+  <p>Versions follow <code>MAJOR.MINOR.PATCH</code>. A MINOR version may add optional keys, note types or warnings; it never turns a conformant vault into a non-conformant one. A MAJOR version may. Vaults <span class="kw">SHOULD</span> state the version they target in their meta note (<code>mosaix: "1.0"</code>).</p>
+  <div class="note"><b>Under discussion for 1.1</b> (recorded in the example vault's ledger, not part of 1.0): a stable <code>id</code> key so links survive renames; a <code>question</code> key recording the single question a note answers; a closed relation vocabulary per vault; an entity registry with aliases; <code>origin</code> (human · distilled · observed) and <code>as_of</code>, the date a fact was true.</div>
+
+  <h2 id="s12"><span class="no">§12</span>Provenance</h2>
+  <p>The format was extracted from three vaults in production use (code documentation, industrial market intelligence, education marketing), by measuring which conventions each had invented and keeping the intersection that a machine could rely on. Those vaults used Italian key names; they are kept as default aliases so that they remain conformant unchanged. The two-axis reliability model, the open-questions ledger and the supersede-don't-delete rule come from the practice of working with several sources of different dates. The composed-document type comes from the observation that a vault of good atomic notes is unreadable by the people who need it most.</p>
+
+  <!-- ================= REFERENCE ================= -->
+  <h2 id="metasyntax"><span class="no">REFERENCE</span>Meta note syntax</h2>
+  <p>Everything a vault declares about itself lives in the meta note's frontmatter, so that a checker can read it. Prose in the body explains; the keys below are what tools use. All are optional except <code>mosaix</code>. This block is part of 1.0: the reference checker reads <code>aliases</code>, <code>entity_types</code>, <code>relation_types</code>, <code>payload</code>, and <code>tags</code> as the vault's taxonomy.</p>
+  <pre><span class="k">---</span>
+title: Conventions
+type: meta
+updated: 2026-09-03
+tags: [meta, conventions]
+summary: "Conventions of this vault: folders, reliability, taxonomy, domain keys, aliases, payload folders, maintainers."
+keywords: [conventions, meta, taxonomy, folders, reliability, aliases, payload, maintainers]
+rev: 0a1f3c9e7b21
+<span class="hl">mosaix: "1.0"</span>                          <span class="k"># target version</span>
+folders:                                <span class="k"># which question each folder answers</span>
+  01-Company: who they are
+  02-Market: where they sell
+  _docs: composed documents
+reliability:                            <span class="k"># the convention chosen for §3.2</span>
+  key: status
+  values: [sourced, to-confirm, superseded]     <span class="k"># axis A; add axis B values if the vault builds things</span>
+tags: [moc, meta, ledger, player, market, fairs, strategy, open-question]   <span class="k"># every tag in use</span>
+domain_keys:                            <span class="k"># §3.3, with allowed values or a type</span>
+  client: string
+  country: ISO-3166 alpha-2
+  stage: [prospect, active, closed]
+aliases:                                <span class="k"># CORE keys in the vault's language</span>
+  aggiornato: updated
+entity_types: [department, regulation]  <span class="k"># added to the eight of §3.1</span>
+relation_types: [owns, supplies, competes with, depends on]   <span class="k"># optional; closed vocabulary if given</span>
+payload: [exports/, 07-Sources-raw/]    <span class="k"># folders excluded from the frontmatter check</span>
+maintainers:
+  - {name: A. Fiorino, area: market}
+<span class="k">---</span>
+# Conventions
+Prose: how to write here, who decides what, how to record a contradiction.</pre>
+  <p>A checker that finds these keys uses them; a checker that does not still applies the defaults (the eight entity types, the default aliases, no payload folders). Nothing here changes the notes: it only tells tools how to read them.</p>
+
+  <h2 id="anatomy"><span class="no">REFERENCE</span>Anatomy of a real vault</h2>
+  <p>A market-intelligence vault of about 150 notes, as it looks in production. The numbered prefixes are a reading order; each folder answers one question, declared in the meta note. Entity notes (players, brands, partners) are ordinary notes whose title is the entity's canonical name, so that <code>entities</code> can point to them.</p>
+  <pre class="tree">vault/
+├── Home.md                          <span class="c">type: moc · the map: one paragraph per area, links to the area MOCs</span>
+├── _meta/
+│   ├── Conventions.md               <span class="c">folders, reliability, tags, domain keys, payload</span>
+│   ├── Open questions.md            <span class="c">the ledger · 33 entries, each with versions and consequence</span>
+│   └── Tag index.md                 <span class="c">the taxonomy with a line per tag (optional split)</span>
+├── _synthesis/
+│   ├── Company in one page.md       <span class="c">read before any task about the company</span>
+│   └── Market in one page.md
+├── _docs/
+│   └── Market entry brief.md        <span class="c">type: document · 5 fragments · what the board reads</span>
+├── 01-Company/                      <span class="c">who they are</span>
+│   ├── Profile.md · History and governance.md · Sites and logistics.md
+├── 02-Brands/                       <span class="c">what they sell, one note per brand</span>
+├── 03-Partners/                     <span class="c">who they sell with, one note per partner</span>
+├── 04-Market/                       <span class="c">where they could sell</span>
+│   ├── PPE market Europe.md · Consolidation 2025.md · Trade fairs 2026.md · Regulation.md
+├── 05-Opportunities/                <span class="c">what they could do</span>
+│   ├── Assessment.md · Strategic scenarios.md
+├── 06-Sources/                      <span class="c">what we relied on, with reliability per source</span>
+│   └── Source reliability.md
+├── 07-Sources-raw/                  <span class="c">payload · extracts and originals, not notes</span>
+├── 09-Players/                      <span class="c">one note per competitor: the entity notes</span>
+│   ├── Portwest.md · Delta Plus.md · Uvex.md · …
+└── assets/                          <span class="c">images and PDFs embedded with ![[ ]]</span></pre>
+  <p>Reading path for a newcomer: <code>Home</code> → the two syntheses → the composed brief → the notes it cites. Reading path for a machine: the summaries of the MOC's links, then the one note the task needs and its <code>links</code>. For a smaller, self-contained example on an everyday domain, download the <a href="mosaix-bakery-vault.zip" download>bakery vault</a>: 26 notes about a fictional artisan bakery, fully conformant.</p>
+
+  <h2 id="migrate"><span class="no">REFERENCE</span>Migrating an existing vault</h2>
+  <p>Almost nobody starts from zero. A vault of Markdown notes with wikilinks is already most of the way there; what is usually missing is the frontmatter, the taxonomy and the governance notes. Do it in this order, running the checker after each step: the error count is the progress bar.</p>
+  <ol class="steps">
+    <li><div><b>Run the checker once, as is.</b> Note the numbers. A typical untouched vault of 150–200 notes reports 70–100 errors and several hundred warnings; almost all warnings are undeclared tags, almost all errors are missing frontmatter and orphans.</div></li>
+    <li><div><b>Create the two governance notes.</b> <code>_meta/Conventions.md</code> with <code>mosaix: "1.0"</code> and, for now, the list of tags already in use (collect them with any tag pane or a grep for <code>#</code>). <code>_meta/Open questions.md</code>, empty is fine. This alone clears the warnings.</div></li>
+    <li><div><b>Make sure there is a map.</b> If <code>Home.md</code> or an index exists, give it <code>type: moc</code> and link every area from it. Orphans drop as you go.</div></li>
+    <li><div><b>Declare payload folders.</b> Exports, raw sources, generated copies: list them under <code>payload:</code> so they stop counting as notes.</div></li>
+    <li><div><b>Add frontmatter area by area.</b> Start with the notes the map links first. <code>summary</code> and <code>keywords</code> by hand or with a tool; <code>rev</code> only when a tool computes the keys, otherwise leave it and accept the warning. Split any note that answers two questions.</div></li>
+    <li><div><b>Record instead of fixing.</b> Every contradiction you find while adding frontmatter goes in the ledger with both versions. Do not pick a winner while migrating.</div></li>
+    <li><div><b>Fix links, then declare conformance.</b> Broken links and remaining orphans last. When the checker exits 0, state the version in the meta note and, if you like, add the badge: <code>![Mosaix 1.0 conformant](https://mosaixformat.org/badge.svg)</code>. The badge is a claim you make about your own vault; the checker report is the evidence.</div></li>
+  </ol>
+  <p>Expected numbers, from two real migrations: 71 errors and 646 warnings before; 9 errors (all orphans) and 3 warnings after steps 2–4, before touching a single note body.</p>
+  <h3 id="migrate-it">A vault written in another language</h3>
+  <p>Nothing has to be renamed. A vault that already uses its own key names declares them once in the meta note and is checked as if it used the canonical ones. The Italian names below are recognised even without this block (§3.1); the block is what you write for any other language.</p>
+  <pre><span class="k">---</span>
+title: Metodo e convenzioni
+type: meta
+<span class="hl">mosaix: "1.0"</span>
+aliases:                     <span class="k"># your key → canonical key</span>
+  aggiornato: updated
+  riassunto: summary
+  parole_chiave: keywords
+  mcp_entita: entities
+  mcp_relazioni: relations
+  mcp_collegamenti: links
+  mcp_rev: rev
+  tipo: type
+  stato: status
+reliability: {key: stato, values: [ok, confermare, superato]}
+tags: [moc, meta, player, mercato, fiere]
+<span class="k">---</span></pre>
+  <p>Values map too: <code>tipo: azienda</code> is read as <code>type: company</code>, <code>stato: confermare</code> as <code>status: to-confirm</code>. The checker reports every finding with the canonical name, so a report is comparable across vaults in different languages.</p>
+
+  <h2 id="filenames"><span class="no">REFERENCE</span>File names and characters</h2>
+  <p>Wikilinks resolve by file name, so the file name is the note's identity until a stable <code>id</code> exists (under discussion for 1.1).</p>
+  <ul>
+    <li><b>Title and file name coincide.</b> <code>title: Portwest — player card</code> lives in <code>Portwest — player card.md</code>. Renaming one means renaming the other and every link; hosts like Obsidian do this for you, the format does not.</li>
+    <li><b>Characters to avoid</b>: <code>: / \ ? * " &lt; &gt; |</code> (forbidden on Windows) and a trailing dot or space. <code>#</code> and <code>|</code> also break wikilink syntax. <code>§</code>, accents and the em dash are fine on every current system; keep them if they are the natural title.</li>
+    <li><b>Case</b> is significant in links. Pick one convention (sentence case works) and keep it.</li>
+    <li><b>Length</b>: under 80 characters. Long titles belong in the body's first heading, not in the file name.</li>
+    <li><b>Duplicates</b>: two notes with the same basename in different folders are ambiguous for every host. Make titles unique across the vault.</li>
+  </ul>
+
+  <h2 id="attachments"><span class="no">REFERENCE</span>Attachments and images</h2>
+  <p>Files that are not notes (images, PDFs, spreadsheets) live in one folder, conventionally <code>assets/</code>, and are embedded with <code>![[chart.png]]</code> or <code>![[report.pdf]]</code>. They do not count toward conformance, need no frontmatter, and are not checked. A note that exists only to describe an attachment is still a note: it carries the CORE keys and links to the file. Keep attachments out of <code>_meta/</code>, <code>_synthesis/</code> and <code>_inbox/</code>.</p>
+
+  <h2 id="entities"><span class="no">REFERENCE</span>Entity types</h2>
+  <p>The eight types of <code>entities</code>, and where the line is. A vault may add types in its meta note; it may not redefine these.</p>
+  <table>
+    <tr><th>type</th><th>Use for</th><th>Not for</th></tr>
+    <tr><td>person</td><td>a named individual: a founder, a contact, an author</td><td>a role ("the CFO") without a name</td></tr>
+    <tr><td>company</td><td>a company, institution, association, public body</td><td>a brand owned by a company (→ product) or a team inside it</td></tr>
+    <tr><td>product</td><td>something sold or offered: a product line, a brand, a service, a course</td><td>an internal tool (→ tool)</td></tr>
+    <tr><td>project</td><td>a bounded effort with a name and an end: a launch, a study, a campaign</td><td>an ongoing activity or a department</td></tr>
+    <tr><td>tool</td><td>software, platforms, machines, methods used to do the work</td><td>the product being sold (→ product)</td></tr>
+    <tr><td>place</td><td>countries, cities, sites, plants, regions</td><td>a market as a concept (tag it instead)</td></tr>
+    <tr><td>document</td><td>a named source: a report, a law, a contract, a dataset</td><td>the note itself</td></tr>
+    <tr><td>event</td><td>a trade fair, a launch date, a meeting, a deadline</td><td>a recurring activity without a date</td></tr>
+  </table>
+  <p>Relation phrases (<code>relations[].type</code>) are short verbs in the present tense from the first entity's point of view: <code>owns</code>, <code>supplies</code>, <code>competes with</code>, <code>depends on</code>, <code>takes part in</code>. Declare a closed list in the meta note if you want deterministic queries.</p>
+
+  <h2 id="scale"><span class="no">REFERENCE</span>Scale</h2>
+  <ul>
+    <li><b>Up to a few hundred notes</b>: one map of content and a few syntheses are enough. The checker runs in under a second.</li>
+    <li><b>Around a thousand</b>: give each area its own MOC and link the area MOCs from <code>Home</code>. Keep entity notes in one folder so <code>entities</code> has a single place to point to.</li>
+    <li><b>Several thousand</b>: the format holds (it was exercised at a thousand notes with flat per-note context), but a hand-maintained taxonomy and ledger need tooling. That tooling is out of scope for the format and is where implementations differ.</li>
+  </ul>
+  <p>The per-note context stays constant whatever the vault size: a note and its direct dependencies are the same few hundred tokens at 50 notes and at 5,000. What grows is the map, and maps are cheap.</p>
+
+  <h2 id="checker"><span class="no">REFERENCE</span>The checker</h2>
+  <p><code>audit_reference.py</code> is a single Python 3.10+ file with no dependencies. It reads the vault, never writes to it, and prints the conformance report. Exit code 0 means conformant, 1 means errors were found.</p>
+  <pre>python audit_reference.py path/to/vault
+python audit_reference.py path/to/vault --verbose            <span class="k"># errors and warnings, note by note</span>
+python audit_reference.py path/to/vault --json               <span class="k"># machine-readable report</span>
+python audit_reference.py path/to/vault --exclude=exports/   <span class="k"># skip payload folders (comma-separated prefixes)</span>
+python audit_reference.py path/to/vault --check-rev          <span class="k"># also flag rev that no longer matches the body (hint only)</span></pre>
+  <pre>Mosaix 1.0 audit — path/to/vault
+notes: 141  errors: 0  warnings: 12
+CONFORMANT</pre>
+  <p>The checker recognises the default aliases (<code>aggiornato</code>, <code>titolo</code>, <code>riassunto</code>, <code>parole_chiave</code>), reads the taxonomy from any note in <code>_meta/</code> (or a note named <code>Conventions</code>, <code>Indice tag</code>, <code>Tag index</code>, <code>README</code>, <code>CLAUDE</code>), and treats <code>Home</code>, <code>00-Index</code>, <code>Index</code> or any note containing "moc" as maps of content.</p>
+  <h4>Check on every push</h4>
+  <p>A GitHub Action wraps the checker so that every push and pull request is verified automatically. Add this workflow to your repository:</p>
+  <pre>name: Mosaix
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions: { contents: read, pull-requests: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mosaix-format/spec@v1.0.0
+        with: { vault: ., exclude: "exports/" }</pre>
+  <p>The action posts the conformance report as a comment on every pull request and fails the check if the vault is not conformant. Display the badge <code>https://mosaixformat.org/badge.svg</code> only when this check is green.</p>
+
+  <h4>The JSON report</h4>
+  <pre>{
+  "vault": "/path/to/vault",
+  "notes": 141,
+  "errors": ["04-Market/Trade fairs 2026.md: keywords count 9 (6–8)", "…"],
+  "warnings": ["09-Players/Uvex.md: tag #dpi not declared in meta note", "…"],
+  "conformant": false
+}</pre>
+  <p>Each message is <code>path: message</code>; vault-level findings start with <code>vault:</code>. The shape is stable within 1.x, so it can drive a badge, a CI check or a dashboard.</p>
+
+  <h2 id="templates"><span class="no">REFERENCE</span>Note templates</h2>
+  <h4>A note</h4>
+  <pre>---
+title:
+updated: 2026-09-03
+tags: []
+summary: ""
+keywords: []
+entities: []
+relations: []
+links: []
+rev:
+---
+#
+
+</pre>
+  <h4>The map of content (<code>Home.md</code>)</h4>
+  <pre>---
+title: Home
+type: moc
+updated: 2026-09-03
+tags: [moc]
+summary: "Map of content of the vault: where to start, the areas, the syntheses, the ledger and the composed documents."
+keywords: [home, map of content, index, where to start, entry point, areas]
+links: [Overview, Open questions, Conventions]
+rev:
+---
+# Home
+
+Start with [[Overview]]. Areas: … Open: [[Open questions]]. Conventions: [[Conventions]].</pre>
+  <h4>The meta note (<code>_meta/Conventions.md</code>)</h4>
+  <pre>---
+title: Conventions
+type: meta
+updated: 2026-09-03
+tags: [meta, conventions]
+summary: "Conventions of this vault: folder contract, reliability markers, declared tags and domain keys, entity types, aliases, maintainers, target version."
+keywords: [conventions, meta note, taxonomy, folder contract, reliability, tags, maintainer, mosaix version]
+rev:
+---
+mosaix: "1.0"
+## Folders
+01-… answers … · 02-… answers …
+## Reliability
+Frontmatter key `status`: sourced · to-confirm · superseded
+## Tags
+moc, meta, … (every tag in use)
+## Domain keys
+cliente (string) · paese (ISO code) · …
+## Maintainers
+…</pre>
+  <h4>The ledger (<code>_meta/Open questions.md</code>)</h4>
+  <pre>---
+title: Open questions
+type: ledger
+updated: 2026-09-03
+tags: [meta, ledger]
+summary: "Ledger of what is not decided or is contradictory: one entry per question with the competing versions, dates, sources, consequence and owner."
+keywords: [open questions, ledger, contradictions, undecided, to confirm, assumptions, owner]
+rev:
+---
+## #1 ·
+A:  (source, date)
+B:  (source, date)
+consequence:
+owner:  · status: open</pre>
+  <h4>A composed document</h4>
+  <pre>---
+title:
+type: document
+updated: 2026-09-03
+tags: [composed-document]
+summary: ""
+keywords: []
+fragments: [Note A, Note B, Note C]
+links: [Note A, Note B, Note C]
+rev:
+---
+#
+
+![[Note A]]
+![[Note B]]
+![[Note C]]</pre>
+
+  <h2 id="errors"><span class="no">REFERENCE</span>Errors and warnings</h2>
+  <table>
+    <tr><th>Message</th><th>Meaning</th><th>Fix</th></tr>
+    <tr><td>no frontmatter</td><td>the note has no YAML block</td><td>add the CORE keys; or declare the folder as payload if it is not a note</td></tr>
+    <tr><td>missing `summary`</td><td>a CORE key is absent</td><td>write it; 120–240 characters, declarative, not the title</td></tr>
+    <tr><td>summary length 267</td><td>outside 120–240</td><td>cut or extend; one sentence</td></tr>
+    <tr><td>keywords count 12</td><td>outside 6–8</td><td>keep the six to eight terms a person would search</td></tr>
+    <tr><td>entity type `x` not allowed</td><td>entity type outside the set</td><td>use one of the eight types, or declare the extra type in the meta note</td></tr>
+    <tr><td>broken link [[X]]</td><td>a wikilink does not resolve</td><td>fix the title, or create the note, or remove the link</td></tr>
+    <tr><td>orphan</td><td>no note links here</td><td>link it from a MOC or a related note</td></tr>
+    <tr><td>vault: no MOC note</td><td>no entry point</td><td>create <code>Home.md</code> with <code>type: moc</code></td></tr>
+    <tr><td>vault: no open-questions ledger</td><td>R6 has nowhere to write</td><td>create <code>_meta/Open questions.md</code></td></tr>
+    <tr><td>vault: entities coverage 66%</td><td>below 80%</td><td>add entities to the notes that name things</td></tr>
+    <tr><td><em>warning</em> tag #x not declared</td><td>tag missing from the taxonomy</td><td>add it to the meta note in the same change</td></tr>
+    <tr><td><em>warning</em> 14 entities (&gt;12)</td><td>more named things than one question usually has</td><td>split the note (R1), or keep it and accept the warning</td></tr>
+    <tr><td><em>warning</em> rev may be stale</td><td>body changed after the keys</td><td>recompute the keys (propose on a branch, R8)</td></tr>
+    <tr><td><em>warning</em> no reliability marker</td><td>neither axis present</td><td>add ✅/⚠ or the <code>status</code> key per your convention</td></tr>
+  </table>
+
+  <h2 id="agents"><span class="no">REFERENCE</span>Working with agents</h2>
+  <p>The format is designed so that an agent never needs the whole vault. The unit of work is a <b>cluster</b>: one note plus its direct dependencies, resolved from <code>links</code> and <code>relations</code>, usually a few hundred tokens. A planner reads the map of content and the summaries, picks one tile per agent, and hands each agent its cluster. Agents run in parallel; there is no shared memory to keep in sync. Their results are new or revised tiles, proposed on a branch (R8) and composed with a <code>document</code> note.</p>
+  <p>Three consequences follow. The model is a per-agent choice: a small local model for the tiles it passes, a vertical model where the domain needs it, a large model only where nothing smaller will do. A stale <code>rev</code> tells the reviewer that a proposal was made against an old body. And the ledger (R6) is where an agent records a contradiction it finds, instead of resolving it.</p>
+  <div class="note warn"><b>Not in this specification.</b> How the planner chooses, how clusters are budgeted, how proposals are merged: implementations. The specification only guarantees that a conformant vault gives them the keys they need.</div>
+
+  <h2 id="compared"><span class="no">REFERENCE</span>Compared with</h2>
+  <p>Mosaix is a file-level format. It does not compete with editors, retrieval systems, or graph databases. It competes with the absence of a format: the situation where every vault invents its own conventions and no tool can assume anything about the files it reads. The table below places Mosaix next to things people already use, honestly.</p>
+  <div style="overflow-x:auto">
+  <table>
+    <tr><th>What it is</th><th>What it shares with Mosaix</th><th>What Mosaix adds</th><th>What Mosaix does not do</th></tr>
+    <tr><td>Obsidian Properties</td><td>YAML frontmatter on Markdown files, wikilinks, tags</td><td>A fixed set of keys every note carries (summary, keywords, entities, relations, rev), rules that govern the vault (R1–R8), a conformance checker</td><td>Does not provide a UI, a plugin system, or any editing features; relies on Obsidian or any other host</td></tr>
+    <tr><td>Dendron</td><td>Hierarchical note organisation, frontmatter, wikilinks</td><td>Typed entities and relations per note, the open-questions ledger, composed documents, machine-readable summaries and keywords</td><td>Does not provide lookup by hierarchy, refactoring commands, schema enforcement at write time, or a VS Code extension</td></tr>
+    <tr><td>Foam</td><td>Markdown files with wikilinks, a graph of backlinks, works with VS Code</td><td>Structured frontmatter with declared types, a taxonomy enforced by a checker, reliability markers, the supersede-don't-delete rule</td><td>Does not generate backlink sections, daily notes, or graph visualisations; those are editor features</td></tr>
+    <tr><td>Logseq</td><td>Linked notes, tags, backlinks, a graph view of knowledge</td><td>Note-level rather than block-level linking, nine required keys per note, a standalone conformance check, the propose-don't-apply rule for automation</td><td>Does not use an outliner model, does not treat blocks as first-class objects, does not provide queries or a built-in journal</td></tr>
+    <tr><td>Zettelkasten</td><td>Atomic notes, each answering one question, connected by links</td><td>Machine-readable metadata (entities, relations, summary), explicit vault governance (taxonomy, ledger, meta note), a conformance definition</td><td>Does not prescribe a numbering system, does not define literature notes vs permanent notes, does not require a slip-box workflow</td></tr>
+    <tr><td>JSON-LD / schema.org</td><td>Typed entities and typed relations between them</td><td>The entity graph lives inside each note's frontmatter, not in a separate file; the body is Markdown for humans, not a data serialisation</td><td>Does not produce linked data for the semantic web, does not define classes or ontologies, does not interoperate with RDF toolchains</td></tr>
+    <tr><td>RAG chunking</td><td>The goal of giving a model the right context for a task, without sending everything</td><td>The note is the chunk: authored at the right granularity, with a summary and keywords written for retrieval, not split by a tokeniser after the fact. Retrieval reads the summary and the map of content, not an embedding index</td><td>Does not split documents automatically, does not compute embeddings, does not manage a vector store; a RAG system can index a Mosaix vault, but the format does not require one</td></tr>
+    <tr><td>llms.txt</td><td>A single file that tells a model what a project contains and where to look</td><td>The map of content and the synthesis notes serve the same purpose, but for a vault of many notes rather than a single project root; each note carries its own summary, so a model can decide what to read without a central index</td><td>Does not produce a single flat file for ingestion; a vault can generate an llms.txt from its map, but the format is the notes, not the index</td></tr>
+    <tr><td>CommonMark + YAML frontmatter</td><td>The substrate is the same: Markdown files with a YAML block</td><td>A contract on which keys exist and what they mean, rules the vault commits to, a checker that verifies them; the difference between a convention and a format</td><td>Does not extend Markdown syntax, does not define new block types, does not replace any part of CommonMark</td></tr>
+  </table>
+  </div>
+  <p><b>Using them together.</b> Mosaix vaults are Markdown files; they open in Obsidian, Logseq, Foam, Dendron and any editor that reads wikilinks. A RAG pipeline can index the same files. An llms.txt can be generated from the map. JSON-LD can be derived from the entities and relations. The format adds a layer of structure to files that already work everywhere, and takes nothing away.</p>
+
+  <h2 id="faq"><span class="no">REFERENCE</span>FAQ</h2>
+  <dl class="faq">
+    <dt>My vault uses <code>mcp_entita</code>, <code>tipo</code>, <code>stato</code>…</dt><dd>It is conformant as it is. The format was extracted from Italian vaults; those names are default aliases (§3.1) and the checker reports them by their canonical English name. Any other alias can be declared in the meta note.</dd>
+    <dt>Do I need Obsidian?</dt><dd>No. Any Markdown tool reads a vault. Obsidian is the reference host because its link resolution matches §2 exactly.</dd>
+    <dt>Can I keep long notes?</dt><dd>Length is not constrained; scope is. One question per note. If a note answers two questions, split it and link the halves.</dd>
+    <dt>Who computes <code>rev</code>?</dt><dd>A tool, when it writes <code>entities</code>, <code>relations</code> and <code>links</code>. By hand, leave it and accept the warning; the checker only needs it present.</dd>
+    <dt>My vault has hundreds of notes without frontmatter.</dt><dd>Run the checker with <code>--verbose</code>, fix the MOC and the meta note first, then add frontmatter area by area. The checker tells you exactly where you are.</dd>
+    <dt>Is a vault produced by hand conformant?</dt><dd>Yes. Conformance is a property of the files (§10), not of any tool.</dd>
+    <dt>What happens to my vault's content when I run the checker?</dt><dd>Nothing leaves your machine. <code>audit_reference.py</code> is a single file that reads the vault from disk, writes nothing, opens no network connection and has no dependencies. Read it before running it: it is 393 lines. The same is true of the specification: it defines files, not a service, and there is no account, telemetry or upload anywhere in it.</dd>
+    <dt>Can I use the format for confidential material?</dt><dd>The format has no opinion on where files live. A conformant vault can sit in a private repository, on an encrypted disk, or air-gapped. What the format asks — <code>_private/</code> outside version control, machine edits as proposals, superseded notes kept — tends to make audit trails easier, not harder.</dd>
+    <dt>How do I propose a change to the specification?</dt><dd>Open an issue on the repository describing the case the current text gets wrong, with a note or a vault excerpt. Changes land as a pull request on <code>Mosaix-Format-v1.0.en.md</code> (English is normative), with a CHANGELOG line and, if a check changes, the matching edit to the checker. Additions that keep every conformant vault conformant go in a MINOR version; anything else waits for the next MAJOR (§11).</dd>
+  </dl>
+
+  <h2 id="license"><span class="no">REFERENCE</span>License and citation</h2>
+  <p>The specification and the reference checker are licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" style="text-decoration:underline">CC BY-SA 4.0</a>. Credit "Mosaix Format, Andrea Fiorino". The names "Mosaix" and "SLIM", the tooling that produces, enriches, searches or composes vaults, and any vault content are not covered by this license. Conformance claims ("Mosaix 1.0 conformant") are permitted only for vaults that pass the checks in §10.</p>
+  <pre>Fiorino, A. (2026). Mosaix Format — Specification v1.0.0. Boom Digital.
+https://mosaixformat.org — source: mosaix-format/spec@v1.0.0</pre>
+  <p>Cite the tagged version, not the page: the tag is immutable, the page follows the latest MINOR. A DOI for each tagged release is planned (see <a href="index.html#next" style="text-decoration:underline">What's next</a>); until then the git tag is the stable reference.</p>
+</article>
+</div>
+
+<footer>
+  <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.0 · CC BY-SA 4.0 · © 2026 Andrea Fiorino · maintained by Boom Digital</span>
+  <span><a href="index.html">Format</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE.md">License</a> · <a href="https://github.com/mosaix-format/spec">GitHub</a></span>
+</footer>
+</div>
+
+<script>
+  // active section in the TOC
+  const links=[...document.querySelectorAll('.toc a[href^="#"]')], map={};
+  links.forEach(a=>{const el=document.querySelector(a.getAttribute('href')); if(el) map[a.getAttribute('href')]=el;});
+  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id));}});},{rootMargin:'-20% 0px -70% 0px'});
+  Object.values(map).forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

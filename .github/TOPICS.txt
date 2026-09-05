@@ -1,0 +1,13 @@
+# GitHub repository topics — set by hand in Settings → Topics
+markdown
+obsidian
+knowledge-management
+personal-knowledge-management
+llm
+rag
+agents
+specification
+frontmatter
+yaml
+zettelkasten
+second-brain

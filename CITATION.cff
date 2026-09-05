@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this specification, please cite it as below."
+type: dataset
+title: "Mosaix Format — Specification"
+version: 1.0.0
+date-released: 2026-09-04
+authors:
+  - family-names: Fiorino
+    given-names: Andrea
+license: CC-BY-SA-4.0
+url: "https://mosaixformat.org"
+repository-code: "https://github.com/mosaix-format/spec"
+abstract: "A file-level format for knowledge vaults made of atomic, self-describing Markdown notes with YAML frontmatter and wikilinks, retrievable one at a time by machines and readable as composed documents by people."
+keywords:
+  - markdown
+  - frontmatter
+  - knowledge-management
+  - specification

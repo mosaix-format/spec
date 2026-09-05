@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why one note at a time — Mosaix Format</title>
+<meta name="description" content="Empirical measurements on atomic, self-describing notes: token cost stays flat as the corpus grows, and local models on consumer hardware produce correct output where cloud models without the format fail.">
+<link rel="canonical" href="https://mosaixformat.org/why-one-note-at-a-time.html">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="fonts/plex.css">
+<style>
+  :root{--paper:#efeae0;--paper2:#e4ded1;--ink:#14130f;--ink2:#4a4741;--ink3:#615c53;--line:#d2cbbb;--gold:#c9a227;--red:#9b3b2a;--green:#2a7d3f;
+    --sans:"IBM Plex Sans",system-ui,sans-serif;--serif:"IBM Plex Serif",Georgia,serif;--mono:"IBM Plex Mono",Menlo,monospace;--w:1160px}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:80px}
+  body{margin:0;background:var(--paper);color:var(--ink);font:16.5px/1.65 var(--serif);-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--w);margin:0 auto;padding:0 24px}
+  nav.top{display:flex;align-items:center;justify-content:space-between;padding:20px 0;font:14px var(--sans);gap:12px;border-bottom:1px solid var(--line)}
+  nav.top .brand{display:flex;align-items:center;gap:12px;font-weight:600;font-size:18px}
+  nav.top .brand svg{width:28px;height:28px}
+  nav.top ul{list-style:none;display:flex;gap:22px;margin:0;padding:0}
+  nav.top ul a{color:var(--ink2)}nav.top ul a.on{color:var(--ink);border-bottom:1px solid var(--ink)}
+  nav.top .ver{font:12px var(--mono);color:var(--ink3);border:1px solid var(--line);padding:3px 8px;white-space:nowrap}
+
+  .doc{max-width:720px;margin:0 auto;padding:48px 0 120px}
+  .doc h1{font:600 42px/1.1 var(--sans);letter-spacing:-.03em;margin:0 0 10px}
+  .doc .meta{font:12.5px var(--mono);color:var(--ink3);margin-bottom:8px}
+  .doc .lede{font-size:19px;color:var(--ink2);margin:0 0 44px;padding-left:16px;border-left:3px solid var(--gold)}
+  .doc h2{font:600 26px/1.2 var(--sans);letter-spacing:-.02em;margin:60px 0 14px;padding-top:22px;border-top:1px solid var(--ink)}
+  .doc h3{font:600 17.5px var(--sans);margin:34px 0 8px}
+  .doc p{margin:0 0 16px}
+  .doc code{font:.88em var(--mono);background:var(--paper2);padding:1px 5px}
+  .doc table{border-collapse:collapse;width:100%;font:14px/1.5 var(--sans);margin:12px 0 24px}
+  .doc th{text-align:left;font:12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);padding:8px 12px 8px 0;border-bottom:1px solid var(--ink);vertical-align:bottom}
+  .doc td{padding:10px 12px 10px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  .doc td:first-child{font:500 13px var(--mono);white-space:nowrap}
+  .note{padding:14px 18px;border-left:3px solid var(--gold);background:transparent;margin:0 0 20px;font-size:15px}
+  .note b{font-family:var(--sans)}
+  footer{border-top:1px solid var(--line);padding:30px 0 48px;font:13px var(--sans);color:var(--ink3);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  footer .fb{display:flex;align-items:center;gap:10px}footer svg{width:20px;height:20px;color:var(--ink)}
+  footer a{text-decoration:underline}
+  @media (max-width:900px){.doc h1{font-size:34px}nav.top ul{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="top">
+  <a class="brand" href="index.html" aria-label="Mosaix home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>mosaix</a>
+  <ul><li><a href="index.html">Format</a></li><li><a href="spec.html">Specification</a></li><li><a href="spec.html#checker">Check a vault</a></li><li><a href="https://github.com/mosaix-format/spec">GitHub &#x2197;</a></li></ul>
+  <span class="ver">v1.0.0 · 2026-09-04</span>
+</nav>
+
+<article class="doc">
+  <p class="meta">2026-09-04 · evidence</p>
+  <h1>Why one note at a time</h1>
+  <p class="lede">Measurements from a code-generation study: when each note carries its own context, the input a model needs per task stays flat as the corpus grows, and small local models produce correct output where cloud models without the format fail.</p>
+
+  <h2 id="scene">The scene</h2>
+  <p>A team maintains 200 notes about a market. An agent needs to answer one question: who supplies a specific component. The question is in one note, and that note says so in its summary. But the agent has no way to know which note matters, so it receives all 200.</p>
+  <p>At 200 notes the cost is tolerable. At 2,000 it is not. The input grows linearly with the corpus, the answer does not get better, and the bill does. Worse, the longer the context, the more likely the model is to pick up a stale paragraph three screens away and contradict the note that actually answers the question.</p>
+  <p>This is not a retrieval problem. A retrieval layer can shrink the window, but it still selects chunks of text that carry no metadata about themselves — no summary, no declared entities, no explicit dependencies. The model receives raw text and must infer what it is about. The format of the notes does not help.</p>
+
+  <h2 id="hypothesis">The hypothesis</h2>
+  <p>If each note carries its own context — a summary that says what it contains, entities that say what it is about, typed relations, and explicit links to the notes it depends on — then the input needed for a task on that note is the note itself plus its direct dependencies. That input does not grow with the size of the corpus. It is bounded by the note, not by the vault.</p>
+  <p>The Mosaix Format prescribes exactly this: nine frontmatter keys on every note (<a href="spec.html#s31" style="text-decoration:underline">§3.1</a> of the specification), a graph of wikilinks (<a href="spec.html#s4" style="text-decoration:underline">§4</a>), and a rule that one note answers one question (R1). The question is whether the prescription works in practice, and what it costs.</p>
+
+  <h2 id="method">How we measured</h2>
+  <p>We ran a code-generation study. The task was to produce a complete Python package — ten dataclasses, four enums, serialisation, a test suite, packaging — split into 28 atomic tasks. Each task had a written contract specifying its purpose, its inputs, its output file, and its dependencies on other tasks. Each task received roughly 600 tokens of context. The same package was also generated in a single prompt containing the full specification, roughly 7,800 tokens.</p>
+  <p>We measured the token-compression ratio on a 30-function benchmark (TCG-30): the format achieved a 5.72&#xd7; reduction (&plusmn;0.20, N=5 runs, 95% confidence interval). The per-unit cost stayed flat at roughly 600 tokens per task regardless of corpus size, while the full-context baseline grew from roughly 544 tokens for a single function to roughly 4,055 tokens for thirty.</p>
+
+  <div class="note"><b>Disclosure.</b> These measurements are ours. They have not yet been replicated by a third party. A public benchmark is in preparation (see <a href="index.html#next" style="text-decoration:underline">What's next</a> on the project home page).</div>
+
+  <p><b>What was controlled.</b> The model, the API endpoint, the temperature (0), and the evaluation criteria (structure correct, tests passing) were held constant across all runs. The variable was the input: one task at a time versus the full specification at once. In the end-to-end runs of the same study, 53 of 56 tasks completed correctly (94.6%), 20 of 20 at the first attempt; running independent tasks in parallel gave a 1.79&#xd7; wall-clock speedup.</p>
+  <p><b>What was not controlled.</b> The task contracts were written by the same person who designed the format. The study covers code generation, not knowledge retrieval. The tasks are deterministic (there is one correct output per task), which favours bounded context; open-ended tasks may behave differently.</p>
+
+  <div style="overflow-x:auto">
+  <table>
+    <tr><th>Condition</th><th>Context per task</th><th>Tasks completed</th><th>Cost</th><th>Frozen correct</th></tr>
+    <tr><td>Full spec, single prompt, 6 cloud models</td><td>~7,800 tok</td><td>varies by model</td><td>$0.002–0.233</td><td>0 of 6 models</td></tr>
+    <tr><td>One task at a time, same 6 cloud models</td><td>~600 tok</td><td>28/28, all models</td><td>$0.003–0.319</td><td>6 of 6 models</td></tr>
+    <tr><td>One task at a time, 8 models 4B–Opus</td><td>~600 tok</td><td>28/28, all models</td><td>$0.00–1.09</td><td>8 of 8 models</td></tr>
+  </table>
+  </div>
+
+  <h2 id="local">The result that matters most: local models</h2>
+  <p>Six cloud models received the full specification in a single prompt. None produced a package with correct frozen/mutable annotations. Four of six did not generate the entry point file. The strongest model, DeepSeek V4 Flash, came closest at 27 out of 28 tests passing, but still missed the frozen constraint.</p>
+  <p>The same six models, given one task at a time with roughly 600 tokens of context each, all completed 28 out of 28 tasks with frozen annotations correct.</p>
+  <p>Then we ran the same tasks on local models, on a consumer GPU with 12 GB of VRAM, at zero API cost. Qwen 3.5 9B scored 40 out of 40 on pytest (100%), the first local model to reach a perfect score on this suite. Gemma 4 E2B, a 2-billion-parameter model, scored 45 out of 47 (96%); the two failures were a frozen annotation on one type and a test the model invented with incorrect logic — the source code it produced was structurally correct. Qwen 3.5 4B scored 28 out of 28 tasks completed. Eight models from 4B to Opus all completed 28 out of 28 on the same task set. Claude Opus 4.6 cost $1.09 per run; DeepSeek V4 Flash cost $0.003 for identical output.</p>
+  <p>This is the consequence that matters most. When the context per task is small and self-contained, the model becomes a per-agent choice. A 4-billion-parameter model on a laptop produces the same package that a flagship API model does. The data does not leave the machine. The cost per run is zero.</p>
+  <p>We do not claim that small models are always sufficient. The tasks were deterministic and well-specified. On ambiguous or creative tasks the advantage of a larger model may reassert itself. What the measurements show is that for tasks with a clear contract, the contract matters more than the parameter count. The dominant source of failure in the initial runs was not the models — it was an ambiguity in our own task contracts. When we fixed that ambiguity, models that had previously failed began producing correct output without any change to their weights or configuration.</p>
+
+  <h2 id="limits">What the format does not do</h2>
+  <p>The format does not make a model more capable. It does not replace retrieval: a vault of 10,000 notes still needs a way to find the right one. It does not make facts true: a note marked "sourced" with a wrong number is still wrong. It does not guarantee that an agent will use the metadata correctly.</p>
+  <p>What it does is make the content of each note verifiable from the note itself. The summary says what the note contains; the entities say what it is about; the links say what it depends on; the rev hash says whether the metadata is current. A checker (<a href="spec.html#s10" style="text-decoration:underline">§10</a>) can verify all of this from the files, offline, with no dependencies. The format turns implicit conventions into explicit, testable structure.</p>
+
+  <h2 id="reading">Further reading</h2>
+  <p>The full specification is at <a href="spec.html" style="text-decoration:underline">spec.html</a>. The reference checker, <code>audit_reference.py</code>, is in the <a href="https://github.com/mosaix-format/spec" style="text-decoration:underline">repository</a>. Both are licensed under CC BY-SA 4.0.</p>
+</article>
+
+<footer>
+  <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.0 · CC BY-SA 4.0 · © 2026 Andrea Fiorino · maintained by Boom Digital</span>
+  <span><a href="index.html">Format</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE.md">License</a> · <a href="https://github.com/mosaix-format/spec">GitHub</a></span>
+</footer>
+</div>
+</body>
+</html>

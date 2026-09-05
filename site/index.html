@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mosaix Format</title>
+<meta name="description" content="Mosaix is a file-level format for knowledge vaults: atomic, self-describing notes that machines read one at a time and people read as documents. Nothing is silently lost.">
+<meta property="og:title" content="Mosaix Format">
+<meta property="og:description" content="Every note is a tile that stands on its own. The picture exists only in the whole.">
+<meta property="og:image" content="https://mosaixformat.org/og.png">
+<meta property="og:url" content="https://mosaixformat.org/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://mosaixformat.org/">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="fonts/plex.css">
+<style>
+  :root{--paper:#efeae0;--paper2:#e4ded1;--ink:#14130f;--ink2:#4a4741;--ink3:#615c53;--line:#d2cbbb;--gold:#c9a227;--red:#9b3b2a;
+    --sans:"IBM Plex Sans",system-ui,sans-serif;--serif:"IBM Plex Serif",Georgia,serif;--mono:"IBM Plex Mono",Menlo,monospace;--w:1120px}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.6 var(--serif);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit}
+  .wrap{max-width:var(--w);margin:0 auto;padding:0 24px}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:20px 0;font:14px var(--sans);gap:12px}
+  nav .brand{display:flex;align-items:center;gap:12px;font-weight:600;font-size:18px}
+  nav .brand svg{width:28px;height:28px}
+  nav ul{list-style:none;display:flex;gap:22px;margin:0;padding:0}
+  nav ul a{color:var(--ink2)}nav ul a:hover{color:var(--ink)}
+  nav .ver{font:12px var(--mono);color:var(--ink3);border:1px solid var(--line);padding:3px 8px;border-radius:3px;white-space:nowrap}
+  .mono{font-family:var(--mono)}
+  .kick{font:12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:12px;max-width:680px}
+  .kick .no{opacity:.6;margin-right:10px}
+  .kick .rp{font:11px var(--mono);letter-spacing:0;text-transform:none;color:var(--ink3);background:transparent;border:0;cursor:pointer;padding:0;text-decoration:underline;opacity:0;transition:opacity .3s}
+  .kick .rp.show{opacity:1}
+  .cap{font:11.5px var(--mono);color:var(--ink3);margin-top:10px}
+  .doc p .no{font:11px var(--mono);color:var(--ink3);margin-right:8px}
+  h2{font:600 34px/1.15 var(--sans);letter-spacing:-.02em;margin:0 0 14px;max-width:680px}
+  .sub{color:var(--ink2);max-width:600px;margin:0 0 40px;font-size:18px}
+  .sec{padding:100px 0}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border:1px solid var(--ink);font:500 15px var(--sans);cursor:pointer;background:transparent;color:var(--ink)}
+  .btn.solid{background:var(--ink);color:var(--paper)}
+  .rlab{font:12px var(--mono);color:var(--ink3);margin:0 0 10px;letter-spacing:.08em;text-transform:uppercase}
+
+  /* ===== HERO ===== */
+  .hero{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;padding:56px 0 72px;border-bottom:1px solid var(--line)}
+  .hero h1{font:600 clamp(38px,5.4vw,66px)/1.02 var(--sans);letter-spacing:-.03em;margin:0 0 18px}
+  .hero .quote{font:italic 22px/1.4 var(--serif);color:var(--ink2);margin:0 0 26px;padding-left:16px;border-left:3px solid var(--gold)}
+  .hero .lede{font-size:19px;line-height:1.5;color:var(--ink2);max-width:520px;margin:0 0 12px}
+  .hero .promise{font:600 19px var(--sans);margin:0 0 30px}
+  .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+  .mosaic{position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center}
+  .grid{display:grid;gap:3px;grid-template-columns:repeat(var(--n),var(--s));grid-auto-rows:var(--s)}
+  .tile{width:var(--s);height:var(--s);background:var(--ink);opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r0)) scale(.5);border:0;padding:0;
+    animation:settle 1s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:var(--d);cursor:crosshair;transition:transform .15s,background .4s,outline-color .4s,opacity .3s}
+  .tile.light{background:var(--paper2)}
+  .tile.gold{background:var(--gold)}
+  .tile.open{background:transparent;outline:2px solid var(--ink);outline-offset:-2px}
+  .tile.light.open{outline-color:var(--line)}
+  .tile.closing{animation:close .6s ease forwards}
+  .tile.on,.tile:hover{transform:scale(1.5) rotate(0)!important;animation:none;opacity:1;z-index:2}
+  @keyframes close{0%{outline-color:var(--gold);background:transparent}100%{outline-color:transparent;background:var(--ink)}}
+  @keyframes settle{to{opacity:1;transform:translate(0,0) rotate(var(--r)) scale(1)}}
+  .card{position:absolute;z-index:20;width:300px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:14px 16px;box-shadow:0 20px 50px rgba(20,19,15,.16);font:12.5px/1.5 var(--mono);pointer-events:none;opacity:0;transition:opacity .15s}
+  .card.on{opacity:1}
+  .card .t{font:600 14px var(--sans);margin-bottom:4px}
+  .card .s{font:13.5px/1.45 var(--serif);color:var(--ink2);margin:4px 0 6px}
+  .card .m{font-size:11px;color:var(--ink3)}
+  .legend{position:absolute;bottom:-8px;left:0;right:0;display:flex;gap:14px;justify-content:center;font:11px var(--mono);color:var(--ink3);flex-wrap:wrap}
+  .legend i{display:inline-block;width:10px;height:10px;vertical-align:-1px;margin-right:5px;background:var(--ink)}
+  .legend i.l{background:var(--paper2)}.legend i.g{background:var(--gold)}.legend i.o{background:transparent;outline:2px solid var(--ink);outline-offset:-2px}
+  .pulse{position:absolute;top:-4px;right:0;font:11px var(--mono);color:var(--ink3)}
+  .pulse b{color:var(--ink);font-weight:500}
+  /* the document that unpacks into tiles */
+  .page{position:absolute;z-index:5;left:50%;top:50%;width:min(72%,360px);background:#fff;border:1px solid var(--line);border-radius:4px;padding:26px 28px;box-shadow:0 30px 70px rgba(20,19,15,.16);transform:translate(-50%,-50%) rotate(-1.5deg);transition:opacity .5s,transform .8s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+  .page.gone{opacity:0;transform:translate(-50%,-50%) rotate(-1.5deg) scale(.96)}
+  .page[hidden]{display:none}
+  .page .ph{font:600 15px var(--sans);margin-bottom:4px}
+  .page .pm{font:10px var(--mono);color:var(--ink3);margin-bottom:14px}
+  .page .ln{height:9px;border-radius:2px;margin:0 0 7px;background:var(--ink);opacity:.85;transition:opacity .3s}
+  .page .ln.w2{width:88%}.page .ln.w3{width:72%}.page .ln.w4{width:94%}.page .ln.gap{margin-bottom:14px}
+  .page .ln.gold{background:var(--gold);opacity:1}
+  .page .ln.light{background:var(--paper2);opacity:1;outline:1px solid var(--line)}
+  .page .ln.open{background:transparent;outline:2px solid var(--ink);outline-offset:-2px;height:9px}
+  .page .ln.hide{opacity:0}
+  .fly{position:absolute;z-index:6;pointer-events:none;background:var(--ink);transition:left .9s cubic-bezier(.2,.8,.2,1),top .9s cubic-bezier(.2,.8,.2,1),width .9s,height .9s,transform .9s,opacity .3s}
+  .fly.light{background:var(--paper2);outline:1px solid var(--line)}.fly.gold{background:var(--gold)}.fly.open{background:transparent;outline:2px solid var(--ink);outline-offset:-2px}
+  .replay{position:absolute;top:-4px;left:0;font:11px var(--mono);color:var(--ink3);background:transparent;border:0;cursor:pointer;padding:0;text-decoration:underline}
+  .mosaic.staging .tile{animation:none!important;opacity:0}
+  .mosaic.staging .tile[style*="opacity: 1"]{opacity:1}
+  .mosaic.staging .pulse{visibility:hidden}
+
+  /* ===== PROBLEM ===== */
+  .contra{display:grid;grid-template-columns:1fr 60px 1fr;gap:24px;align-items:center}
+  .pile{position:relative;height:300px}
+  .docx{position:absolute;width:260px;background:var(--paper2);padding:16px 18px;font:12px/1.5 var(--mono)}
+  .docx b{display:block;font:600 13px var(--sans);margin-bottom:6px}
+  .docx .d{color:var(--red);font-weight:500}
+  .docx:nth-child(1){left:0;top:0;transform:rotate(-3deg)}
+  .docx:nth-child(2){left:60px;top:70px;transform:rotate(2deg)}
+  .docx:nth-child(3){left:120px;top:150px;transform:rotate(-1deg)}
+  .arrow{font:28px var(--sans);color:var(--ink3);text-align:center}
+  .tiles3{display:grid;gap:10px}
+  .tiles3{gap:0}
+  .tl{display:grid;grid-template-columns:36px 1fr;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line);font:13px/1.45 var(--mono)}
+  .tl:last-child{border-bottom:1px solid var(--line)}
+  .tl i{display:block;width:36px;height:36px;background:var(--ink)}
+  .tl.sup{opacity:.6}.tl.sup i{background:var(--paper2)}
+  .tl.open i{background:transparent;outline:2px solid var(--ink);outline-offset:-2px}
+  .tl b{display:block;font:600 13px var(--sans);margin-bottom:2px}
+  .tl .st{color:var(--ink3);font-size:11px}
+  .tl .st em{color:var(--ink);font-style:normal}
+
+  /* ===== BEFORE / AFTER ===== */
+  .ba{display:grid;grid-template-columns:1fr 60px 1fr;gap:24px;align-items:start}
+  .before{padding:4px 0 4px 20px;border-left:3px solid var(--line);font-size:15.5px;line-height:1.65}
+  .before .h{font:600 13px var(--sans);color:var(--ink3);margin-bottom:10px}
+  .before mark{background:var(--paper2);color:inherit;padding:0 2px}
+  .after{display:grid;gap:0}
+  .after .t{padding:14px 0;border-top:1px solid var(--line);font:12px/1.5 var(--mono);display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start}
+  .after .t:last-child{border-bottom:1px solid var(--line)}
+  .after .t i{display:block;width:30px;height:30px;background:var(--ink);margin-top:2px}
+  .after .t b{display:block;font:600 13px var(--sans);margin-bottom:3px}
+  .after .t .k{color:var(--ink3)}
+  .after .t:nth-child(3) i{background:transparent;outline:2px solid var(--ink);outline-offset:-2px}
+
+  /* ===== THE TILE ===== */
+  .anat{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+  .note{padding:4px 0 4px 22px;border-left:3px solid var(--gold);font:13.5px/1.7 var(--mono);white-space:pre;overflow-x:auto}
+  .note .k{color:var(--ink3)}.note .hl{background:var(--gold);color:var(--ink);padding:0 4px}
+  .keys{list-style:none;margin:0;padding:0;font-family:var(--sans);font-size:15px}
+  .keys li{padding:12px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:150px 1fr;gap:16px}
+  .keys li:last-child{border-bottom:1px solid var(--line)}
+  .keys code{font:13px var(--mono)}.keys span{color:var(--ink2);font-family:var(--serif)}
+  .time{margin-top:30px;border-top:1px solid var(--line);padding-top:18px}
+  .time .row{display:grid;grid-template-columns:110px 1fr;gap:14px;font:12.5px var(--mono);padding:8px 0;border-bottom:1px solid var(--line)}
+  .time .row span:first-child{color:var(--ink3)}
+  .time .stale{color:var(--red)}.time .ok{color:#2a7d3f}
+
+  /* ===== COMPOSITION ===== */
+  .comp{display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:start}
+  .mini{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+  .mini i{display:block;aspect-ratio:1;background:var(--paper2);transition:background .2s,transform .2s;cursor:default}
+  .mini i.sel{background:var(--gold)}
+  .mini i.on{background:var(--ink);transform:scale(1.1)}
+  .mini i.open{background:transparent;outline:2px solid var(--ink);outline-offset:-2px}
+  .doc{font-size:16px}
+  .doc h3{font:600 30px/1.15 var(--sans);letter-spacing:-.02em;margin:0 0 8px}
+  .doc .meta{font:11px var(--mono);color:var(--ink3);margin-bottom:8px;padding-bottom:14px;border-bottom:1px solid var(--ink)}
+  .doc p{margin:0;padding:14px 0 14px 14px;border-bottom:1px solid var(--line);cursor:default;border-left:3px solid transparent;transition:border-color .2s}
+  .doc p:hover,.doc p.on{border-left-color:var(--gold)}
+  .doc p small{display:block;font:11px var(--mono);color:var(--ink3);margin-top:2px}
+  .doc .hint{font:12px var(--sans);color:var(--ink3);margin-top:6px}
+
+  /* ===== RULES ===== */
+  .big3{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:0 0 3px;padding:0;list-style:none}
+  .big3 li{background:var(--ink);color:var(--paper);padding:30px 26px;min-height:230px;display:flex;flex-direction:column;transform:rotate(var(--r));transition:transform .2s}
+  .big3 li:hover{transform:rotate(0) scale(1.02)}
+  .big3 li:nth-child(3){background:transparent;color:var(--ink);outline:2px solid var(--ink);outline-offset:-2px}
+  .big3 .n{font:500 12px var(--mono);opacity:.6;margin-bottom:auto}
+  .big3 b{display:block;font:600 24px/1.2 var(--sans);letter-spacing:-.01em;margin:22px 0 8px}
+  .big3 p{margin:0;opacity:.8;font-size:15px;line-height:1.5}
+  .five{counter-reset:r;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:3px}
+  .five{gap:28px}
+  .five li{counter-increment:r;padding:16px 0 0;border-top:2px solid var(--ink);min-height:0;display:flex;flex-direction:column}
+  .five li::before{content:"R" counter(r);font:500 12px var(--mono);color:var(--ink3);margin-bottom:auto}
+  .five b{display:block;font:600 15px/1.25 var(--sans);margin:14px 0 6px}
+  .five p{margin:0;color:var(--ink2);font-size:13.5px;line-height:1.45}
+
+  /* ===== CHECK / EVIDENCE / HOSTS / LOOP ===== */
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+  .term{background:var(--ink);color:var(--paper);padding:20px 22px;font:13.5px/1.7 var(--mono);white-space:pre;overflow-x:auto}
+  .term .c{color:#8b8679}.term .ok{color:#8fd19e}
+  .ev{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+  .ev{gap:32px}
+  .ev div{padding:18px 0 0;border-top:1px solid rgba(239,234,224,.35)}
+  .ev b{display:block;font:600 52px/1 var(--sans);letter-spacing:-.03em;margin-bottom:8px}
+  .ev b small{font-size:20px;color:#8b8679;margin-left:4px;letter-spacing:0}
+  .ev .lab{font:12px var(--mono);color:#8b8679;margin-bottom:12px}
+  .ev p{margin:0;color:rgba(239,234,224,.7);font-size:14.5px}
+  .caveat{margin-top:16px;font:13px var(--sans);color:rgba(239,234,224,.55);max-width:700px}
+  .hosts{display:flex;flex-wrap:wrap;gap:3px}
+  .hosts{gap:0 28px}
+  .hosts span{padding:10px 0;font:15px var(--sans);color:var(--ink2);border-bottom:1px solid var(--line)}
+  .hosts span.ref{color:var(--ink);border-bottom:2px solid var(--ink);font-weight:600}
+  .dark{background:var(--ink);color:var(--paper)}
+  .dark h2{color:var(--paper)}.dark .sub{color:rgba(239,234,224,.7)}
+  .loop{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;padding:36px 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}
+  .loop h3{font:600 24px/1.2 var(--sans);margin:0 0 8px}
+  .loop p{margin:0;color:var(--ink2);font-size:15.5px}
+  .loop form{display:flex;gap:8px}
+  .loop input{flex:1;padding:12px 0;border:0;border-bottom:1px solid var(--ink);font:15px var(--sans);background:transparent;color:var(--ink);outline:none}
+  .loop small{display:block;font:12px var(--sans);color:var(--ink3);margin-top:8px}
+  footer{border-top:1px solid var(--line);padding:30px 0 48px;font:13px var(--sans);color:var(--ink3);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  footer .fb{display:flex;align-items:center;gap:10px}footer svg{width:20px;height:20px;color:var(--ink)}
+
+  /* ===== flat pass: no cards, no shadows, no radius ===== */
+  .docx,.tl,.before,.after .t,.note,.doc,.term,.loop,.five li,.ev div,.card,.btn,.pile{border-radius:0!important;box-shadow:none!important}
+  .docx{background:var(--paper2);border:0;padding:14px 16px}
+  .tl{background:transparent;border:0;border-top:1px solid var(--line);padding:14px 0}
+  .tiles3{gap:0}
+  .before{background:transparent;border:0;padding:0 0 0 18px;border-left:3px solid var(--line)}
+  .after{gap:0}
+  .after .t{background:transparent;border:0;border-top:1px solid var(--line);padding:14px 0}
+  .after .t:last-child{border-bottom:1px solid var(--line)}
+  .note{background:transparent;border:0;padding:0 0 0 18px;border-left:3px solid var(--gold);transform:none}
+  .doc{background:transparent;border:0;padding:0}
+  .doc h3{font-size:28px;letter-spacing:-.02em}
+  .doc p{margin:0;padding:14px 0;border-top:1px solid var(--line);margin-left:0;border-left:0;border-radius:0;cursor:default}
+  .doc p:last-of-type{border-bottom:1px solid var(--line)}
+  .doc p:hover,.doc p.on{background:transparent;border-left:0;padding-left:14px;box-shadow:inset 3px 0 0 var(--gold)!important}
+  .term{border-radius:0}
+  .loop{background:transparent;padding:36px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .loop input{background:transparent;border:0;border-bottom:1px solid var(--ink);border-radius:0;padding-left:0}
+  .five li{background:transparent;border-top:1px solid var(--ink);padding:16px 12px 16px 0}
+  .ev{gap:0;border-top:1px solid rgba(255,255,255,.2)}
+  .ev div{background:transparent;border-right:1px solid rgba(255,255,255,.12)}
+  .ev div:last-child{border-right:0}
+  .card{border:1px solid var(--ink)}
+  .page{border-radius:0;box-shadow:none;border:1px solid var(--line)}
+  .btn{border-radius:0}
+  nav .ver{border-radius:0}
+
+  /* ===== rhythm: full-bleed bands and reversed layouts ===== */
+  .band{margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);padding-left:calc(50vw - 50%);padding-right:calc(50vw - 50%)}
+  .band.p2{background:var(--paper2)}
+  .band.ink{background:var(--ink);color:var(--paper)}
+  .band.ink h2{color:var(--paper)}
+  .band.ink .sub,.band.ink .keys span,.band.ink .time .row span:first-child{color:rgba(239,234,224,.72)}
+  .band.ink .kick,.band.ink .rlab,.band.ink .kick .rp,.band.ink .cap{color:rgba(239,234,224,.5)}
+  .band.ink .keys li,.band.ink .time,.band.ink .time .row{border-color:rgba(239,234,224,.18)}
+  .band.ink .keys code{color:var(--paper)}
+  .band.ink .note{border-left-color:var(--gold)}
+  .band.ink .note .k{color:rgba(239,234,224,.5)}
+  .band.ink .note .hl{background:var(--gold);color:var(--ink)}
+  .band.ink .time .ok{color:#8fd19e}.band.ink .time .stale{color:#e07a66}
+  .band.ink .mono{color:var(--paper)}
+  .band.p2 .docx{background:#fff}
+  .band.p2 .before mark{background:#fff}
+  .rev > :first-child{order:2}
+  .anat.rev{align-items:center}
+  .sec.tight{padding-top:64px;padding-bottom:64px}
+
+  /* ===== interactions ===== */
+  .act{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:9px 14px;border:1px solid var(--ink);background:transparent;font:500 13px var(--sans);cursor:pointer;color:var(--ink)}
+  .act:hover{background:var(--ink);color:var(--paper)}
+  .act[disabled]{opacity:.4;cursor:default}
+  /* problem: docs ↔ tiles */
+  .docx{cursor:pointer;transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .5s,outline-color .2s;outline:2px solid transparent}
+  .docx.hi{outline-color:var(--gold)}
+  .tl{transition:background .2s}
+  .tl.hi{background:rgba(201,162,39,.16)}
+  .tl.ghost{opacity:0;transform:translateY(8px)}
+  .tl.show{opacity:1;transform:none;transition:opacity .5s,transform .5s}
+  .tl.sup.show{opacity:.6}
+  .contra.resolved .docx{background:rgba(228,222,209,.75);color:var(--ink2)}
+  .band.p2 .contra.resolved .docx{background:rgba(255,255,255,.75)}
+  .tl{padding:14px 14px;margin:0 -14px}
+  /* before/after: sentences ↔ tiles */
+  .before mark{cursor:pointer;transition:background .2s,color .2s}
+  .before mark.hi,.before mark:hover{background:var(--gold)}
+  .after .t{transition:background .2s}
+  .after .t.hi{background:rgba(201,162,39,.16)}
+  .after .t.ghost{opacity:0;transform:translateX(12px)}
+  .after .t.show{opacity:1;transform:none;transition:opacity .5s,transform .5s}
+  /* the tile: keys ↔ lines, and the ageing player */
+  .keys li{cursor:pointer;transition:background .2s}
+  .keys li.hi,.keys li:hover{background:rgba(201,162,39,.16)}
+  .note .ln{display:inline;transition:background .2s}
+  .note .ln.hi{background:rgba(201,162,39,.35)}
+  .band.ink .keys li.hi,.band.ink .keys li:hover{background:rgba(201,162,39,.22)}
+  .time .row{cursor:pointer;opacity:.45;transition:opacity .3s}
+  .time .row.on{opacity:1}
+  .note .body{transition:opacity .3s}
+  .note .body.edited{background:rgba(224,122,102,.18)}
+  .note .revline.stale{background:rgba(224,122,102,.25)}
+  .note .revline.fresh{background:rgba(143,209,158,.25)}
+  .note .proposed{background:rgba(201,162,39,.25)}
+  /* rules: flip */
+  .big3 li{cursor:default;position:relative;transform:none!important}
+  .big3 li .ex{display:none!important}
+  .big3 li .n::after{content:""}
+  .big3 li .ex{display:none;font:12.5px/1.5 var(--mono);opacity:.85;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.25);white-space:pre-wrap}
+  .big3 li:nth-child(3) .ex{border-top-color:var(--line)}
+  .big3 li.open .ex{display:block}
+  .big3 li .n::after{content:" · example";opacity:.6}
+  /* check: runnable terminal */
+  .term{min-height:190px}
+  .term .out{white-space:pre-wrap}
+  .term .err{color:#e07a66}.term .warn{color:#d4b043}
+  .termbar{display:flex;gap:8px;align-items:center;margin-bottom:10px;font:12px var(--mono)}
+  .termbar select{font:12px var(--mono);padding:5px 8px;border:1px solid var(--ink);background:transparent;color:var(--ink)}
+  .termbar button{font:12px var(--mono);padding:5px 10px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer}
+  /* evidence: counters */
+  .ev b span{display:inline-block;min-width:1.2em;text-align:right}
+  .ev7-main b .cnt{display:inline;min-width:0}
+
+  /* ===== 07: one big number, three facts ===== */
+  .ev7{display:grid;grid-template-columns:1.1fr .9fr;gap:64px;align-items:start;margin-top:8px}
+  .ev7 .lab{font:12px var(--mono);color:#8b8679;margin-bottom:16px}
+  .ev7-main b{display:block;font:600 132px/.95 var(--sans);letter-spacing:-.05em;margin:0 0 18px}
+  .ev7-main b small{font-size:36px;color:#8b8679;letter-spacing:-.02em;margin-left:6px}
+  .ev7-main p{margin:0;font-size:18px;line-height:1.5;color:rgba(239,234,224,.8);max-width:460px}
+  .ev7-side{display:grid;gap:0}
+  .ev7-side div{padding:22px 0;border-top:1px solid rgba(239,234,224,.22);display:grid;grid-template-columns:200px 1fr;gap:18px;align-items:baseline}
+  .ev7-side div:last-child{border-bottom:1px solid rgba(239,234,224,.22)}
+  .ev7-side b{font:600 34px/1 var(--sans);letter-spacing:-.03em;white-space:nowrap}
+  .ev7-side b .cnt{font:inherit;min-width:0;display:inline}
+  .ev7-side b small{display:block;font:12px var(--mono);color:#8b8679;letter-spacing:0;margin-top:6px}
+  .ev7-side > div > span{font-size:14.5px;line-height:1.5;color:rgba(239,234,224,.72)}
+  .ev7 .lab{margin-top:6px}
+
+  /* ===== 08: the agent system, full width ===== */
+  .chain{display:grid;gap:40px}
+  .chain-fig{display:grid;gap:18px;justify-items:center;font:12px var(--mono);color:var(--ink3);width:100%}
+  .cf-task{padding:12px 22px;border:1px solid var(--ink);color:var(--ink);font:500 13px var(--sans)}
+  .cf-agents{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;width:100%;position:relative;padding-top:18px}
+  .cf-agents::before{content:"";position:absolute;left:12.5%;right:12.5%;top:0;height:1px;background:var(--ink)}
+  .cf-agent{position:relative;padding:22px 18px 18px;border:1px solid var(--line);background:var(--paper);display:grid;gap:12px;justify-items:center;opacity:.4;transition:opacity .5s,border-color .5s}
+  .cf-agent::before{content:"";position:absolute;left:50%;top:-18px;height:18px;width:1px;background:var(--ink)}
+  .cf-agent.on{opacity:1;border-color:var(--gold)}
+  .cf-lab{font-size:11px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase}
+  .cf-mod{font:600 17px/1.2 var(--sans);color:var(--ink);text-align:center}
+  .cf-cl{display:flex;gap:5px}
+  .cf-cl i{display:block;width:22px;height:22px;background:var(--ink)}
+  .cf-cl i.g{background:var(--gold)}.cf-cl i.o{background:transparent;outline:2px solid var(--ink);outline-offset:-2px}
+  .cf-tok{font-size:11px;color:var(--ink3)}
+  .cf-merge{padding:12px 22px;border:1px solid var(--ink);color:var(--ink);opacity:.4;transition:opacity .5s;font:500 13px var(--sans)}
+  .cf-merge.on{opacity:1}
+  .cf-note{font-size:11px}
+  .chain-fig{gap:0}
+  .cf-vlab{font-size:11px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+  .cf-vault{display:grid;grid-template-columns:repeat(16,22px);gap:4px}
+  .cf-vault i{display:block;width:22px;height:22px;background:var(--line);transition:background .35s,outline-color .35s,transform .35s;outline:2px solid transparent;outline-offset:-2px}
+  .cf-vault i.dep{background:var(--ink)}
+  .cf-vault i.own{background:var(--gold)}
+  .cf-vault i.open{background:transparent;outline-color:var(--ink)}
+  .cf-vault i.sel{transform:scale(1.2)}
+  .cf-step{font:14.5px var(--sans);color:var(--ink);text-align:center;max-width:560px;min-height:2.6em;margin:18px 0 0;padding:8px 14px;border-left:3px solid var(--gold);text-align:left}
+  .cf-stem{width:1px;height:28px;background:var(--ink);margin:10px 0 0}
+  .cf-stem2{width:1px;height:22px;background:var(--ink)}
+  .cf-agents{padding-top:18px;margin-bottom:0}
+  .cf-agents::after{content:"";position:absolute;left:12.5%;right:12.5%;bottom:-22px;height:1px;background:var(--ink)}
+  .cf-agent{position:relative}
+  .cf-agent::after{content:"";position:absolute;left:50%;bottom:-22px;height:22px;width:1px;background:var(--ink)}
+  .cf-agent .cf-cl i{opacity:.15;transition:opacity .4s,transform .4s;transform:scale(.8)}
+  .cf-agent.got .cf-cl i{opacity:1;transform:none}
+  .cf-merge{margin-top:22px}
+  .cf-note{margin-top:10px}
+  .chain-n{display:grid;grid-template-columns:repeat(4,1fr);gap:0;font:13.5px var(--sans);color:var(--ink2);padding-top:32px;border-top:1px solid var(--ink)}
+  .chain-n span{display:flex;flex-direction:column;gap:10px;padding:0 24px 0 0}
+  .chain-n span+span{padding-left:24px;border-left:1px solid var(--line)}
+  .chain-n b{font:600 44px/1 var(--sans);color:var(--ink);letter-spacing:-.03em;white-space:nowrap}
+  .chain-n b .cnt{display:inline!important;min-width:0!important;text-align:left}
+  .chain-n b small{font-size:22px;color:var(--ink3);letter-spacing:0;margin-left:2px}
+  .chain-p{margin:0;font-size:16.5px;color:var(--ink2);max-width:760px}
+  @media (max-width:900px){.ev7{grid-template-columns:1fr;gap:36px}.ev7-main b{font-size:96px}.ev7-side div{grid-template-columns:1fr;gap:6px}.cf-agents{grid-template-columns:1fr 1fr}.cf-agents::after,.cf-agent::after,.cf-agent::before,.cf-agents::before{display:none}.chain-n{grid-template-columns:1fr 1fr;gap:20px}.chain-n span+span{border-left:0;padding-left:0}}
+  @media (max-width:760px){.ev7-main b{font-size:72px}.cf-agents{grid-template-columns:1fr}.chain-n{grid-template-columns:1fr}.cf-vault{grid-template-columns:repeat(16,1fr);gap:2px;width:100%}.cf-vault i{width:auto;aspect-ratio:1;height:auto}}
+
+/* ===== 10: what's next ===== */
+  .next{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:0 40px}
+  .next li{display:grid;grid-template-columns:22px 1fr;gap:16px;padding:22px 0;border-top:1px solid var(--ink);align-items:start}
+  .next li i{display:block;width:22px;height:22px;margin-top:3px;background:transparent;outline:2px solid var(--ink);outline-offset:-2px}
+  .next li:first-child i{background:var(--gold);outline:0}
+  .next li.done i{background:var(--ink);outline:0}
+  .next b{display:block;font:600 17px/1.25 var(--sans);margin-bottom:6px}
+  .next p{margin:0;color:var(--ink2);font-size:14.5px;line-height:1.5}
+  .next small{display:block;font:11px var(--mono);color:var(--ink3);margin-top:10px;letter-spacing:.04em}
+  @media (max-width:900px){.next{grid-template-columns:1fr 1fr}}
+  @media (max-width:760px){.next{grid-template-columns:1fr}}
+
+  /* ===== reduced motion ===== */
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .tile{animation:none;opacity:1;transform:rotate(var(--r))}
+    .tile.closing{animation:none}
+    .big3 li,.five li,.mini i,.tile{transition:none}
+    .pulse{display:none}
+  }
+  /* ===== mobile ===== */
+  @media (max-width:760px){
+    .sec{padding:64px 0}
+    h2{font-size:27px}.sub{font-size:16.5px;margin-bottom:28px}
+    nav ul{display:none}
+    .hero{grid-template-columns:1fr;gap:28px;padding:28px 0 48px}
+    .hero h1{font-size:38px}.hero .quote{font-size:18px}.hero .lede{font-size:17px}
+    .mosaic{order:-1;aspect-ratio:auto;height:auto;padding-bottom:28px;flex-direction:column}
+    .grid{gap:2px}
+    .tile{cursor:pointer}
+    .tile:hover{transform:none!important}
+    .tile.on{transform:scale(1.4) rotate(0)!important}
+    .card{position:fixed;left:12px;right:12px;bottom:12px;width:auto;z-index:70}
+    .legend{position:static;margin-top:10px}
+    .pulse{position:static;text-align:right;margin-bottom:6px}
+    .contra,.ba{grid-template-columns:1fr}.arrow{display:none}
+    .pile{height:auto}.docx{position:static;transform:none!important;width:auto;margin-bottom:3px}
+    .anat,.comp,.two,.loop{grid-template-columns:1fr;gap:28px}
+    .rev > :first-child{order:0}
+    .band{margin:0;padding-left:0;padding-right:0}
+    .band.p2,.band.ink{margin-left:-24px;margin-right:-24px;padding-left:24px;padding-right:24px}
+    .note{font-size:12px;padding-left:14px}
+    .keys li{grid-template-columns:1fr;gap:4px}
+    .doc h3{font-size:24px}
+    .big3{grid-template-columns:1fr}.big3 li{min-height:0;transform:none!important}
+    .five{grid-template-columns:1fr 1fr;gap:20px}
+    .ev{grid-template-columns:1fr}
+    .loop{padding:24px 0}.loop form{flex-direction:column}
+    footer{flex-direction:column;align-items:flex-start}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<nav>
+  <a class="brand" href="index.html" aria-label="Mosaix home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>mosaix</a>
+  <ul><li><a href="#tile">The tile</a></li><li><a href="#compose">Composition</a></li><li><a href="#rules">Rules</a></li><li><a href="#agents">Agents</a></li><li><a href="#check">Check a vault</a></li><li><a href="#next">What's next</a></li><li><a href="spec.html">Specification</a></li></ul>
+  <span class="ver">v1.0 · 2026-09</span>
+</nav>
+
+<!-- 1 HERO -->
+<section class="hero">
+  <div>
+    <div class="kick"><span>An open format for knowledge vaults</span></div>
+    <h1>Every note is a tile that stands on its own.</h1>
+    <p class="quote">The picture exists only in the whole.</p>
+    <p class="lede">Mosaix is a file-level format for vaults of atomic, self-describing notes. Machines retrieve one note at a time. People read many notes as one document.</p>
+    <p class="promise">Nothing is silently lost.</p>
+    <div class="cta"><a class="btn solid" href="spec.html">Read the specification</a><a class="btn" href="#check">Check a vault</a></div>
+  </div>
+  <div class="mosaic" id="mosaic" role="img" aria-label="A mosaic of about nine hundred tiles forming the Mosaix mark. Each tile is a section of the specification, a frontmatter key, or a note of the example vault. Open tiles are entries still to confirm.">
+    <div class="pulse" id="pulse" aria-hidden="true">vault alive · <b id="pc">0</b> confirmed · <b id="pa">0</b> added</div>
+    <button class="replay" id="replay" aria-label="Replay the animation" hidden>↻ replay</button>
+    <div class="page" id="page" aria-hidden="true">
+      <div class="ph">Market entry brief — PPE, Europe</div>
+      <div class="pm">Market notes.docx · 6 pages · last edited by three people</div>
+      <div class="ln gold"></div><div class="ln w2"></div><div class="ln w3 gap"></div>
+      <div class="ln"></div><div class="ln gold w4"></div><div class="ln w2 gap"></div>
+      <div class="ln open w3"></div><div class="ln light"></div><div class="ln light w2 gap"></div>
+      <div class="ln w4"></div><div class="ln gold w3"></div><div class="ln w2 gap"></div>
+      <div class="ln light w4"></div><div class="ln gold"></div><div class="ln w3"></div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="card" id="card" aria-live="polite"></div>
+    <div class="legend" aria-hidden="true"><span><i></i>section of the spec</span><span><i class="l"></i>key</span><span><i class="g"></i>fragment of the brief below</span><span><i class="o"></i>to confirm</span></div>
+  </div>
+</section>
+
+<!-- 2 PROBLEM -->
+<section class="sec band p2">
+  <div class="kick"><span><span class="no">01</span>Why a format</span><button class="rp" data-rp="contra">↻ replay</button></div>
+  <h2>Three documents, three launch dates. Which one is true?</h2>
+  <p class="sub">Every knowledge base has this: the last edit wins, and nobody recorded that there was a disagreement. Mosaix records it at the file level, and keeps every version where it was.</p>
+  <div class="contra" id="contra">
+    <div>
+      <div class="pile">
+        <div class="docx" data-k="v1"><b>Roadmap.docx</b>Launch: <span class="d">26 Oct 2026</span><br>edited 2026-07-22</div>
+        <div class="docx" data-k="v2"><b>Master index.md</b>Launch: <span class="d">25 Nov 2026</span><br>edited 2026-08-05</div>
+        <div class="docx" data-k="cur"><b>Timing rules.md</b>Launch: <span class="d">27 Jan 2027</span><br>edited 2026-08-29</div>
+      </div>
+      <button class="act" id="recordBtn">Record the contradiction →</button>
+      <div class="cap">■ current · ▢ superseded, kept in place · ☐ open question</div>
+    </div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="tiles3">
+      <div class="tl ghost" data-k="cur"><i></i><div><b>Launch date — online platform</b>27 Jan 2027<div class="st"><em>✅ sourced</em> · decided with partners 2026-08-29 · rev 2b7c…</div></div></div>
+      <div class="tl sup ghost" data-k="v2"><i></i><div><b>Launch date — online platform (v2)</b>25 Nov 2026<div class="st">superseded → links to the current note · kept in place</div></div></div>
+      <div class="tl sup ghost" data-k="v1"><i></i><div><b>Launch date — online platform (v1)</b>26 Oct 2026<div class="st">superseded → links to the current note · kept in place</div></div></div>
+      <div class="tl open ghost" data-k="q"><i></i><div><b>Open question #12</b>Three dates recorded on 2026-09-03; consequence: the email schedule shifts by 90 days.<div class="st">_meta/Open questions.md · <em>R6 record, don't resolve</em></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 BEFORE / AFTER -->
+<section class="sec">
+  <div class="kick"><span><span class="no">02</span>What the format asks, and what it gives back</span><button class="rp" data-rp="ba">↻ replay</button></div>
+  <h2>One paragraph in, three tiles out.</h2>
+  <p class="sub">The same knowledge, once as prose in a document and once as Mosaix tiles. The body of each tile is the sentence you already wrote. The keys are generated by enrichment and reviewed by a person.</p>
+  <div class="ba" id="ba">
+    <div>
+      <div class="before"><div class="h">BEFORE · a paragraph in "Market notes.docx"</div>
+        <mark data-k="0">Portwest, an Irish manufacturer, sells in more than 130 countries and undercuts distributors with its own-brand line.</mark> <mark data-k="1">The European PPE market is consolidating: three acquisitions in 2025 moved about 18% of distribution under two groups.</mark> <mark data-k="2">A colleague heard that Portwest opened a plant in Albania in 2024, but we could not confirm it.</mark></div>
+      <button class="act" id="splitBtn">Split into tiles →</button>
+    </div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="after">
+      <div class="t ghost" data-k="0"><i></i><div><b>Portwest — player card</b><span class="k">summary:</span> Irish PPE manufacturer, 130+ countries, own-brand line that undercuts distributors on price.<br><span class="k">entities:</span> Portwest (company) · <span class="k">✅ sourced</span></div></div>
+      <div class="t ghost" data-k="1"><i></i><div><b>PPE consolidation 2025</b><span class="k">summary:</span> Three acquisitions in 2025 moved ~18% of European PPE distribution under two groups.<br><span class="k">relations:</span> Bunzl → owns → distributors · <span class="k">✅ sourced</span></div></div>
+      <div class="t ghost" data-k="2"><i></i><div><b>Open question #33 — Albania</b><span class="k">summary:</span> Unconfirmed report of a Portwest plant in Albania (2024); blocking for one argument, not for a number.<br><span class="k">_meta/Open questions.md</span> · <span class="k">⚠ to confirm</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 THE TILE -->
+<section class="sec band ink" id="tile">
+  <div class="anat rev">
+    <div>
+      <div class="kick"><span><span class="no">03</span>The tile</span><button class="rp" data-rp="time">↻ replay</button></div>
+      <h2>Up close, a tile is a note you can read. And nine keys a machine reads first.</h2>
+      <p class="sub">Nothing in the body changes. The keys sit above it, in plain YAML. Hover a key to find it in the note.</p>
+      <ul class="keys" id="keys">
+        <li data-k="summary"><code>summary</code><span>One declarative sentence, 120–240 characters.</span></li>
+        <li data-k="keywords"><code>keywords</code><span>Six to eight terms: synonyms, spoken phrasings, questions.</span></li>
+        <li data-k="entita"><code>entities</code><span>Named things, typed.</span></li>
+        <li data-k="relazioni"><code>relations</code><span>Typed links between entities. The graph lives in the note.</span></li>
+        <li data-k="rev"><code>rev</code><span>Hash of the body when metadata was computed. Mismatch means stale.</span></li>
+      </ul>
+      <div class="time" id="time">
+        <div class="rlab">How a tile ages</div>
+        <div class="row on" data-s="0"><span>2026-08-22</span><span>body written · metadata computed · <span class="mono">rev 91be7f0a3c44</span> <span class="ok">✓ fresh</span></span></div>
+        <div class="row" data-s="1"><span>2026-09-03</span><span>body edited by a person · metadata untouched · <span class="stale">✗ stale: rev no longer matches</span></span></div>
+        <div class="row" data-s="2"><span>2026-09-03</span><span>enrichment proposes new keys on a branch · reviewer sees the mismatch · merges · <span class="ok">✓ fresh</span></span></div>
+      </div>
+    </div>
+    <div class="note" id="note"><span class="k">---</span>
+<span class="k">title:</span> §6 Composed documents
+<span class="k">updated:</span> <span id="nUpd">2026-09-03</span>
+<span class="k">tags:</span> [spec, mosaix, composed-document]
+<span class="ln" data-k="summary"><span class="k">summary:</span> <span class="hl" id="nSum">"Defines the note type that joins
+  atomic notes into one readable document
+  without duplicating them."</span></span>
+<span class="ln" data-k="keywords"><span class="k">keywords:</span> <span id="nKw">[composed document, document type,
+  fragments, view over notes, transclusion]</span></span>
+<span class="ln" data-k="entita"><span class="k">entities:</span>
+  - {name: Mosaix Format, type: project}</span>
+<span class="ln" data-k="relazioni"><span class="k">relations:</span>
+  - {from: §6, type: depends on, to: §3 The note}</span>
+<span class="ln revline" data-k="rev" id="nRevLine"><span class="k">rev:</span> <span class="hl" id="nRev">91be7f0a3c44</span></span>
+<span class="k">---</span>
+# 6. Composed documents
+
+<span class="body" id="nBody">Atomic notes are for machines. Humans read
+documents. The format therefore defines …</span>
+<span class="cap" style="display:block;white-space:normal;margin-top:16px">vault/spec/§6 Composed documents.md · a real note of the specification vault</span></div>
+  </div>
+</section>
+
+<!-- 5 COMPOSITION -->
+<section class="sec" id="compose">
+  <div>
+    <div class="kick"><span><span class="no">04</span>Composition</span></div>
+    <h2>The five gold tiles from the mosaic above, read as one document.</h2>
+    <p class="sub">A note of type <span class="mono">document</span> lists the tiles it is made of, in reading order. Hover a paragraph to see its tile. Nothing is copied.</p>
+    <div class="comp">
+      <div>
+        <div class="mini" id="mini" aria-hidden="true"></div>
+        <p style="font:12px var(--mono);color:var(--ink3);margin:12px 0 0">64 tiles · 5 in <span class="mono">fragments</span>, reading order · one still to confirm</p>
+      </div>
+      <div class="doc" id="doc">
+        <h3>Market entry brief — PPE, Europe</h3>
+        <div class="meta">type: document · fragments: 5 · composed 2026-09-03 · every paragraph saves back to its own note</div>
+        <p data-t="3" data-n="0"><span class="no">1</span>The European PPE market is consolidating: three acquisitions in 2025 moved 18% of distribution under two groups.<small>← PPE consolidation 2025 · ✅ sourced</small></p>
+        <p data-t="17" data-n="1"><span class="no">2</span>Portwest sells in 130+ countries and undercuts distributors with an own-brand line; it is the reference competitor for price.<small>← Portwest — player card · ✅ sourced</small></p>
+        <p data-t="26" data-n="2"><span class="no">3</span>Whether Portwest opened an Albanian plant in 2024 is disputed between two sources; the argument does not depend on it.<small>← Open question #33 · ⚠ to confirm</small></p>
+        <p data-t="41" data-n="3"><span class="no">4</span>A+A Düsseldorf in October is the single most relevant fair; exhibitor lists confirm both direct competitors will attend.<small>← PPE trade fairs, Europe 2026 · ✅ sourced</small></p>
+        <p data-t="55" data-n="4"><span class="no">5</span>Recommendation: enter through safety footwear, where Turkish manufacturing has a documented cost advantage of 22–30%.<small>← Strategic scenarios · ✅ sourced</small></p>
+        <div class="hint">Every paragraph saves back to its own note.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 RULES -->
+<section class="sec tight" id="rules" style="border-top:1px solid var(--line)">
+  <div class="kick"><span><span class="no">05</span>The rules</span></div>
+  <h2>Eight rules. Three make the difference. Five are checked from files.</h2>
+  <p class="sub">A vault that obeys them can call itself Mosaix 1.0 conformant. Conformance is a property of the files, not of any tool.</p>
+  <div class="rlab">The three that no other format has</div>
+  <ul class="big3">
+    <li style="--r:-.6deg"><div class="n">R6</div><b>Record, don't resolve</b><p>A contradiction between notes goes in the open-questions ledger with both versions, dates and consequence. Nobody picks a winner silently.</p><div class="ex">_meta/Open questions.md
+#12 · Launch date
+  A: 26 Oct 2026 (Roadmap.docx, 07-22)
+  B: 27 Jan 2027 (Timing rules.md, 08-29)
+  consequence: email schedule −90 days
+  owner: partners · status: open</div></li>
+    <li style="--r:.5deg"><div class="n">R7</div><b>Supersede, don't delete</b><p>A note that is no longer valid is marked and left in place, because other notes link to it. Deletion is for mistakes only.</p><div class="ex">Launch date (v1).md
+---
+status: superseded
+superseded_by: [[Launch date]]
+updated: 2026-08-29
+---
+Kept: 4 notes still link here.</div></li>
+    <li style="--r:-.4deg"><div class="n">R8</div><b>Propose, don't apply</b><p>Automated writes go to a branch or a review queue. A person merges. The revision hash shows whether the proposal was made against the current body.</p><div class="ex">branch: mcp/2026-09-03
+PR #418 · 3 files · by enrichment
+  §6 Composed documents.md
+    rev 91be7f0a3c44 → 7d1c…  ✓ current
+  review: Andrea · merge ▸ main</div></li>
+  </ul>
+  <div class="rlab" style="margin-top:28px">The five the checker verifies</div>
+  <ol class="five">
+    <li><b>Atomicity</b><p>One note answers one question.</p></li>
+    <li><b>Self-description</b><p>Every note carries the core keys.</p></li>
+    <li><b>Connectedness</b><p>No orphans, no broken links.</p></li>
+    <li><b>Declared taxonomy</b><p>Every tag lives in the meta note.</p></li>
+    <li><b>Composition</b><p>Read together? Composed, never copied.</p></li>
+  </ol>
+</section>
+
+</div>
+
+<!-- 6 EVIDENCE -->
+<section class="sec dark">
+  <div class="wrap">
+    <div class="kick" style="color:rgba(239,234,224,.5)"><span><span class="no">06</span>Why it matters</span></div>
+    <h2>Small models can read this. That is the point.</h2>
+    <p class="sub">When each tile carries its own contract, the size of the model stops being the bottleneck.</p>
+    <div class="ev7">
+      <div class="ev7-main">
+        <div class="lab">Gemma 4 · 2B parameters · 12 GB consumer GPU · cost: none</div>
+        <b><span class="cnt" data-n="45">0</span><small>/ 47</small></b>
+        <p>tests passed by a two-billion-parameter model, generating a 31-unit package one tile at a time. Qwen 3.5 at 9B: 40 of 40.</p>
+      </div>
+      <div class="ev7-side">
+        <div><b>$<span class="cnt" data-n="1.09" data-dec="2">0</span> <small>vs $0.003</small></b><span>A frontier model with extended reasoning, for output identical to a flash model. Three hundred times the price, the same code.</span></div>
+        <div><b><span class="cnt" data-n="0">0</span>/6 <small>→ 6/6</small></b><span>Six cloud models on one long prompt: none gets the data types right. On tiles, all six pass 28/28. The contract does the work, not the model.</span></div>
+        <div><b>~<span class="cnt" data-n="600">0</span> <small>tokens, flat</small></b><span>Per unit, constant across the build. The monolithic equivalent climbs from 544 to 4,055. 5.7× overall, five replications.</span></div>
+      </div>
+    </div>
+
+    <p class="caveat">Results from the code-generation study that produced the format. Measurements on knowledge vaults are in progress and will be published here. <a href="why-one-note-at-a-time.html" style="text-decoration:underline">How we measured →</a></p>
+  </div>
+</section>
+
+<div class="wrap">
+<!-- 8 ONE AGENT, ONE CLUSTER -->
+<section class="sec band p2" id="agents">
+  <div class="kick"><span><span class="no">07</span>Why it scales</span></div>
+  <h2>One agent, one cluster. Any model.</h2>
+  <p class="sub" style="max-width:720px">A planner hands each agent one tile and its direct dependencies: about six hundred tokens, nothing else. No agent reads the whole vault; there is no shared memory to keep in sync. So each agent can run on the smallest model that passes its tile, local or cloud, general or vertical, all in parallel.</p>
+  <div class="chain" id="chain">
+    <div class="chain-fig" aria-label="Diagram: a vault of tiles; the planner selects four clusters, one tile plus its direct dependencies each; four agents on four different models work on their cluster in parallel; the results compose back.">
+      <div class="cf-vlab">the vault · 64 tiles</div>
+      <div class="cf-vault" id="cfv"></div>
+      <div class="cf-step" id="cfstep">the planner reads the map and picks, for each agent, one tile and its direct dependencies</div>
+      <div class="cf-stem"></div>
+      <div class="cf-agents">
+        <div class="cf-agent" data-c="0"><div class="cf-lab">cluster A</div><div class="cf-mod">Gemma 4 · 2B · local</div><div class="cf-cl"><i class="g"></i><i></i><i></i></div><div class="cf-tok">its tile + 2 dependencies · ~600 tok</div></div>
+        <div class="cf-agent" data-c="1"><div class="cf-lab">cluster B</div><div class="cf-mod">Qwen 3.5 · 4B · local</div><div class="cf-cl"><i class="g"></i><i></i><i class="o"></i></div><div class="cf-tok">its tile + 1 dependency + 1 open · ~600 tok</div></div>
+        <div class="cf-agent" data-c="2"><div class="cf-lab">cluster C</div><div class="cf-mod">vertical model · legal</div><div class="cf-cl"><i class="g"></i><i></i><i></i><i></i></div><div class="cf-tok">its tile + 3 dependencies · ~600 tok</div></div>
+        <div class="cf-agent" data-c="3"><div class="cf-lab">cluster D</div><div class="cf-mod">DeepSeek flash · cloud</div><div class="cf-cl"><i class="g"></i><i></i></div><div class="cf-tok">its tile + 1 dependency · ~600 tok</div></div>
+      </div>
+      <div class="cf-stem2"></div>
+      <div class="cf-merge">composed result · four tiles back in the vault · <span class="mono">fragments</span> in reading order</div>
+      <div class="cf-note">no shared memory · no agent reads the vault · all four run in parallel · one model per agent</div>
+    </div>
+    <div class="chain-n">
+      <span><b><span class="cnt" data-n="8">0</span></b>models, from 4B to Opus, all 28/28 on the same tiles</span>
+      <span><b><span class="cnt" data-n="20">0</span><small>/20</small></b>tiles right at the first attempt, three vaults</span>
+      <span><b><span class="cnt" data-n="94.6" data-dec="1">0</span><small>%</small></b>end to end, 56 tiles</span>
+      <span><b><span class="cnt" data-n="1.79" data-dec="2">0</span><small>×</small></b>faster, agents in parallel</span>
+    </div>
+    <p class="chain-p">Because the cluster is the unit of work, the model is a per-agent choice: a 2B model for the tiles it passes, a vertical model where the domain needs it, a cloud model only where nothing smaller will do. Swap one, and the others don't notice. This is the direct evolution of the system: work verticalised across different models, each on its own cluster of knowledge.</p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="kick"><span><span class="no">08</span>Compatibility</span></div>
+  <h2>Works where you already write.</h2>
+  <p class="sub">Obsidian is the reference host. The format needs none.</p>
+  <div class="hosts"><span class="ref">Obsidian</span><span>Logseq</span><span>Foam</span><span>Dendron</span><span>Zettlr</span><span>VS Code</span><span>Any Markdown editor</span><span>git</span></div>
+</section>
+
+<!-- 9 CHECK — closes the loop -->
+<section class="sec band p2" id="check">
+  <div class="two rev">
+    <div>
+      <div class="kick"><span><span class="no">09</span>Check a vault</span><button class="rp" data-rp="term">↻ replay</button></div>
+      <h2>Already have an Obsidian vault? You are part of the way there.</h2>
+      <p class="sub">One Python file, standard library. It reports every error and warning against §10, note by note, and exits 0 when the vault is conformant. On the right: the example vault, then a real marketing vault before and after two fixes.</p>
+      <a class="btn solid" href="audit_reference.py" download>Download audit_reference.py</a>
+      <div class="cap">Python 3.10+ · no dependencies · read-only · <a href="mosaix-example-vault.zip" download style="text-decoration:underline">example vault</a> or the <a href="mosaix-bakery-vault.zip" download style="text-decoration:underline">bakery vault</a> (.zip) to try it on</div>
+    </div>
+    <div>
+      <div class="termbar"><span>vault:</span><select id="vsel"><option value="ok">~/vaults/example-vault</option><option value="messy">~/vaults/marketing-notes (untouched)</option><option value="fixed">~/vaults/marketing-notes (after two fixes)</option></select><button id="runBtn">▶ run</button></div>
+      <div class="term" id="term"><span class="c"># run it on your vault</span>
+python audit_reference.py <span id="tpath">~/vaults/example-vault</span>
+<span class="out" id="tout"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 WHAT'S NEXT -->
+<section class="sec" id="next">
+  <div class="kick"><span><span class="no">10</span>What's next</span></div>
+  <h2>Open tiles. Announced, not promised.</h2>
+  <p class="sub">The fourth tile of the mark is outlined and empty: it stands for what is decided but not built. These are the open tiles of the format itself. Each is recorded in the example vault's ledger with a status, like any other open question.</p>
+  <ul class="next">
+    <li><i></i><div><b>Mosaix 1.1</b><p>A stable <span class="mono">id</span> so links survive renames; a <span class="mono">question</span> key for the one question a note answers; an optional closed relation vocabulary; an entity registry with aliases; <span class="mono">origin</span> and <span class="mono">as_of</span>. Every 1.0 vault stays conformant.</p><small>in discussion · proposals in the ledger</small></div></li>
+    <li><i></i><div><b>The checker as a package</b><p>A <a href="https://github.com/mosaix-format/spec" style="text-decoration:underline">GitHub Action</a> now wraps the checker: eight lines of YAML give you conformance checks on every push and PR comments. Next: <span class="mono">pip install mosaix-check</span> and a <span class="mono">--fix</span> mode for the mechanical part.</p><small>action shipped · pip install and --fix not built</small></div></li>
+    <li><i></i><div><b>A public benchmark of the agent system</b><p>The numbers in 07 come from our own runs. The next step is the method and the fixtures in the open, so anyone can rerun one agent, one cluster, on the model they have.</p><small>method being written up</small></div></li>
+    <li><i></i><div><b>Host profiles beyond Obsidian</b><p>Logseq and Foam read the substrate; a verified profile for each, like §9, says exactly what resolves and what does not.</p><small>to confirm</small></div></li>
+    <li class="done"><i></i><div><b>Example vault download and conformance badge</b><p>The specification vault as a <a href="mosaix-example-vault.zip" download style="text-decoration:underline">zip</a> you can open in any editor, and a <a href="badge.svg" download style="text-decoration:underline">badge</a> for vaults that pass the checker. Plus a <a href="mosaix-bakery-vault.zip" download style="text-decoration:underline">second vault</a>: a fictional bakery, ordinary knowledge, 26 notes. All shipped with 1.0.0; the badge is self-declared, the checker report is the evidence.</p><small>shipped</small></div></li>
+    <li><i></i><div><b>Tagged releases with a DOI · translations</b><p>A DOI per tagged release so the spec can be cited in a stable way. English is normative, Italian is here; other languages arrive as pull requests.</p><small>on request</small></div></li>
+  </ul>
+  <div class="cap">Nothing on this list is a product. What produces, enriches, searches or composes vaults is out of scope by design (§8).</div>
+</section>
+
+<section class="sec tight" style="padding-top:0">
+  <div class="loop">
+    <div><h3>Not going to write YAML today?</h3><p>Send an empty email. You get one line when 1.1 ships and one when the checker package is out. Nothing else.</p></div>
+    <div><a class="btn solid" href="mailto:hello@mosaixformat.org?subject=Keep%20me%20posted%20on%20Mosaix">Keep me posted →</a><small>No form, no list, no tracking: it is a mailbox. Reply to unsubscribe, or to ask anything.</small></div>
+  </div>
+</section>
+
+<footer>
+  <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.0 · CC BY-SA 4.0 · © 2026 Andrea Fiorino · maintained by Boom Digital</span>
+  <span><a href="spec.html">Specification</a> · <a href="spec.html#checker">Checker</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE.md">License</a> · <a href="https://mosaixformat.org">mosaixformat.org</a></span>
+</footer>
+</div>
+
+
+<script>
+(function(){
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mobile = matchMedia('(max-width: 760px)').matches;
+
+  /* ---------- HERO ---------- */
+  const N = mobile ? 20 : 30, S = mobile ? 14 : 13;
+  const sections=[['§0 Status','Name, version, license and the meaning of conformance.'],['§1 Purpose','Machines read one note at a time; people read documents; nothing is silently lost.'],['§2 Substrate','Markdown, YAML frontmatter, wikilinks.'],['§3 The note','One question per note. Nine core keys above the body.'],['§4 Links and graph','No orphans, no broken links. The graph is derived from files.'],['§5 Vault structure','_meta, _synthesis, _inbox. The ledger and the meta note.'],['§6 Composed documents','A note type that joins atomic notes into one document.'],['§7 Rules','R1–R8.'],['§8 Out of scope','Enrichment, ingest, retrieval, editors: implementations, not format.'],['§9 Host profile','Obsidian is the reference host, not a dependency.'],['§10 Conformance','The checks a vault must pass.'],['§11 Versioning','MINOR never breaks a conformant vault.']];
+  const fields=[['summary','One declarative sentence, 120–240 characters.'],['keywords','Six to eight terms, lowercase.'],['entities','Named things, typed.'],['relations','Typed links between entities.'],['links','Outbound wikilinks, machine-readable.'],['rev','Hash of the body when metadata was computed.'],['updated','Last substantive change.'],['tags','Taxonomy, declared in the meta note.'],['title','Name of the node.']];
+  const brief=[['PPE consolidation 2025','Three acquisitions moved 18% of distribution under two groups.','→ paragraph 1 of the brief below'],['Portwest — player card','130+ countries, own-brand line, reference competitor for price.','→ paragraph 2'],['Open question #33','Albanian plant disputed between two sources.','→ paragraph 3 · ⚠ to confirm'],['PPE trade fairs, Europe 2026','A+A Düsseldorf is the most relevant fair.','→ paragraph 4'],['Strategic scenarios','Enter through safety footwear: 22–30% cost advantage.','→ paragraph 5']];
+  const grid=document.getElementById('grid'), card=document.getElementById('card'), host=document.getElementById('mosaic');
+  grid.style.setProperty('--n',N); grid.style.setProperty('--s',S+'px');
+  const cv=document.createElement('canvas'); cv.width=cv.height=N; const cx=cv.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,N,N);
+  const img=new Image();
+  img.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><g fill="#000"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="#000" stroke-width="5"/></g></svg>');
+  const all=[]; let goldLeft=5;
+  const label=t=>{const i=+t.dataset.i; if(t.dataset.kind==='brief') return brief[+t.dataset.b][0]; if(t.dataset.kind==='field') return 'key: '+fields[i%fields.length][0]; return sections[i%sections.length][0];};
+  img.onload=()=>{
+    cx.drawImage(img,2,2,N-4,N-4); const d=cx.getImageData(0,0,N,N).data; let k=0;
+    for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+      const dark=d[(y*N+x)*4]<128; if(!dark&&Math.random()<0.1) continue;
+      const t=document.createElement('button'); let cls='', kind=dark?'section':'field';
+      if(!dark) cls=' light';
+      if(dark && goldLeft>0 && Math.random()<(mobile?0.06:0.02)){cls=' gold';kind='brief';t.dataset.b=5-goldLeft;goldLeft--;}
+      else if(Math.random()<0.05) cls+=' open';
+      t.className='tile'+cls; t.dataset.kind=kind; t.dataset.i=k; t.type='button';
+      const cxr=x-N/2, cyr=y-N/2, dist=Math.hypot(cxr,cyr);
+      t.style.cssText='grid-column:'+(x+1)+';grid-row:'+(y+1)+';--dx:'+(cxr*5)+'px;--dy:'+(cyr*5)+'px;--r0:'+(Math.random()*50-25).toFixed(0)+'deg;--r:'+(Math.random()*8-4).toFixed(1)+'deg;--d:'+(dist*26+Math.random()*100).toFixed(0)+'ms';
+      t.setAttribute('aria-label',label(t));
+      grid.appendChild(t); all.push(t); k++;
+    }
+    /* ---- the document unpacks into tiles ---- */
+    const page=document.getElementById('page'), replay=document.getElementById('replay');
+    const unpack=()=>{
+      host.classList.add('staging'); page.classList.remove('gone'); page.querySelectorAll('.ln').forEach(l=>l.classList.remove('hide')); replay.hidden=true;
+      all.forEach(t=>{t.style.animation='';t.style.opacity='';t.style.transform='';});
+      const hr=host.getBoundingClientRect(); const flies=[];
+      const pool={dark:all.filter(t=>!t.classList.contains('light')&&!t.classList.contains('gold')&&!t.classList.contains('open')),light:all.filter(t=>t.classList.contains('light')&&!t.classList.contains('open')),gold:all.filter(t=>t.classList.contains('gold')),open:all.filter(t=>t.classList.contains('open'))};
+      const pick=k=>{const p=pool[k].length?pool[k]:pool.dark; return p[Math.floor(Math.random()*p.length)];};
+      setTimeout(()=>{ // 1. lines break into pieces in place
+        page.querySelectorAll('.ln').forEach((ln,li)=>{const r=ln.getBoundingClientRect(); const k=ln.classList.contains('gold')?'gold':ln.classList.contains('light')?'light':ln.classList.contains('open')?'open':'dark';
+          const n=Math.max(3,Math.round(r.width/16));
+          for(let i=0;i<n;i++){const f=document.createElement('i'); f.className='fly '+(k==='dark'?'':k); const w=r.width/n-3;
+            f.style.cssText='left:'+(r.left-hr.left+i*(r.width/n))+'px;top:'+(r.top-hr.top)+'px;width:'+w+'px;height:'+r.height+'px;transform:rotate(0)';
+            f.dataset.k=k; host.appendChild(f); flies.push(f);}
+          ln.classList.add('hide');});
+        setTimeout(()=>{ // 2. pieces fly to their tile
+          page.classList.add('gone');
+          flies.forEach((f,i)=>{const t=pick(f.dataset.k); const tr=t.getBoundingClientRect();
+            f.style.transitionDelay=(i*4)+'ms'; f.style.left=(tr.left-hr.left)+'px'; f.style.top=(tr.top-hr.top)+'px'; f.style.width=tr.width+'px'; f.style.height=tr.height+'px'; f.style.transform='rotate('+(Math.random()*8-4).toFixed(1)+'deg)';});
+          setTimeout(()=>{ // 3. the mosaic is the document, unpacked
+            all.forEach(t=>{t.style.animation='none'; setTimeout(()=>{t.style.opacity='1'; t.style.transform='rotate('+getComputedStyle(t).getPropertyValue('--r')+')';}, Math.random()*350);});
+            setTimeout(()=>{host.classList.remove('staging'); flies.forEach(f=>f.remove()); replay.hidden=false;},420);
+          },900+flies.length*4);
+        },650);
+      },1500);
+    };
+    if(reduce){ page.hidden=true; } else { unpack(); replay.addEventListener('click',unpack); }
+
+    if(!reduce){
+      let confirmed=0, added=0; const pc=document.getElementById('pc'), pa=document.getElementById('pa');
+      setInterval(()=>{const opens=all.filter(t=>t.classList.contains('open')&&!t.classList.contains('light')); if(!opens.length) return;
+        const t=opens[Math.floor(Math.random()*opens.length)]; t.classList.add('closing'); setTimeout(()=>{t.classList.remove('open','closing'); t.style.animation='none'; t.style.opacity=1; t.style.transform='rotate(0)';},650); pc.textContent=++confirmed;},2400);
+      setInterval(()=>{const cands=all.filter(t=>!t.classList.contains('open')&&!t.classList.contains('gold')&&!t.classList.contains('light')); const t=cands[Math.floor(Math.random()*cands.length)]; t.classList.add('open'); pa.textContent=++added;},6000);
+    }
+  };
+  const show=(t,e)=>{
+    const i=+t.dataset.i; let n, m;
+    if(t.dataset.kind==='brief'){ n=brief[+t.dataset.b]; m=n[2]; }
+    else if(t.dataset.kind==='field'){ n=fields[i%fields.length]; m='frontmatter key'; }
+    else { n=sections[i%sections.length]; m='section of the specification'; }
+    if(t.classList.contains('open')) m+=' · ⚠ to confirm';
+    card.innerHTML='<div class="t">'+n[0]+'</div><div class="s">'+n[1]+'</div><div class="m">'+m+'</div>';
+    if(!mobile){const r=host.getBoundingClientRect(); card.style.left=Math.min(e.clientX-r.left+16,r.width-310)+'px'; card.style.top=Math.min(e.clientY-r.top+16,r.height-150)+'px';}
+    card.classList.add('on');
+  };
+  if(mobile){
+    grid.addEventListener('click',e=>{const t=e.target.closest('.tile'); if(!t) return; all.forEach(x=>x.classList.remove('on')); t.classList.add('on'); show(t,e);});
+    document.addEventListener('click',e=>{ if(!e.target.closest('.tile')){card.classList.remove('on'); all.forEach(x=>x.classList.remove('on'));} });
+  } else {
+    grid.addEventListener('mousemove',e=>{const t=e.target.closest('.tile'); if(!t){card.classList.remove('on');return;} show(t,e);});
+    grid.addEventListener('mouseleave',()=>card.classList.remove('on'));
+    grid.addEventListener('focusin',e=>{const t=e.target.closest('.tile'); if(t) show(t,{clientX:host.getBoundingClientRect().left+40,clientY:host.getBoundingClientRect().top+40});});
+  }
+
+  /* ---------- COMPOSITION: paragraphs ↔ tiles ---------- */
+  const mini=document.getElementById('mini'), doc=document.getElementById('doc'); const sel=[3,17,26,41,55];
+  for(let i=0;i<64;i++){const s=document.createElement('i'); s.dataset.t=i; if(sel.includes(i)) s.classList.add('sel'); if(i===26) s.classList.add('open'); mini.appendChild(s);}
+  const hi=t=>{mini.querySelectorAll('i').forEach(s=>s.classList.toggle('on',+s.dataset.t===t)); doc.querySelectorAll('p').forEach(p=>p.classList.toggle('on',+p.dataset.t===t));};
+  doc.querySelectorAll('p').forEach(p=>{p.addEventListener('mouseenter',()=>hi(+p.dataset.t)); p.addEventListener('mouseleave',()=>hi(-1));});
+  mini.querySelectorAll('i').forEach(s=>{s.addEventListener('mouseenter',()=>{ if(sel.includes(+s.dataset.t)) hi(+s.dataset.t); }); s.addEventListener('mouseleave',()=>hi(-1));});
+
+  /* ---------- PROBLEM: docs ↔ tiles, record the contradiction ---------- */
+  const contra=document.getElementById('contra'), recordBtn=document.getElementById('recordBtn');
+  const link=(sel,k,on)=>contra.querySelectorAll(sel+'[data-k="'+k+'"]').forEach(el=>el.classList.toggle('hi',on));
+  contra.querySelectorAll('.docx,.tl').forEach(el=>{el.addEventListener('mouseenter',()=>{link('.docx',el.dataset.k,true);link('.tl',el.dataset.k,true);}); el.addEventListener('mouseleave',()=>{link('.docx',el.dataset.k,false);link('.tl',el.dataset.k,false);});});
+  recordBtn.addEventListener('click',()=>{recordBtn.disabled=true; recordBtn.textContent='Recorded. Nothing deleted.';
+    contra.classList.add('resolved'); ['cur','v2','v1','q'].forEach((k,i)=>setTimeout(()=>contra.querySelector('.tl[data-k="'+k+'"]').classList.add('show'),i*260));});
+
+  /* ---------- BEFORE/AFTER: sentences ↔ tiles, split ---------- */
+  const ba=document.getElementById('ba'), splitBtn=document.getElementById('splitBtn');
+  const blink=(k,on)=>ba.querySelectorAll('[data-k="'+k+'"]').forEach(el=>el.classList.toggle('hi',on));
+  ba.querySelectorAll('mark,.t').forEach(el=>{el.addEventListener('mouseenter',()=>blink(el.dataset.k,true)); el.addEventListener('mouseleave',()=>blink(el.dataset.k,false));});
+  splitBtn.addEventListener('click',()=>{splitBtn.disabled=true; splitBtn.textContent='Three tiles. Same sentences.';
+    [0,1,2].forEach(k=>setTimeout(()=>{ba.querySelector('.t[data-k="'+k+'"]').classList.add('show'); blink(k,true); setTimeout(()=>blink(k,false),700);},k*350));});
+
+  /* ---------- THE TILE: keys ↔ lines, ageing player ---------- */
+  const keys=document.getElementById('keys'), note=document.getElementById('note');
+  const klink=(k,on)=>{keys.querySelectorAll('li[data-k="'+k+'"]').forEach(l=>l.classList.toggle('hi',on)); note.querySelectorAll('.ln[data-k="'+k+'"]').forEach(l=>l.classList.toggle('hi',on));};
+  keys.querySelectorAll('li').forEach(l=>{l.addEventListener('mouseenter',()=>klink(l.dataset.k,true)); l.addEventListener('mouseleave',()=>klink(l.dataset.k,false));});
+  note.querySelectorAll('.ln').forEach(l=>{l.addEventListener('mouseenter',()=>klink(l.dataset.k,true)); l.addEventListener('mouseleave',()=>klink(l.dataset.k,false));});
+  const nBody=document.getElementById('nBody'), nRev=document.getElementById('nRev'), nRevLine=document.getElementById('nRevLine'), nUpd=document.getElementById('nUpd'), nKw=document.getElementById('nKw');
+  const body0=nBody.textContent, kw0=nKw.textContent;
+  const step=s=>{document.querySelectorAll('#time .row').forEach(r=>r.classList.toggle('on',+r.dataset.s===s));
+    nBody.classList.remove('edited'); nRevLine.classList.remove('stale','fresh'); nKw.classList.remove('proposed');
+    if(s===0){nBody.textContent=body0; nRev.textContent='91be7f0a3c44'; nUpd.textContent='2026-08-22'; nKw.textContent=kw0;}
+    if(s===1){nBody.textContent=body0.replace('Humans read\ndocuments.','Humans read documents,\nand edit them in place.'); nBody.classList.add('edited'); nRev.textContent='91be7f0a3c44'; nRevLine.classList.add('stale'); nUpd.textContent='2026-09-03'; nKw.textContent=kw0;}
+    if(s===2){nBody.textContent=body0.replace('Humans read\ndocuments.','Humans read documents,\nand edit them in place.'); nRev.textContent='7d1c40e9b2a5'; nRevLine.classList.add('fresh'); nUpd.textContent='2026-09-03'; nKw.textContent='[composed document, document type,\n  fragments, edit in place, transclusion]'; nKw.classList.add('proposed');}};
+  document.querySelectorAll('#time .row').forEach(r=>r.addEventListener('click',()=>step(+r.dataset.s)));
+
+  /* ---------- RULES: examples open automatically (see autoplay) ---------- */
+
+  /* ---------- CHECK: runnable terminal ---------- */
+  const runs={
+    ok:{path:'~/vaults/example-vault',lines:[['Mosaix 1.0 audit — ~/vaults/example-vault',''],['notes: 48  errors: 0  warnings: 0',''],['CONFORMANT','ok']]},
+    messy:{path:'~/vaults/marketing-notes',lines:[['Mosaix 1.0 audit — ~/vaults/marketing-notes',''],['notes: 187  errors: 71  warnings: 646',''],['  Launch plan.md: summary length 267 (120–240)','err'],['  Email calendar.md: keywords count 12 (6–8)','err'],['  DEM 03.md: broken link [[survey-wizard]]','err'],['  Personas.md: orphan (no incoming link)','err'],['  … 67 more','err'],['  vault: no taxonomy note → 646 undeclared tags','warn'],['NOT CONFORMANT','err']]},
+    fixed:{path:'~/vaults/marketing-notes',lines:[['Mosaix 1.0 audit — ~/vaults/marketing-notes',''],['notes: 187  errors: 9  warnings: 3',''],['  Personas.md: orphan (no incoming link)','err'],['  … 8 more (all orphans: link them from a map)','err'],['  3 tags not declared in the taxonomy','warn'],['NOT CONFORMANT · two fixes closed 62 errors and 643 warnings','warn']]}};
+  const tout=document.getElementById('tout'), tpath=document.getElementById('tpath'), vsel=document.getElementById('vsel');
+  const run=()=>{const r=runs[vsel.value]; tpath.textContent=r.path; tout.innerHTML=''; let i=0;
+    const next=()=>{if(i>=r.lines.length) return; const [txt,cls]=r.lines[i++]; const s=document.createElement('span'); s.className=cls; s.textContent=txt+'\n'; tout.appendChild(s); setTimeout(next, i===1?300:120);}; setTimeout(next,250);};
+  document.getElementById('runBtn').addEventListener('click',run); vsel.addEventListener('change',run);
+
+  /* ---------- AUTOPLAY + REPLAY: every section plays itself when it enters the viewport ---------- */
+  const once=(el,fn,th=.45)=>{const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){o.unobserve(el); fn();}}),{threshold:th}); o.observe(el);};
+  const showRp=k=>{const b=document.querySelector('.rp[data-rp="'+k+'"]'); if(b) b.classList.add('show');};
+  let timeLoop=null, termLoop=null;
+  const plays={
+    contra(){recordBtn.disabled=false; recordBtn.textContent='Record the contradiction →'; contra.classList.remove('resolved'); contra.querySelectorAll('.tl').forEach(t=>t.classList.remove('show')); setTimeout(()=>{recordBtn.click(); showRp('contra');},900);},
+    ba(){splitBtn.disabled=false; splitBtn.textContent='Split into tiles →'; ba.querySelectorAll('.t').forEach(t=>t.classList.remove('show')); setTimeout(()=>{splitBtn.click(); showRp('ba');},900);},
+    time(){clearInterval(timeLoop); let s=0; step(0); timeLoop=setInterval(()=>{s=(s+1)%3; step(s);},2600); showRp('time');},
+    rules(){const lis=[...document.querySelectorAll('.big3 li')]; lis.forEach(li=>li.classList.remove('open')); lis.forEach((li,i)=>setTimeout(()=>li.classList.add('open'),600+i*500)); showRp('rules');},
+    term(){clearInterval(termLoop); const order=['ok','messy','fixed']; let i=0; vsel.value='ok'; run(); termLoop=setInterval(()=>{i=(i+1)%order.length; vsel.value=order[i]; run();},5200); showRp('term');}
+  };
+  once(contra,plays.contra); once(ba,plays.ba); once(document.getElementById('time'),plays.time,.6); once(document.getElementById('term'),plays.term,.6);
+  document.querySelectorAll('#time .row').forEach(r=>r.addEventListener('click',()=>clearInterval(timeLoop)));
+  document.getElementById('runBtn').addEventListener('click',()=>clearInterval(termLoop)); vsel.addEventListener('change',()=>clearInterval(termLoop));
+  document.querySelectorAll('.rp').forEach(b=>b.addEventListener('click',()=>plays[b.dataset.rp]()));
+
+  /* ---------- EVIDENCE: counters ---------- */
+  const cnts=document.querySelectorAll('.cnt');
+  const cio=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting) return; const el=e.target, n=+el.dataset.n, dec=+(el.dataset.dec||0); cio.unobserve(el); if(reduce){el.textContent=n.toFixed(dec);return;}
+    const t0=performance.now(); const tick=now=>{const p=Math.min(1,(now-t0)/1100); el.textContent=(n*(1-Math.pow(1-p,3))).toFixed(dec); if(p<1) requestAnimationFrame(tick);}; requestAnimationFrame(tick);}),{threshold:.5});
+  cnts.forEach(c=>cio.observe(c));
+  /* agent system: the planner picks clusters in the vault, agents work in parallel, results compose; loops */
+  const chain=document.getElementById('chain');
+  if(chain){
+    const cfv=document.getElementById('cfv'), stepEl=document.getElementById('cfstep');
+    const cells=[]; for(let i=0;i<64;i++){const c=document.createElement('i'); cfv.appendChild(c); cells.push(c);}
+    // clusters on a 16×4 vault: own tile + direct dependencies; cluster B has one open dependency
+    const clusters=[{own:18,deps:[17,34]},{own:6,deps:[7],open:[22]},{own:41,deps:[40,42,57]},{own:29,deps:[13]}];
+    const ag=[...chain.querySelectorAll('.cf-agent')], mg=chain.querySelector('.cf-merge');
+    const reset=()=>{cells.forEach(c=>c.className=''); ag.forEach(a=>a.classList.remove('on','got')); mg.classList.remove('on');};
+    const mark=(k,sel)=>{const cl=clusters[k]; cells[cl.own].className='own'+(sel?' sel':''); cl.deps.forEach(i=>cells[i].className='dep'+(sel?' sel':'')); (cl.open||[]).forEach(i=>cells[i].className='open'+(sel?' sel':''));};
+    once(chain,()=>{
+      const play=()=>{reset(); stepEl.textContent='1 · the planner reads the map and picks, for each agent, one tile and its direct dependencies';
+        clusters.forEach((c,k)=>setTimeout(()=>{mark(k,true); setTimeout(()=>{mark(k,false); ag[k].classList.add('got');},450);},400+k*700));
+        setTimeout(()=>{stepEl.textContent='2 · four agents, four models, at the same time: each one reads only its cluster, ~600 tokens, and nothing else'; ag.forEach(a=>a.classList.add('on'));},3600);
+        setTimeout(()=>{stepEl.textContent='3 · the results are four tiles, back in the vault; a document note composes them in reading order'; mg.classList.add('on'); clusters.forEach(c=>cells[c.own].classList.add('sel'));},5400);};
+      play(); if(!reduce) setInterval(play,8600);},.4);
+  }
+})();
+</script>
+</body>
+</html>
