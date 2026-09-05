@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Frequently asked questions
+    url: https://mosaixformat.org/spec.html#faq
+    about: Questions about reading or applying the specification are answered here first.

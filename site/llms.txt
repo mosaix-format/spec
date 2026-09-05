@@ -1,0 +1,26 @@
+# Mosaix Format
+
+> A file-level format for knowledge vaults made of atomic, self-describing Markdown notes that machines can retrieve one at a time and people can read as composed documents.
+
+Mosaix Format is a specification, not software: it defines what a note carries and which rules a vault of Markdown files obeys, so that any tool, human or automated, can read the same vault. It is meant for anyone maintaining a body of knowledge as plain Markdown files: a codebase, a client relationship, a market, a course. The specification is open, licensed under CC BY-SA 4.0. Its canonical vocabulary is English; vaults that use the Italian key names of the format's source vaults (`mcp_entita`, `tipo`, `stato`, …) remain conformant unchanged, since those are recognised as default aliases.
+
+## Specification
+
+- [Specification v1.0 (English, normative)](https://mosaixformat.org/Mosaix-Format-v1.0.en.md): the full text of the format, in Markdown; the source of truth.
+- [Specifica v1.0 (italiano)](https://mosaixformat.org/Mosaix-Format-v1.0.it.md): courtesy translation; the English file prevails in case of discrepancy.
+- [Changelog](https://mosaixformat.org/CHANGELOG.md): what changed at each version.
+
+## Checker
+
+- [audit_reference.py](https://mosaixformat.org/audit_reference.py): the reference conformance checker. Standard library only, read-only, offline; exit code 0 means the vault is conformant.
+
+## Example
+
+- [mosaix-example-vault.zip](https://mosaixformat.org/mosaix-example-vault.zip): the specification itself, exported as a conformant Mosaix vault, with a set of starter templates.
+- [mosaix-bakery-vault.zip](https://mosaixformat.org/mosaix-bakery-vault.zip): a second conformant vault about a fictional bakery, 26 notes: the format applied to ordinary, non-technical knowledge.
+
+## Optional
+
+- [Specification, HTML](https://mosaixformat.org/spec.html): the same text as the Markdown specification, formatted for browsing.
+- [Home](https://mosaixformat.org/): the project's landing page.
+- [Why one note at a time](https://mosaixformat.org/why-one-note-at-a-time.html): empirical measurements on atomic notes — token cost, local-model results, and what the format does not do.

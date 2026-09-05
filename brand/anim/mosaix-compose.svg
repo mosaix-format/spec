@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="120" height="120">
+  <!-- Mosaix — composizione autonoma (SMIL), una sola volta: le tessere arrivano dagli angoli e si posano. -->
+  <g fill="currentColor" stroke="currentColor">
+    <polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="0s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="translate" from="-9 -9" to="31 31" additive="replace" dur="0.7s" begin="0s" fill="freeze" calcMode="spline" keySplines="0.2 0.8 0.2 1"/>
+      <animateTransform attributeName="transform" type="rotate" from="66" to="41" additive="sum" dur="0.7s" begin="0s" fill="freeze"/>
+    </polygon>
+    <polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="0.35s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="translate" from="109 -10" to="69 30" additive="replace" dur="0.7s" begin="0.35s" fill="freeze" calcMode="spline" keySplines="0.2 0.8 0.2 1"/>
+      <animateTransform attributeName="transform" type="rotate" from="72" to="47" additive="sum" dur="0.7s" begin="0.35s" fill="freeze"/>
+    </polygon>
+    <polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="0.7s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="translate" from="-10 109" to="30 69" additive="replace" dur="0.7s" begin="0.7s" fill="freeze" calcMode="spline" keySplines="0.2 0.8 0.2 1"/>
+      <animateTransform attributeName="transform" type="rotate" from="69" to="44" additive="sum" dur="0.7s" begin="0.7s" fill="freeze"/>
+    </polygon>
+    <polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke-width="4" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="1.05s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="translate" from="110 110" to="70 70" additive="replace" dur="0.7s" begin="1.05s" fill="freeze" calcMode="spline" keySplines="0.2 0.8 0.2 1"/>
+      <animateTransform attributeName="transform" type="rotate" from="74" to="49" additive="sum" dur="0.7s" begin="1.05s" fill="freeze"/>
+    </polygon>
+  </g>
+</svg>

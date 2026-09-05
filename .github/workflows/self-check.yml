@@ -1,0 +1,72 @@
+name: Self-check
+
+on: [push, pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Export example vault and verify output
+        shell: bash
+        run: |
+          OUTPUT=$(python example-vault/export_vault.py)
+          echo "$OUTPUT"
+          echo "$OUTPUT" | grep -q "CONFORMANT" || { echo "::error::export_vault.py output does not contain CONFORMANT"; exit 1; }
+
+      - name: Run Mosaix conformance check on example-vault
+        uses: ./
+        with:
+          vault: example-vault/vault
+          fail-on-warnings: 'true'
+
+      - name: Check example-vault-bakery (if present)
+        shell: bash
+        run: |
+          if [ -d "example-vault-bakery" ]; then
+            OUTPUT=$(python example-vault-bakery/export_vault.py)
+            echo "$OUTPUT"
+            echo "$OUTPUT" | grep -q "CONFORMANT" || { echo "::error::bakery vault is not conformant"; exit 1; }
+            echo "$OUTPUT" | grep -q "warnings: 0" || { echo "::error::bakery vault has warnings"; exit 1; }
+          else
+            echo "example-vault-bakery/ not found, skipping."
+          fi
+
+      - name: Link check on site pages
+        shell: python
+        run: |
+          import os, re, sys
+
+          site = "site"
+          pages = ["index.html", "spec.html"]
+          errors = []
+
+          for page in pages:
+              path = os.path.join(site, page)
+              if not os.path.isfile(path):
+                  errors.append(f"{path}: file not found")
+                  continue
+              with open(path, encoding="utf-8") as f:
+                  html = f.read()
+              refs = re.findall(r'(?:href|src)=["\']([^"\'#]+?)(?:[#?][^"\']*)?["\']', html)
+              for ref in refs:
+                  if ref.startswith(("http://", "https://", "mailto:", "data:", "javascript:")):
+                      continue
+                  target = os.path.normpath(os.path.join(site, ref))
+                  if not os.path.exists(target):
+                      errors.append(f"{page}: broken relative ref '{ref}' (expected {target})")
+
+          if errors:
+              for e in errors:
+                  print(f"::error::{e}")
+              sys.exit(1)
+          else:
+              print(f"Link check passed: {len(pages)} pages, no broken relative references.")

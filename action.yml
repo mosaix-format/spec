@@ -1,0 +1,175 @@
+name: Mosaix conformance check
+description: Run the Mosaix Format reference checker on a vault and report results.
+branding:
+  icon: grid
+  color: gray-dark
+
+inputs:
+  vault:
+    description: Path to the vault directory.
+    required: false
+    default: '.'
+  exclude:
+    description: Comma-separated path prefixes to skip (e.g. "exports/,drafts/").
+    required: false
+    default: ''
+  check-rev:
+    description: Also compare rev with sha256(body) (warning only).
+    required: false
+    default: 'false'
+  fail-on-warnings:
+    description: Fail the step if the report contains any warnings.
+    required: false
+    default: 'false'
+  comment:
+    description: Post or update a comment on the pull request with the report.
+    required: false
+    default: 'true'
+
+outputs:
+  conformant:
+    description: '"true" if the vault is conformant, "false" otherwise.'
+    value: ${{ steps.evaluate.outputs.conformant }}
+  errors:
+    description: Number of errors found.
+    value: ${{ steps.evaluate.outputs.errors }}
+  warnings:
+    description: Number of warnings found.
+    value: ${{ steps.evaluate.outputs.warnings }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Run the checker (JSON)
+      shell: bash
+      run: |
+        ARGS="${{ inputs.vault }}"
+        ARGS="$ARGS --json"
+        if [ "${{ inputs.check-rev }}" = "true" ]; then
+          ARGS="$ARGS --check-rev"
+        fi
+        EXCLUDE="${{ inputs.exclude }}"
+        if [ -n "$EXCLUDE" ]; then
+          ARGS="$ARGS --exclude=$EXCLUDE"
+        fi
+        python "${{ github.action_path }}/audit_reference.py" $ARGS > mosaix-report.json || true
+
+    - name: Run the checker (text)
+      shell: bash
+      run: |
+        ARGS="${{ inputs.vault }}"
+        ARGS="$ARGS --verbose"
+        if [ "${{ inputs.check-rev }}" = "true" ]; then
+          ARGS="$ARGS --check-rev"
+        fi
+        EXCLUDE="${{ inputs.exclude }}"
+        if [ -n "$EXCLUDE" ]; then
+          ARGS="$ARGS --exclude=$EXCLUDE"
+        fi
+        python "${{ github.action_path }}/audit_reference.py" $ARGS > mosaix-report.txt || true
+
+    - name: Evaluate report and write summary
+      id: evaluate
+      shell: python
+      run: |
+        import json, os
+
+        with open("mosaix-report.json") as f:
+            report = json.load(f)
+
+        conformant = report["conformant"]
+        errors = report.get("errors", [])
+        warnings = report.get("warnings", [])
+        n_errors = len(errors)
+        n_warnings = len(warnings)
+        notes = report.get("notes", 0)
+
+        with open(os.environ["GITHUB_OUTPUT"], "a") as gh:
+            gh.write(f"conformant={str(conformant).lower()}\n")
+            gh.write(f"errors={n_errors}\n")
+            gh.write(f"warnings={n_warnings}\n")
+
+        icon = "✅" if conformant else "❌"
+        lines = []
+        lines.append(f"## {icon} Mosaix conformance check\n")
+        lines.append("| Metric | Value |")
+        lines.append("|--------|-------|")
+        lines.append(f"| Notes  | {notes} |")
+        lines.append(f"| Errors | {n_errors} |")
+        lines.append(f"| Warnings | {n_warnings} |")
+        lines.append(f"| Conformant | {conformant} |")
+        lines.append("")
+
+        if errors:
+            lines.append("### Errors (first 50)\n")
+            for e in errors[:50]:
+                lines.append(f"- `{e}`")
+            if n_errors > 50:
+                lines.append(f"\n… and {n_errors - 50} more.")
+            lines.append("")
+
+        if warnings:
+            lines.append("### Warnings (first 20)\n")
+            for w in warnings[:20]:
+                lines.append(f"- `{w}`")
+            if n_warnings > 20:
+                lines.append(f"\n… and {n_warnings - 20} more.")
+            lines.append("")
+
+        summary = "\n".join(lines)
+
+        with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as gh:
+            gh.write(summary)
+
+        with open("mosaix-comment-body.md", "w") as f:
+            f.write("<!-- mosaix-check -->\n")
+            f.write(summary)
+
+    - name: Comment on pull request
+      if: inputs.comment == 'true' && github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const body = fs.readFileSync('mosaix-comment-body.md', 'utf8');
+          const marker = '<!-- mosaix-check -->';
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          const existing = comments.find(c => c.body.startsWith(marker));
+          if (existing) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: existing.id,
+              body,
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+          }
+
+    - name: Fail if not conformant or warnings present
+      shell: bash
+      run: |
+        CONFORMANT=$(python -c "import json; print(json.load(open('mosaix-report.json'))['conformant'])")
+        WARNINGS=$(python -c "import json; print(len(json.load(open('mosaix-report.json')).get('warnings',[])))")
+        if [ "$CONFORMANT" = "False" ]; then
+          echo "::error::Vault is not conformant."
+          exit 1
+        fi
+        if [ "${{ inputs.fail-on-warnings }}" = "true" ] && [ "$WARNINGS" -gt 0 ]; then
+          echo "::error::Vault has $WARNINGS warning(s) and fail-on-warnings is enabled."
+          exit 1
+        fi

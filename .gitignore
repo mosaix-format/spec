@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Working notes, never published
+PUBLISH.md
+PROMPTS-claude-code.md
+DECISIONI-*.md
+SLIM-Vault-Format-*.md
+
+# Site drafts and mockups
+site/mockup*.html
+site/mobile-e.html
+site/moodboard.html
+site/index-varianti.html
+
+# Brand drafts and explorations (the identity is mark, favicon, wordmark and the two animated SVGs)
+brand/tavola*.html
+brand/anim/animazioni.html
+brand/mosaix-favicon-open.svg
+brand/mosaix-mark-open.svg
+brand/mosaix-gap.svg
+brand/mosaix-m.svg
+brand/mosaix-x.svg
+
+# Site: source of og.png stays; only the export matters
+
+
+# Example vault: generated syntheses
+example-vault/vault/_sintesi/
+
+# Fonts superseded by the variable face
+site/fonts/IBMPlexSans-400.woff2
+site/fonts/IBMPlexSans-500.woff2
+site/fonts/IBMPlexSans-600.woff2
