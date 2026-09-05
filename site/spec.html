@@ -33,6 +33,8 @@
   .toc .h:first-child{margin-top:0}
   .toc a{display:block;padding:5px 0 5px 12px;border-left:1px solid var(--line);color:var(--ink2);line-height:1.35}
   .toc a.on{border-left-color:var(--ink);color:var(--ink)}
+  .tw{overflow-x:auto;max-width:100%}
+  .doc p code,.doc li code,.doc td code,.doc dd code{overflow-wrap:anywhere}
   .toc a.sub{padding-left:24px;font-size:12.5px;color:var(--ink3)}
   .toc .lang{margin-top:22px;display:flex;gap:6px;font:12px var(--mono)}
   .toc .lang a{border:1px solid var(--line);padding:3px 8px;display:inline-block}
@@ -175,7 +177,7 @@ my-vault/
     └── Second question.md</pre>
 
   <h2 id="vocabulary"><span class="no">START HERE</span>Vocabulary</h2>
-  <table>
+  <div class="tw"><table>
     <tr><th>Term</th><th>Meaning</th></tr>
     <tr><td>vault</td><td>A directory tree of Markdown notes about one domain. The unit of conformance.</td></tr>
     <tr><td>note · tile</td><td>One <code>.md</code> file answering one question, with CORE frontmatter. "Tile" is the same thing seen from the mosaic.</td></tr>
@@ -188,7 +190,7 @@ my-vault/
     <tr><td>stale</td><td>Metadata whose <code>rev</code> no longer matches the body: the body changed after the keys were computed.</td></tr>
     <tr><td>superseded</td><td>A note that is no longer valid, marked as such and kept in place because others link to it (R7).</td></tr>
     <tr><td>cluster</td><td>A note plus its direct dependencies: what an agent receives to work on one tile (see <a href="#agents">Working with agents</a>).</td></tr>
-  </table>
+  </table></div>
 
   <!-- ================= SPEC ================= -->
   <h2 id="s0"><span class="no">§0</span>Status of this document</h2>
@@ -219,7 +221,7 @@ my-vault/
   <p>A <b>note</b> answers one question. If a draft answers two, it is two notes. The body length is not constrained; the <em>scope</em> is.</p>
 
   <h3 id="s31">3.1 Frontmatter — CORE <span class="req must">required for conformance</span></h3>
-  <table>
+  <div class="tw"><table>
     <tr><th>Key</th><th>Type</th><th>Written by</th><th>Purpose</th></tr>
     <tr><td>title</td><td>string</td><td>human, or derived from the filename</td><td>the name of the node</td></tr>
     <tr><td>updated</td><td>date <code>YYYY-MM-DD</code></td><td>human or system</td><td>last substantive change; drives staleness of the note</td></tr>
@@ -230,7 +232,7 @@ my-vault/
     <tr><td>relations</td><td>list of <code>{from, type, to}</code></td><td>enrichment or human</td><td>typed links between named entities; <code>type</code> is a short verb phrase (<code>owns</code>, <code>depends on</code>, <code>supplies</code>)</td></tr>
     <tr><td>links</td><td>list of strings</td><td>enrichment or human</td><td>wikilink targets this note points to; each <span class="kw">MUST</span> resolve to an existing note</td></tr>
     <tr><td>rev</td><td>12 hex chars</td><td>system</td><td>hash of the body when <code>entities</code>, <code>relations</code> and <code>links</code> were last computed; a mismatch with the current body means the metadata is stale</td></tr>
-  </table>
+  </table></div>
   <ul>
     <li><code>summary</code> <span class="kw">MUST NOT</span> repeat the title and <span class="kw">MUST NOT</span> begin with "This note…" or its equivalent. It is written for a reader who has not opened the note.</li>
     <li><b>Aliases.</b> A vault <span class="kw">MAY</span> write any CORE key under an alias declared in its meta note. Recognised by default, so that vaults created before this version stay conformant: <code>mcp_entita → entities</code>, <code>mcp_relazioni → relations</code>, <code>mcp_collegamenti → links</code>, <code>mcp_rev → rev</code>, <code>aggiornato → updated</code>, <code>titolo → title</code>, <code>riassunto → summary</code>, <code>parole_chiave → keywords</code>; inside items, <code>nome → name</code>, <code>tipo → type</code>, <code>da → from</code>, <code>a → to</code>; and the Italian entity-type values (<code>persona azienda prodotto progetto strumento luogo documento evento</code>) map to the English ones. Checkers report by canonical name.</li>
@@ -260,15 +262,15 @@ See [[PPE consolidation 2025]] and [[Strategic scenarios]].</pre>
   <p>Two independent questions, answered by two independent markers. They <span class="kw">MAY</span> be expressed as frontmatter keys, as tags, or as inline symbols in the body; a vault <span class="kw">MUST</span> choose one convention and document it in its meta note.</p>
   <div class="axes">
     <div><div class="rlab">Axis A — is it true?</div>
-      <table><tr><th>Marker</th><th>Meaning</th></tr>
+      <div class="tw"><table><tr><th>Marker</th><th>Meaning</th></tr>
       <tr><td>✅ sourced</td><td>comes from a document, a system, or a working conversation; the source is named</td></tr>
-      <tr><td>⚠️ to confirm</td><td>hypothesis, draft, placeholder; not yet validated</td></tr></table></div>
+      <tr><td>⚠️ to confirm</td><td>hypothesis, draft, placeholder; not yet validated</td></tr></table></div></div>
     <div><div class="rlab">Axis B — does it exist?</div>
-      <table><tr><th>Marker</th><th>Meaning</th></tr>
+      <div class="tw"><table><tr><th>Marker</th><th>Meaning</th></tr>
       <tr><td>🟢 implemented</td><td>exists and works as described</td></tr>
       <tr><td>🟡 decided</td><td>decided, not built</td></tr>
       <tr><td>⚠️ open</td><td>undecided</td></tr>
-      <tr><td>❌ excluded</td><td>decided against</td></tr></table></div>
+      <tr><td>❌ excluded</td><td>decided against</td></tr></table></div></div>
   </div>
   <p>A statement may be ✅ sourced and 🟡 not implemented: a verified fact about something that does not yet exist. Keeping the axes separate is what lets a reader, months later, tell an intention from a fact.</p>
 
@@ -277,12 +279,12 @@ See [[PPE consolidation 2025]] and [[Strategic scenarios]].</pre>
 
   <h3 id="s34">3.4 Note types</h3>
   <p>The <code>type</code> key (or a <code>#type/...</code> tag) <span class="kw">MAY</span> classify notes. Three types have format-level meaning:</p>
-  <table>
+  <div class="tw"><table>
     <tr><th>type</th><th>Role</th></tr>
     <tr><td>moc</td><td>Map of content: an entry point that narrates an area and lists its notes. A vault <span class="kw">MUST</span> have at least one, usually <code>Home</code> or <code>00-Index</code>.</td></tr>
     <tr><td>synthesis</td><td>A synthesis written to be read alone as context for a task; lives in <code>_synthesis/</code> (§5.2).</td></tr>
     <tr><td>document</td><td>A composed document: a note whose frontmatter lists the notes it is assembled from (§6).</td></tr>
-  </table>
+  </table></div>
 
   <h2 id="s4"><span class="no">§4</span>Links and the graph</h2>
   <ul>
@@ -295,12 +297,12 @@ See [[PPE consolidation 2025]] and [[Strategic scenarios]].</pre>
   <h2 id="s5"><span class="no">§5</span>Vault structure</h2>
   <h3>5.1 Free layout, reserved names</h3>
   <p>Folders are free. Numbered prefixes (<code>00-Index</code>, <code>01-Azienda</code>, …) are a common convention and are read as a <b>reading order</b>, not a build order. Three folder names are reserved:</p>
-  <table>
+  <div class="tw"><table>
     <tr><th>Folder</th><th>Content</th></tr>
     <tr><td>_meta/</td><td>the vault's own governance: meta note, taxonomy, open questions</td></tr>
     <tr><td>_synthesis/</td><td>synthesis notes written to be consumed alone as context</td></tr>
     <tr><td>_inbox/</td><td>material that has entered the vault but has not yet been turned into notes; nothing in <code>_inbox/</code> counts toward conformance</td></tr>
-  </table>
+  </table></div>
   <p>A vault <span class="kw">MAY</span> additionally keep a <code>_private/</code> folder excluded from version control for personal working material. Nothing in <code>_private/</code> is part of the vault. Folders holding content exports that are not notes (platform payloads, generated copies) <span class="kw">MAY</span> be declared as <b>payload</b> in the meta note and are then excluded from the frontmatter check.</p>
   <h3>5.2 Synthesis notes</h3>
   <p>A <code>_synthesis/</code> note condenses an area of the vault into a text that can be read alone. It <span class="kw">MUST</span> link to the notes it summarises. It is the recommended unit to hand to a machine or a newcomer before any task in that area. It is <em>not</em> a substitute for the notes: when it disagrees with a note, the note wins and the synthesis is stale.</p>
@@ -317,12 +319,12 @@ owner: partners · status: C assumed, A and B superseded and kept</pre>
 
   <h2 id="s6"><span class="no">§6</span>Composed documents</h2>
   <p>Atomic notes are for machines. Humans read documents. The format therefore defines a note type that is a <b>view over other notes</b> without duplicating them. A note with <code>type: document</code> <span class="kw">MUST</span> carry:</p>
-  <table>
+  <div class="tw"><table>
     <tr><th>Key</th><th>Type</th><th>Meaning</th></tr>
     <tr><td>fragments</td><td>ordered list of note titles</td><td>the notes that make up the document, in reading order</td></tr>
     <tr><td>pool</td><td>list of note titles (optional)</td><td>candidate notes considered but not included</td></tr>
     <tr><td>layout</td><td>map (optional)</td><td>presentation hints (cover, sections, page format); free-form</td></tr>
-  </table>
+  </table></div>
   <p>Its body <span class="kw">MAY</span> contain narrative connecting the fragments and <span class="kw">MAY</span> embed them with <code>![[Note]]</code>. The rule is: <b>the fragments stay atomic and separate; the document is only the view that joins them.</b> An edit made while reading the composed document belongs to the fragment's note, not to the document. Because the composed document is itself a note, it inherits versioning, review, search and linking for free. No second storage channel is needed.</p>
   <pre><span class="k">---</span>
 title: Market entry brief — PPE, Europe
@@ -385,7 +387,7 @@ Read the five fragments in order. ![[PPE consolidation 2025]] …</pre>
 
   <h2 id="s10"><span class="no">§10</span>Conformance</h2>
   <p>A vault is <b>Mosaix 1.0 conformant</b> when a check over its files reports zero errors for:</p>
-  <table>
+  <div class="tw"><table>
     <tr><th>Check</th><th>Rule</th></tr>
     <tr><td>frontmatter present</td><td>on every note outside <code>_inbox/</code>, <code>_private/</code> and declared payload folders · R2</td></tr>
     <tr><td>core keys present</td><td><code>title</code>, <code>updated</code>, <code>tags</code>, <code>summary</code>, <code>keywords</code>, <code>rev</code> (canonical or aliased) · R2</td></tr>
@@ -397,7 +399,7 @@ Read the five fragments in order. ![[PPE consolidation 2025]] …</pre>
     <tr><td>MOC present</td><td>at least one <code>type: moc</code> note · §3.4</td></tr>
     <tr><td>governance present</td><td>open-questions ledger and meta note exist · §5.3, §5.4</td></tr>
     <tr><td>documents well-formed</td><td>every <code>type: document</code> lists ≥ 2 <code>fragments</code>, all resolving · §6</td></tr>
-  </table>
+  </table></div>
   <p>and zero or more <b>warnings</b> for: tags not declared in the taxonomy, domain keys not declared, <code>rev</code> older than the body (stale metadata), notes without any reliability marker, more than 12 <code>entities</code> on a note that is not a MOC. A reference checker, <code>audit_reference.py</code>, accompanies this specification. It uses only the Python standard library and produces the table above. Its output is the conformance report.</p>
 
   <h2 id="s11"><span class="no">§11</span>Versioning of this specification</h2>
@@ -520,7 +522,7 @@ tags: [moc, meta, player, mercato, fiere]
 
   <h2 id="entities"><span class="no">REFERENCE</span>Entity types</h2>
   <p>The eight types of <code>entities</code>, and where the line is. A vault may add types in its meta note; it may not redefine these.</p>
-  <table>
+  <div class="tw"><table>
     <tr><th>type</th><th>Use for</th><th>Not for</th></tr>
     <tr><td>person</td><td>a named individual: a founder, a contact, an author</td><td>a role ("the CFO") without a name</td></tr>
     <tr><td>company</td><td>a company, institution, association, public body</td><td>a brand owned by a company (→ product) or a team inside it</td></tr>
@@ -530,7 +532,7 @@ tags: [moc, meta, player, mercato, fiere]
     <tr><td>place</td><td>countries, cities, sites, plants, regions</td><td>a market as a concept (tag it instead)</td></tr>
     <tr><td>document</td><td>a named source: a report, a law, a contract, a dataset</td><td>the note itself</td></tr>
     <tr><td>event</td><td>a trade fair, a launch date, a meeting, a deadline</td><td>a recurring activity without a date</td></tr>
-  </table>
+  </table></div>
   <p>Relation phrases (<code>relations[].type</code>) are short verbs in the present tense from the first entity's point of view: <code>owns</code>, <code>supplies</code>, <code>competes with</code>, <code>depends on</code>, <code>takes part in</code>. Declare a closed list in the meta note if you want deterministic queries.</p>
 
   <h2 id="scale"><span class="no">REFERENCE</span>Scale</h2>
@@ -661,7 +663,7 @@ rev:
 ![[Note C]]</pre>
 
   <h2 id="errors"><span class="no">REFERENCE</span>Errors and warnings</h2>
-  <table>
+  <div class="tw"><table>
     <tr><th>Message</th><th>Meaning</th><th>Fix</th></tr>
     <tr><td>no frontmatter</td><td>the note has no YAML block</td><td>add the CORE keys; or declare the folder as payload if it is not a note</td></tr>
     <tr><td>missing `summary`</td><td>a CORE key is absent</td><td>write it; 120–240 characters, declarative, not the title</td></tr>
@@ -677,7 +679,7 @@ rev:
     <tr><td><em>warning</em> 14 entities (&gt;12)</td><td>more named things than one question usually has</td><td>split the note (R1), or keep it and accept the warning</td></tr>
     <tr><td><em>warning</em> rev may be stale</td><td>body changed after the keys</td><td>recompute the keys (propose on a branch, R8)</td></tr>
     <tr><td><em>warning</em> no reliability marker</td><td>neither axis present</td><td>add ✅/⚠ or the <code>status</code> key per your convention</td></tr>
-  </table>
+  </table></div>
 
   <h2 id="agents"><span class="no">REFERENCE</span>Working with agents</h2>
   <p>The format is designed so that an agent never needs the whole vault. The unit of work is a <b>cluster</b>: one note plus its direct dependencies, resolved from <code>links</code> and <code>relations</code>, usually a few hundred tokens. A planner reads the map of content and the summaries, picks one tile per agent, and hands each agent its cluster. Agents run in parallel; there is no shared memory to keep in sync. Their results are new or revised tiles, proposed on a branch (R8) and composed with a <code>document</code> note.</p>
