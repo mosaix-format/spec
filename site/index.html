@@ -288,7 +288,10 @@
   .term{min-height:190px}
   .term .out{white-space:pre-wrap}
   .term .err{color:#e07a66}.term .warn{color:#d4b043}
-  .termbar{display:flex;gap:8px;align-items:center;margin-bottom:10px;font:12px var(--mono)}
+  .termbar{display:flex;gap:8px;align-items:center;margin-bottom:10px;font:12px var(--mono);flex-wrap:wrap}
+  .termbar select{min-width:0;max-width:100%;flex:1 1 160px}
+  .two > *{min-width:0}
+  .term{max-width:100%}
   .termbar select{font:12px var(--mono);padding:5px 8px;border:1px solid var(--ink);background:transparent;color:var(--ink)}
   .termbar button{font:12px var(--mono);padding:5px 10px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer}
   /* evidence: counters */
@@ -392,6 +395,7 @@
     .card{position:fixed;left:12px;right:12px;bottom:12px;width:auto;z-index:70}
     .legend{position:static;margin-top:10px}
     .pulse{position:static;text-align:right;margin-bottom:6px}
+    .replay{position:static;align-self:flex-start;margin-bottom:4px}
     .contra,.ba{grid-template-columns:1fr}.arrow{display:none}
     .pile{height:auto}.docx{position:static;transform:none!important;width:auto;margin-bottom:3px}
     .anat,.comp,.two,.loop{grid-template-columns:1fr;gap:28px}
@@ -760,13 +764,22 @@ python audit_reference.py <span id="tpath">~/vaults/example-vault</span>
           flies.forEach((f,i)=>{const t=pick(f.dataset.k); const tr=t.getBoundingClientRect();
             f.style.transitionDelay=(i*4)+'ms'; f.style.left=(tr.left-hr.left)+'px'; f.style.top=(tr.top-hr.top)+'px'; f.style.width=tr.width+'px'; f.style.height=tr.height+'px'; f.style.transform='rotate('+(Math.random()*8-4).toFixed(1)+'deg)';});
           setTimeout(()=>{ // 3. the mosaic is the document, unpacked
-            all.forEach(t=>{t.style.animation='none'; setTimeout(()=>{t.style.opacity='1'; t.style.transform='rotate('+getComputedStyle(t).getPropertyValue('--r')+')';}, Math.random()*350);});
-            setTimeout(()=>{host.classList.remove('staging'); flies.forEach(f=>f.remove()); replay.hidden=false;},420);
+            all.forEach(t=>{t.style.animation='none'; t.style.transition='opacity .3s '+Math.round(Math.random()*350)+'ms, transform .3s '+Math.round(Math.random()*350)+'ms, background .4s, outline-color .4s'; t.style.opacity='1'; t.style.transform='rotate('+getComputedStyle(t).getPropertyValue('--r')+')';});
+            setTimeout(()=>{finish(flies);},420);
           },900+flies.length*4);
         },650);
       },1500);
     };
-    if(reduce){ page.hidden=true; } else { unpack(); replay.addEventListener('click',unpack); }
+    // finish() is idempotent: it is also called when a background tab becomes visible, because
+    // browsers throttle timers in hidden tabs and the sequence above may not have completed.
+    let started=0, liveFlies=[];
+    const finish=(fl)=>{ host.classList.remove('staging'); (fl||liveFlies).forEach(f=>f.remove()); liveFlies=[]; page.classList.add('gone');
+      all.forEach(t=>{ if(getComputedStyle(t).opacity==='0'){ t.style.animation='none'; t.style.transition='none'; t.style.opacity='1'; t.style.transform='rotate('+getComputedStyle(t).getPropertyValue('--r')+')'; } });
+      replay.hidden=false; };
+    const unpack0=unpack;
+    const unpackSafe=()=>{ started=Date.now(); unpack0(); liveFlies=[...host.querySelectorAll('.fly')]; };
+    document.addEventListener('visibilitychange',()=>{ if(!document.hidden && started && Date.now()-started>4000) { liveFlies=[...host.querySelectorAll('.fly')]; finish(); } });
+    if(reduce){ page.hidden=true; } else { unpackSafe(); replay.addEventListener('click',unpackSafe); }
 
     if(!reduce){
       let confirmed=0, added=0; const pc=document.getElementById('pc'), pa=document.getElementById('pa');
