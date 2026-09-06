@@ -701,14 +701,22 @@ python audit_reference.py <span id="tpath">~/vaults/example-vault</span>
 
 <section class="sec tight" style="padding-top:0">
   <div class="loop">
-    <div><h3>Not going to write YAML today?</h3><p>Send an empty email. You get one line when 1.1 ships and one when the checker package is out. Nothing else.</p></div>
-    <div><a class="btn solid" href="mailto:hello@mosaixformat.org?subject=Keep%20me%20posted%20on%20Mosaix">Keep me posted →</a><small>No form, no list, no tracking: it is a mailbox. Reply to unsubscribe, or to ask anything.</small></div>
+    <div><h3>Not going to write YAML today?</h3><p>You get one line when 1.1 ships and one when the checker package is out. Nothing else.</p></div>
+    <div>
+      <form id="kmp" action="https://n8n.boom-digital.it/webhook/mosaix-subscribe" method="POST" novalidate>
+        <input type="email" name="email" placeholder="your@email.com" required aria-label="Email address" autocomplete="email">
+        <div style="position:absolute;left:-9999px" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
+        <button type="submit" class="btn solid">Keep me posted →</button>
+      </form>
+      <small id="kmp-msg"></small>
+      <small>Double opt-in. We store your address in <a href="https://resend.com" style="text-decoration:underline">Resend</a> until you unsubscribe. <a href="privacy.html" style="text-decoration:underline">Privacy</a>.</small>
+    </div>
   </div>
 </section>
 
 <footer>
   <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.0 · CC BY-SA 4.0 · © 2026 Andrea Fiorino · maintained by Boom Digital</span>
-  <span><a href="spec.html">Specification</a> · <a href="spec.html#checker">Checker</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE.md">License</a> · <a href="https://mosaixformat.org">mosaixformat.org</a></span>
+  <span><a href="spec.html">Specification</a> · <a href="spec.html#checker">Checker</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE.md">License</a> · <a href="privacy.html">Privacy</a> · <a href="https://mosaixformat.org">mosaixformat.org</a></span>
 </footer>
 </div>
 
@@ -892,6 +900,20 @@ python audit_reference.py <span id="tpath">~/vaults/example-vault</span>
         setTimeout(()=>{stepEl.textContent='3 · the results are four tiles, back in the vault; a document note composes them in reading order'; mg.classList.add('on'); clusters.forEach(c=>cells[c.own].classList.add('sel'));},5400);};
       play(); if(!reduce) setInterval(play,8600);},.4);
   }
+  /* ---------- SUBSCRIBE FORM ---------- */
+  const kmp=document.getElementById('kmp'), msg=document.getElementById('kmp-msg');
+  if(kmp) kmp.addEventListener('submit',function(e){
+    e.preventDefault();
+    if(kmp.querySelector('[name="website"]').value) return;
+    const em=kmp.querySelector('[name="email"]');
+    if(!em.value||!em.validity.valid){msg.textContent='Please enter a valid email.';msg.style.color='var(--red)';return;}
+    const btn=kmp.querySelector('button'); btn.disabled=true; btn.textContent='Sending…';
+    fetch(kmp.action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em.value})})
+      .then(function(r){if(!r.ok) throw r; return r.json()})
+      .then(function(){msg.textContent='Check your inbox — we sent a confirmation link.';msg.style.color='var(--ink2)';btn.textContent='Sent ✓';})
+      .catch(function(){msg.textContent='Something went wrong. Try again or write to hello@mosaixformat.org.';msg.style.color='var(--red)';btn.disabled=false;btn.textContent='Keep me posted →';});
+  });
+
 })();
 </script>
 </body>
