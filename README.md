@@ -31,6 +31,7 @@ example-vault/             the specification itself as a conformant vault (+ Obs
 example-vault-bakery/      a fictional bakery: the format on ordinary knowledge
 site/                      mosaixformat.org, served by GitHub Pages from this folder
 brand/                     mark, favicon, wordmark and identity notes
+skill/                     optional Claude Skill: agent instructions for reading and writing conformant notes
 ```
 
 Both example vaults are generated from a single `vault-data.js` by `export_vault.py`, which also runs the checker and refreshes the copies the site serves. Edit the `.js`, not the `.md` files.
@@ -49,7 +50,7 @@ Exit code 0 means conformant. Errors and warnings map to §10 of the specificati
 
 v1.0.0 — September 2026. Extracted from three vaults in production use (code documentation, industrial market intelligence, education marketing).
 
-Mosaix is a format by SLIM, maintained by Boom Digital. The specification is open (CC BY-SA 4.0); the tooling that produces, enriches, searches and composes Mosaix vaults is separate and not part of this repository.
+Mosaix is a format by SLIM, maintained by Boom Digital. The specification is open (CC BY-SA 4.0); how vaults are produced, enriched, searched or composed is out of scope by design (§8) and not part of this repository. `skill/` is the one exception: optional, non-normative instructions for one agent (Claude) to read and write conformant notes. Nothing in the specification or the checker depends on it.
 
 ## Check on every push
 

@@ -24,3 +24,10 @@ Mosaix Format is a specification, not software: it defines what a note carries a
 - [Specification, HTML](https://mosaixformat.org/spec.html): the same text as the Markdown specification, formatted for browsing.
 - [Home](https://mosaixformat.org/): the project's landing page.
 - [Why one note at a time](https://mosaixformat.org/why-one-note-at-a-time.html): empirical measurements on atomic notes — token cost, local-model results, and what the format does not do.
+- [Privacy](https://mosaixformat.org/privacy.html): what the mailing list collects and your rights.
+- [Claude Skill — Format](https://mosaixformat.org/skill/SKILL.md): teaches Claude to write conformant notes and navigate Mosaix vaults.
+- [Claude Skill — Audit](https://mosaixformat.org/skill/mosaix-audit/SKILL.md): teaches Claude to verify vault conformance and fix common issues.
+- [Claude Skill — Compose](https://mosaixformat.org/skill/mosaix-compose/SKILL.md): teaches Claude to assemble atomic notes into composed documents.
+- [Claude Skill — Onboard](https://mosaixformat.org/skill/mosaix-onboard/SKILL.md): teaches Claude to bootstrap a new vault from scratch.
+- [Claude Skill — Ingest](https://mosaixformat.org/skill/mosaix-ingest/SKILL.md): teaches Claude the principles of splitting documents into atomic notes.
+- [Claude Skill — Enrich](https://mosaixformat.org/skill/mosaix-enrich/SKILL.md): teaches Claude to fill CORE frontmatter and validate enrichment quality.
