@@ -184,7 +184,8 @@
   .hosts span{padding:10px 0;font:15px var(--sans);color:var(--ink2);border-bottom:1px solid var(--line)}
   .hosts span.ref{color:var(--ink);border-bottom:2px solid var(--ink);font-weight:600}
   .skills-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0 28px;margin-bottom:24px}
-  .skills-grid a{display:block;padding:18px 0 20px;border-top:1px solid var(--line);color:var(--ink);text-decoration:none}
+  .chain-wrap{background:var(--paper);padding:40px;margin-top:48px}
+  .skills-grid a{display:block;padding:12px 0 14px;border-top:1px solid var(--line);color:var(--ink);text-decoration:none}
   .skills-grid a:hover b{text-decoration:underline}
   .skills-grid b{display:block;font:600 15px/1.2 var(--sans);margin-bottom:6px}
   .skills-grid small{display:block;font-size:13.5px;color:var(--ink2);line-height:1.45}
@@ -424,7 +425,7 @@
 <div class="wrap">
 <nav>
   <a class="brand" href="index.html" aria-label="Mosaix home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>mosaix</a>
-  <ul><li><a href="#tile">The tile</a></li><li><a href="#compose">Composition</a></li><li><a href="#rules">Rules</a></li><li><a href="#agents">Agents</a></li><li><a href="#check">Check a vault</a></li><li><a href="#next">What's next</a></li><li><a href="spec.html">Specification</a></li></ul>
+  <ul><li><a href="#tile">The tile</a></li><li><a href="#compose">Composition</a></li><li><a href="#rules">Rules</a></li><li><a href="#agents">Evidence</a></li><li><a href="#check">Check a vault</a></li><li><a href="#next">What's next</a></li><li><a href="spec.html">Specification</a></li></ul>
   <span class="ver">v1.0 · 2026-09</span>
 </nav>
 
@@ -608,8 +609,8 @@ PR #418 · 3 files · by enrichment
 
 </div>
 
-<!-- 6 EVIDENCE -->
-<section class="sec dark">
+<!-- 6 WHY IT MATTERS -->
+<section class="sec dark" id="agents">
   <div class="wrap">
     <div class="kick" style="color:rgba(239,234,224,.5)"><span><span class="no">06</span>Why it matters</span></div>
     <h2>Small models can read this. That is the point.</h2>
@@ -626,47 +627,37 @@ PR #418 · 3 files · by enrichment
         <div><b>~<span class="cnt" data-n="600">0</span> <small>tokens, flat</small></b><span>Per unit, constant across the build. The monolithic equivalent climbs from 544 to 4,055. 5.7× overall, five replications.</span></div>
       </div>
     </div>
-
     <p class="caveat">Results from the code-generation study that produced the format. Measurements on knowledge vaults are in progress and will be published here. <a href="why-one-note-at-a-time.html" style="text-decoration:underline">How we measured →</a></p>
-  </div>
-</section>
-
-<div class="wrap">
-<!-- 8 ONE AGENT, ONE CLUSTER -->
-<section class="sec band p2" id="agents">
-  <div class="kick"><span><span class="no">07</span>Why it scales</span></div>
-  <h2>One agent, one cluster. Any model.</h2>
-  <p class="sub" style="max-width:720px">A planner hands each agent one tile and its direct dependencies: about six hundred tokens, nothing else. No agent reads the whole vault; there is no shared memory to keep in sync. So each agent can run on the smallest model that passes its tile, local or cloud, general or vertical, all in parallel.</p>
-  <div class="chain" id="chain">
-    <div class="chain-fig" aria-label="Diagram: a vault of tiles; the planner selects four clusters, one tile plus its direct dependencies each; four agents on four different models work on their cluster in parallel; the results compose back.">
-      <div class="cf-vlab">the vault · 64 tiles</div>
-      <div class="cf-vault" id="cfv"></div>
-      <div class="cf-step" id="cfstep">the planner reads the map and picks, for each agent, one tile and its direct dependencies</div>
-      <div class="cf-stem"></div>
-      <div class="cf-agents">
-        <div class="cf-agent" data-c="0"><div class="cf-lab">cluster A</div><div class="cf-mod">Gemma 4 · 2B · local</div><div class="cf-cl"><i class="g"></i><i></i><i></i></div><div class="cf-tok">its tile + 2 dependencies · ~600 tok</div></div>
-        <div class="cf-agent" data-c="1"><div class="cf-lab">cluster B</div><div class="cf-mod">Qwen 3.5 · 4B · local</div><div class="cf-cl"><i class="g"></i><i></i><i class="o"></i></div><div class="cf-tok">its tile + 1 dependency + 1 open · ~600 tok</div></div>
-        <div class="cf-agent" data-c="2"><div class="cf-lab">cluster C</div><div class="cf-mod">vertical model · legal</div><div class="cf-cl"><i class="g"></i><i></i><i></i><i></i></div><div class="cf-tok">its tile + 3 dependencies · ~600 tok</div></div>
-        <div class="cf-agent" data-c="3"><div class="cf-lab">cluster D</div><div class="cf-mod">DeepSeek flash · cloud</div><div class="cf-cl"><i class="g"></i><i></i></div><div class="cf-tok">its tile + 1 dependency · ~600 tok</div></div>
+    <div class="chain-wrap">
+      <div class="chain" id="chain">
+        <div class="chain-fig" aria-label="Diagram: a vault of tiles; the planner selects four clusters, one tile plus its direct dependencies each; four agents on four different models work on their cluster in parallel; the results compose back.">
+          <div class="cf-vlab">the vault · 64 tiles</div>
+          <div class="cf-vault" id="cfv"></div>
+          <div class="cf-step" id="cfstep">the planner reads the map and picks, for each agent, one tile and its direct dependencies</div>
+          <div class="cf-stem"></div>
+          <div class="cf-agents">
+            <div class="cf-agent" data-c="0"><div class="cf-lab">cluster A</div><div class="cf-mod">Gemma 4 · 2B · local</div><div class="cf-cl"><i class="g"></i><i></i><i></i></div><div class="cf-tok">its tile + 2 dependencies · ~600 tok</div></div>
+            <div class="cf-agent" data-c="1"><div class="cf-lab">cluster B</div><div class="cf-mod">Qwen 3.5 · 4B · local</div><div class="cf-cl"><i class="g"></i><i></i><i class="o"></i></div><div class="cf-tok">its tile + 1 dependency + 1 open · ~600 tok</div></div>
+            <div class="cf-agent" data-c="2"><div class="cf-lab">cluster C</div><div class="cf-mod">vertical model · legal</div><div class="cf-cl"><i class="g"></i><i></i><i></i><i></i></div><div class="cf-tok">its tile + 3 dependencies · ~600 tok</div></div>
+            <div class="cf-agent" data-c="3"><div class="cf-lab">cluster D</div><div class="cf-mod">DeepSeek flash · cloud</div><div class="cf-cl"><i class="g"></i><i></i></div><div class="cf-tok">its tile + 1 dependency · ~600 tok</div></div>
+          </div>
+          <div class="cf-stem2"></div>
+          <div class="cf-merge">composed result · four tiles back in the vault · <span class="mono">fragments</span> in reading order</div>
+          <div class="cf-note">no shared memory · no agent reads the vault · all four run in parallel · one model per agent</div>
+        </div>
+        <div class="chain-n">
+          <span><b><span class="cnt" data-n="8">0</span></b>models, from 4B to Opus, all 28/28 on the same tiles</span>
+          <span><b><span class="cnt" data-n="20">0</span><small>/20</small></b>tiles right at the first attempt, three vaults</span>
+          <span><b><span class="cnt" data-n="94.6" data-dec="1">0</span><small>%</small></b>end to end, 56 tiles</span>
+          <span><b><span class="cnt" data-n="1.79" data-dec="2">0</span><small>×</small></b>faster, agents in parallel</span>
+        </div>
       </div>
-      <div class="cf-stem2"></div>
-      <div class="cf-merge">composed result · four tiles back in the vault · <span class="mono">fragments</span> in reading order</div>
-      <div class="cf-note">no shared memory · no agent reads the vault · all four run in parallel · one model per agent</div>
     </div>
-    <div class="chain-n">
-      <span><b><span class="cnt" data-n="8">0</span></b>models, from 4B to Opus, all 28/28 on the same tiles</span>
-      <span><b><span class="cnt" data-n="20">0</span><small>/20</small></b>tiles right at the first attempt, three vaults</span>
-      <span><b><span class="cnt" data-n="94.6" data-dec="1">0</span><small>%</small></b>end to end, 56 tiles</span>
-      <span><b><span class="cnt" data-n="1.79" data-dec="2">0</span><small>×</small></b>faster, agents in parallel</span>
-    </div>
-    <p class="chain-p">Because the cluster is the unit of work, the model is a per-agent choice: a 2B model for the tiles it passes, a vertical model where the domain needs it, a cloud model only where nothing smaller will do. Swap one, and the others don't notice. This is the direct evolution of the system: work verticalised across different models, each on its own cluster of knowledge.</p>
   </div>
 </section>
 
-<section class="sec">
-  <div class="kick"><span><span class="no">08</span>Compatibility</span></div>
-  <h2>Works where you already write.</h2>
-  <p class="sub">Obsidian is the reference host. The format needs none.</p>
+<section class="sec band p2" style="padding:52px 0">
+  <p style="font:500 17px var(--sans);color:var(--ink2);margin:0 0 18px">Works where you already write.</p>
   <div class="hosts"><span class="ref">Obsidian</span><span>Logseq</span><span>Foam</span><span>Dendron</span><span>Zettlr</span><span>VS Code</span><span>Any Markdown editor</span><span>git</span></div>
 </section>
 
@@ -674,7 +665,7 @@ PR #418 · 3 files · by enrichment
 <section class="sec band p2" id="check">
   <div class="two rev">
     <div>
-      <div class="kick"><span><span class="no">09</span>Check a vault</span><button class="rp" data-rp="term">↻ replay</button></div>
+      <div class="kick"><span><span class="no">08</span>Check a vault</span><button class="rp" data-rp="term">↻ replay</button></div>
       <h2>Already have an Obsidian vault? You are part of the way there.</h2>
       <p class="sub">One Python file, standard library. It reports every error and warning against §10, note by note, and exits 0 when the vault is conformant. On the right: the example vault, then a real marketing vault before and after two fixes.</p>
       <a class="btn solid" href="audit_reference.py" download>Download audit_reference.py</a>
@@ -691,8 +682,7 @@ python audit_reference.py <span id="tpath">~/vaults/example-vault</span>
 
 <!-- SKILLS -->
 <section class="sec band p2">
-  <h2>Teach your Claude session the format.</h2>
-  <p class="sub">Six open skills, each answering one question. Install the ones you need — they compose like the notes.</p>
+  <h2>Six skills for Claude.</h2>
   <div class="skills-grid">
     <a href="skill/SKILL.md"><b>Format</b><small>Write conformant notes. The base.</small></a>
     <a href="skill/mosaix-audit/SKILL.md"><b>Audit</b><small>Verify a vault with the checker.</small></a>
@@ -701,18 +691,18 @@ python audit_reference.py <span id="tpath">~/vaults/example-vault</span>
     <a href="skill/mosaix-ingest/SKILL.md"><b>Ingest</b><small>Split documents into atomic notes.</small></a>
     <a href="skill/mosaix-enrich/SKILL.md"><b>Enrich</b><small>Fill CORE frontmatter, validate quality.</small></a>
   </div>
-  <p class="cap">Skills teach <em>what</em> to write and how to validate it. How to produce it at scale — enrichment, ingest, retrieval — is out of scope (§8), and that's where implementations compete.</p>
+  <p class="cap">Skills teach <em>what</em> to write. How to produce it at scale is out of scope (§8).</p>
 </section>
 
 <!-- 10 WHAT'S NEXT -->
 <section class="sec" id="next">
-  <div class="kick"><span><span class="no">10</span>What's next</span></div>
+  <div class="kick"><span><span class="no">09</span>What's next</span></div>
   <h2>Open tiles. Announced, not promised.</h2>
   <p class="sub">The fourth tile of the mark is outlined and empty: it stands for what is decided but not built. These are the open tiles of the format itself. Each is recorded in the example vault's ledger with a status, like any other open question.</p>
   <ul class="next">
     <li><i></i><div><b>Mosaix 1.1</b><p>A stable <span class="mono">id</span> so links survive renames; a <span class="mono">question</span> key for the one question a note answers; an optional closed relation vocabulary; an entity registry with aliases; <span class="mono">origin</span> and <span class="mono">as_of</span>. Every 1.0 vault stays conformant.</p><small>in discussion · proposals in the ledger</small></div></li>
     <li><i></i><div><b>The checker as a package</b><p>A <a href="https://github.com/mosaix-format/spec" style="text-decoration:underline">GitHub Action</a> now wraps the checker: eight lines of YAML give you conformance checks on every push and PR comments. Next: <span class="mono">pip install mosaix-check</span> and a <span class="mono">--fix</span> mode for the mechanical part.</p><small>action shipped · pip install and --fix not built</small></div></li>
-    <li><i></i><div><b>A public benchmark of the agent system</b><p>The numbers in 07 come from our own runs. The next step is the method and the fixtures in the open, so anyone can rerun one agent, one cluster, on the model they have.</p><small>method being written up</small></div></li>
+    <li><i></i><div><b>A public benchmark of the agent system</b><p>The numbers in 06 come from our own runs. The next step is the method and the fixtures in the open, so anyone can rerun one agent, one cluster, on the model they have.</p><small>method being written up</small></div></li>
     <li><i></i><div><b>Host profiles beyond Obsidian</b><p>Logseq and Foam read the substrate; a verified profile for each, like §9, says exactly what resolves and what does not.</p><small>to confirm</small></div></li>
     <li class="done"><i></i><div><b>Example vault download and conformance badge</b><p>The specification vault as a <a href="mosaix-example-vault.zip" download style="text-decoration:underline">zip</a> you can open in any editor, and a <a href="badge.svg" download style="text-decoration:underline">badge</a> for vaults that pass the checker. Plus a <a href="mosaix-bakery-vault.zip" download style="text-decoration:underline">second vault</a>: a fictional bakery, ordinary knowledge, 26 notes. All shipped with 1.0.0; the badge is self-declared, the checker report is the evidence.</p><small>shipped</small></div></li>
     <li><i></i><div><b>Tagged releases with a DOI · translations</b><p>A DOI per tagged release so the spec can be cited in a stable way. English is normative, Italian is here; other languages arrive as pull requests.</p><small>on request</small></div></li>
