@@ -910,7 +910,7 @@ python audit_reference.py <span id="tpath">~/vaults/example-vault</span>
     const btn=kmp.querySelector('button'); btn.disabled=true; btn.textContent='Sending…';
     fetch(kmp.action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em.value})})
       .then(function(r){if(!r.ok) throw r; return r.json()})
-      .then(function(){msg.textContent='Check your inbox — we sent a confirmation link.';msg.style.color='var(--ink2)';btn.textContent='Sent ✓';})
+      .then(function(){msg.textContent='Done. Check your inbox for the confirmation link.';msg.style.color='var(--ink2)';btn.textContent='Sent ✓';})
       .catch(function(){msg.textContent='Something went wrong. Try again or write to hello@mosaixformat.org.';msg.style.color='var(--red)';btn.disabled=false;btn.textContent='Keep me posted →';});
   });
 
