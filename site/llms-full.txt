@@ -34,7 +34,7 @@ Mosaix Format is a specification, not software: it defines what a note carries a
 
 ---
 
----
+﻿---
 title: Mosaix Format — Specification v1.0
 version: 1.0.0
 status: published
@@ -317,7 +317,7 @@ The format was extracted from three vaults in production use (code documentation
 
 ---
 
-**Citing this specification.** Fiorino, A. (2026). *Mosaix Format — Specification v1.0.0*. Boom Digital. https://mosaixformat.org — source tag `mosaix-format/spec@v1.0.0`.
+**Citing this specification.** Fiorino, A. (2026). *Mosaix Format — Specification v1.0.0*. https://mosaixformat.org — source tag `mosaix-format/spec@v1.0.0`.
 
 *Mosaix Format v1.0 — a format by SLIM — © 2026 Andrea Fiorino — CC BY-SA 4.0.*
 

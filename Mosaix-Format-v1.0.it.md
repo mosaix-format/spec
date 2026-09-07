@@ -1,4 +1,4 @@
----
+﻿---
 title: Mosaix Format — Specifica v1.0
 version: 1.0.0
 status: pubblicata
@@ -283,6 +283,6 @@ Il formato è stato estratto da tre vault in uso in produzione (documentazione d
 
 ---
 
-**Per citare questa specifica.** Fiorino, A. (2026). *Mosaix Format — Specification v1.0.0*. Boom Digital. https://mosaixformat.org — tag sorgente `mosaix-format/spec@v1.0.0`.
+**Per citare questa specifica.** Fiorino, A. (2026). *Mosaix Format — Specification v1.0.0*. https://mosaixformat.org — tag sorgente `mosaix-format/spec@v1.0.0`.
 
 *Mosaix Format v1.0 — un formato di SLIM — © 2026 Andrea Fiorino — CC BY-SA 4.0.*

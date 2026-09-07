@@ -1,4 +1,4 @@
-# Mosaix Format
+﻿# Mosaix Format
 
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey.svg)](LICENSE.md) [![Version](https://img.shields.io/badge/version-v1.0.0-blue.svg)](CHANGELOG.md) ![Mosaix 1.0 conformant](https://mosaixformat.org/badge.svg)
 
@@ -50,7 +50,7 @@ Exit code 0 means conformant. Errors and warnings map to §10 of the specificati
 
 v1.0.0 — September 2026. Extracted from three vaults in production use (code documentation, industrial market intelligence, education marketing).
 
-Mosaix is a format by SLIM, maintained by Boom Digital. The specification is open (CC BY-SA 4.0); how vaults are produced, enriched, searched or composed is out of scope by design (§8) and not part of this repository. `skill/` is the one exception: optional, non-normative instructions for one agent (Claude) to read and write conformant notes. Nothing in the specification or the checker depends on it.
+Mosaix is an open format. The specification is open (CC BY-SA 4.0); how vaults are produced, enriched, searched or composed is out of scope by design (§8) and not part of this repository. `skill/` is the one exception: optional, non-normative instructions for one agent (Claude) to read and write conformant notes. Nothing in the specification or the checker depends on it.
 
 ## Check on every push
 
@@ -77,6 +77,6 @@ Open an issue with a concrete case, then a pull request against the English file
 
 ## Citing
 
-> Fiorino, A. (2026). *Mosaix Format — Specification v1.0.0*. Boom Digital. https://mosaixformat.org — source: `mosaix-format/spec@v1.0.0`
+> Fiorino, A. (2026). *Mosaix Format — Specification v1.0.0*. https://mosaixformat.org — source: `mosaix-format/spec@v1.0.0`
 
 Cite the tag, not the branch: tags are immutable.

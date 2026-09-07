@@ -1,4 +1,4 @@
-// Mosaix example vault — the specification itself, as a Mosaix vault.
+﻿// Mosaix example vault — the specification itself, as a Mosaix vault.
 // Source of truth for the site explorer and for export_vault.py (which writes the .md files).
 // Every note: path, title, type, tags, updated, summary (120–240), keywords (6–8), entities, relations, links, rev, status, body.
 window.MOSAIX_VAULT = [
@@ -80,7 +80,7 @@ window.MOSAIX_VAULT = [
 {path:"spec/§12 Provenance.md",title:"§12 Provenance",type:"section",tags:["spec","provenance","history"],updated:"2026-09-03",
  summary:"Where the format comes from: three production vaults (code documentation, industrial market intelligence, education marketing), measured for the conventions a machine could rely on.",
  keywords:["provenance","origin","three vaults","extracted from practice","history of the format","acknowledgements"],
- entities:[{name:"Boom Digital",type:"company"},{name:"SLIM",type:"project"}],relations:[{from:"Mosaix Format",type:"is a format of",to:"SLIM"},{from:"Boom Digital",type:"maintains",to:"Mosaix Format"}],links:["§1 Purpose","SLIM Vault Format"],rev:"8d3f5b1c2a96",status:"sourced",
+ entities:[{name:"SLIM",type:"project"}],relations:[{from:"Mosaix Format",type:"is a format of",to:"SLIM"}],links:["§1 Purpose","SLIM Vault Format"],rev:"8d3f5b1c2a96",status:"sourced",
  body:"The two-axis reliability model, the open-questions ledger and supersede-don't-delete come from working with sources of different dates. The composed-document type comes from a vault of good atomic notes being unreadable by the people who needed it. Earlier working name: [[SLIM Vault Format]]."},
 
 /* ---------- keys ---------- */
@@ -176,8 +176,8 @@ window.MOSAIX_VAULT = [
 {path:"_meta/Conventions.md",title:"Conventions",type:"meta",tags:["1.1","checker","commitment","composed-document","composition","conformance","conventions","core","document","folders","frontmatter","graph","guide","history","host","key","keywords","ledger","license","links","markdown","meta","moc","mosaix","note","obsidian","onboarding","proposal","provenance","purpose","rule","rules","scope","spec","staleness","status","structure","substrate","summary","superseded","synthesis","taxonomy","template","time","verifiable","versioning"],updated:"2026-09-05",
  summary:"Meta note of this vault: folder contract, reliability convention (status key), declared tags and entity types, target version mosaix 1.0, and who maintains it.",
  keywords:["conventions","meta note","folder contract","reliability convention","declared tags","status","maintainer","mosaix 1.0"],
- entities:[{name:"Boom Digital",type:"company"}],relations:[],links:["§5 Vault structure","R4 Declared taxonomy","Open questions"],rev:"99ccaaddbbee",status:"sourced",
- body:"mosaix: \"1.0\". Folders: `spec/` sections, `keys/` core keys, `rules/`, `proposals/` for 1.1, `_meta/`, `_synthesis/`, `_docs/` composed documents, `templates/` a starter template for each note type. Reliability: frontmatter key `status` with values sourced · to-confirm · superseded. Tags declared: the `tags` list of this note is the taxonomy of the vault (46 tags). Entity types: the eight of §3. Maintainer: Boom Digital."},
+ entities:[],relations:[],links:["§5 Vault structure","R4 Declared taxonomy","Open questions"],rev:"99ccaaddbbee",status:"sourced",
+ body:"mosaix: \"1.0\". Folders: `spec/` sections, `keys/` core keys, `rules/`, `proposals/` for 1.1, `_meta/`, `_synthesis/`, `_docs/` composed documents, `templates/` a starter template for each note type. Reliability: frontmatter key `status` with values sourced · to-confirm · superseded. Tags declared: the `tags` list of this note is the taxonomy of the vault (46 tags). Entity types: the eight of §3. ."},
 {path:"_meta/Open questions.md",title:"Open questions",type:"ledger",tags:["meta","ledger","1.1"],updated:"2026-09-03",
  summary:"Ledger of what is not decided: five proposals for 1.1 (stable id, question field, relation vocabulary, entity registry, origin and as_of), each with the consequence of choosing.",
  keywords:["open questions","ledger","undecided","proposals 1.1","stable id","question field","relation vocabulary","entity registry"],
