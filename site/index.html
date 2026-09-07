@@ -183,6 +183,11 @@
   .hosts{gap:0 28px}
   .hosts span{padding:10px 0;font:15px var(--sans);color:var(--ink2);border-bottom:1px solid var(--line)}
   .hosts span.ref{color:var(--ink);border-bottom:2px solid var(--ink);font-weight:600}
+  .skills-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0 28px;margin-bottom:24px}
+  .skills-grid a{display:block;padding:18px 0 20px;border-top:1px solid var(--line);color:var(--ink);text-decoration:none}
+  .skills-grid a:hover b{text-decoration:underline}
+  .skills-grid b{display:block;font:600 15px/1.2 var(--sans);margin-bottom:6px}
+  .skills-grid small{display:block;font-size:13.5px;color:var(--ink2);line-height:1.45}
   .dark{background:var(--ink);color:var(--paper)}
   .dark h2{color:var(--paper)}.dark .sub{color:rgba(239,234,224,.7)}
   .loop{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;padding:36px 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}
@@ -406,6 +411,7 @@
     .keys li{grid-template-columns:1fr;gap:4px}
     .doc h3{font-size:24px}
     .big3{grid-template-columns:1fr}.big3 li{min-height:0;transform:none!important}
+    .skills-grid{grid-template-columns:1fr 1fr}
     .five{grid-template-columns:1fr 1fr;gap:20px}
     .ev{grid-template-columns:1fr}
     .loop{padding:24px 0}.loop form{flex-direction:column}
@@ -681,6 +687,21 @@ python audit_reference.py <span id="tpath">~/vaults/example-vault</span>
 <span class="out" id="tout"></span></div>
     </div>
   </div>
+</section>
+
+<!-- SKILLS -->
+<section class="sec band p2">
+  <h2>Teach your Claude session the format.</h2>
+  <p class="sub">Six open skills, each answering one question. Install the ones you need — they compose like the notes.</p>
+  <div class="skills-grid">
+    <a href="skill/SKILL.md"><b>Format</b><small>Write conformant notes. The base.</small></a>
+    <a href="skill/mosaix-audit/SKILL.md"><b>Audit</b><small>Verify a vault with the checker.</small></a>
+    <a href="skill/mosaix-compose/SKILL.md"><b>Compose</b><small>Assemble notes into documents.</small></a>
+    <a href="skill/mosaix-onboard/SKILL.md"><b>Onboard</b><small>Bootstrap a vault from scratch.</small></a>
+    <a href="skill/mosaix-ingest/SKILL.md"><b>Ingest</b><small>Split documents into atomic notes.</small></a>
+    <a href="skill/mosaix-enrich/SKILL.md"><b>Enrich</b><small>Fill CORE frontmatter, validate quality.</small></a>
+  </div>
+  <p class="cap">Skills teach <em>what</em> to write and how to validate it. How to produce it at scale — enrichment, ingest, retrieval — is out of scope (§8), and that's where implementations compete.</p>
 </section>
 
 <!-- 10 WHAT'S NEXT -->

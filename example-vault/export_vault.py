@@ -140,6 +140,13 @@ def main():
             for f in ("audit_reference.py", "Mosaix-Format-v1.0.en.md", "Mosaix-Format-v1.0.it.md", "CHANGELOG.md", "LICENSE.md"):
                 shutil.copy2(HERE.parent / f, site / f)
             shutil.copy2(zpath, site / zpath.name)
+            # sync skill/ tree
+            skill_src = HERE.parent / "skill"
+            skill_dst = site / "skill"
+            if skill_src.is_dir():
+                if skill_dst.exists():
+                    shutil.rmtree(skill_dst)
+                shutil.copytree(skill_src, skill_dst)
             print("site/ copies refreshed")
             # llms-full.txt: llms.txt + the full specification + the changelog, for agents and crawlers
             llms_txt = site / "llms.txt"
