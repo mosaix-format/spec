@@ -1,0 +1,159 @@
+# Mosaix Reference MCP Server
+
+Minimal, stdlib-only Python MCP server for [Mosaix Format](../Mosaix-Format-v1.0.en.md) vaults.
+
+**No dependencies** — Python 3.10+ standard library only.  
+**Read-only by default** — writes require `--writable`.  
+**~430 lines** across four files.
+
+## Install
+
+```bash
+git clone <repo> && cd <repo>
+# No pip install needed — run directly as a package
+```
+
+## Usage
+
+```bash
+# Read-only (safe default)
+python -m mosaix_mcp /path/to/vault
+
+# With write support
+python -m mosaix_mcp /path/to/vault --writable
+
+# Verbose error output on stderr
+python -m mosaix_mcp /path/to/vault --verbose
+```
+
+## Tools
+
+| Tool | Description |
+|---|---|
+| `read_note` | Read a note — returns parsed frontmatter (JSON) and body |
+| `write_note` | Write a validated note; applies R7 supersede if file exists (requires `--writable`) |
+| `search` | Case-insensitive substring search across summary, keywords, title (or any field) |
+| `compose` | Assemble a `type: document` note from its fragments |
+| `check` | Run §10 conformance check on one note or the whole vault |
+| `list_notes` | List notes with optional `tag` / `type` filter, sorted by `updated` |
+
+### `read_note`
+
+```json
+{"path": "spec/§3 The note.md"}
+```
+
+Returns `{frontmatter: {...}, body: "...", path: "..."}`.  
+Accepts relative paths from vault root or bare stem names (`§3 The note`).
+
+### `write_note`
+
+```json
+{
+  "path": "notes/my-topic.md",
+  "frontmatter": {
+    "title": "My topic",
+    "updated": "2026-01-01",
+    "tags": ["research"],
+    "summary": "...",
+    "keywords": ["a", "b", "c", "d", "e", "f"],
+    "rev": "abc123def456"
+  },
+  "body": "# My topic\n\n..."
+}
+```
+
+Validates §10 rules before writing. Returns `{path, created, superseded}`.  
+If the target already exists, the old file is renamed `<stem>_superseded.md` with
+`status: superseded` and `superseded_by: <new_path>` added to its frontmatter.
+
+### `search`
+
+```json
+{"query": "atomic notes", "field": "summary"}
+```
+
+`field` is optional. Without it, searches `summary + keywords + title`.  
+Allowed values: `summary`, `keywords`, `entities`, `title`, `body`.  
+Returns up to 20 results: `[{path, title, summary, score}]`.
+
+### `compose`
+
+```json
+{"path": "Mosaix for a new team"}
+```
+
+Assembles a `type: document` note by concatenating its `fragments` bodies,
+separated by `\n\n---\n\n`.  
+Returns `{path, title, fragments: [...], composed_text: "..."}`.
+
+### `check`
+
+```json
+{}                            // full vault
+{"path": "spec/§3 The note.md"}  // single note
+```
+
+Returns `{errors: [{id, message}], warnings: [{id, message}], notes_checked, conformant}`.  
+Covers E001–E015 and W003–W004 from §10. The `id` field matches the spec code
+(e.g. `"E002"`, `"W003"`).
+
+### `list_notes`
+
+```json
+{"tag": "synthesis"}
+{"type": "document"}
+{}
+```
+
+Returns `[{path, title, type, tags, updated}]` sorted by `updated` descending.
+
+## Claude Desktop config
+
+Add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "mosaix": {
+      "command": "python",
+      "args": ["-m", "mosaix_mcp", "/absolute/path/to/your/vault"]
+    }
+  }
+}
+```
+
+For write access:
+
+```json
+{
+  "mcpServers": {
+    "mosaix": {
+      "command": "python",
+      "args": ["-m", "mosaix_mcp", "/absolute/path/to/your/vault", "--writable"]
+    }
+  }
+}
+```
+
+The working directory must be the repo root (where `mosaix_mcp/` lives), or add the
+repo to `PYTHONPATH`.
+
+## Design notes
+
+- **Transport**: JSON-RPC 2.0 over stdio, newline-delimited (one JSON object per line).
+  No HTTP, no SSE, no external MCP SDK.
+- **Parser**: minimal YAML subset — flat scalars, inline lists, block list-of-dicts.
+  Sufficient for all Mosaix frontmatter structures; no general YAML needed.
+- **Aliases**: Italian key aliases (`titolo`, `riassunto`, …) are accepted transparently,
+  same as the reference checker.
+- **Check**: inline implementation of §10 core rules (E001–E015, W003–W004).
+  Does not require `audit_reference.py` at runtime.
+- **Scope**: read, write, search, compose, check, list. No enrichment, no vector
+  store, no embedding, no retrieval ranking — those are implementation concerns (§8).
+
+## Limitations
+
+- ULID id-first link resolution (E008) is not checked — only filename-based links.
+- Tag taxonomy warnings (W005–W006) and rev staleness (W008) are not checked.
+- No streaming; the entire vault is indexed in memory at startup.
