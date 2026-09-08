@@ -120,11 +120,11 @@ For the batch:
 
 **Don't resolve contradictions.** If the source says the price is €500 and the vault says €450, log both in the open-questions ledger. Don't pick one.
 
-**Don't duplicate existing vault content.** If the vault already has a note about this concept, either link to it or update it (on a branch, R8). Don't create a second note saying the same thing.
+**Don't duplicate existing vault content.** If the vault already has a note about this concept, either link to it or update it (on a branch — see R8 recommendation). Don't create a second note saying the same thing.
 
 **Don't discard information.** Every substantive claim in the source should land in a note. If something doesn't fit anywhere, create a note and tag it `to-confirm`.
 
-**Don't write directly to main.** Ingested notes go to a branch or staging area for review (R8).
+**Don't write directly to main.** Ingested notes SHOULD go to a branch or staging area for review (R8 recommendation).
 
 ## 5. Example
 

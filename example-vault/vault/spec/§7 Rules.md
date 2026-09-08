@@ -5,8 +5,8 @@ type: section
 updated: 2026-09-03
 tags: [spec, rules]
 status: sourced
-summary: "The eight rules of a conforming vault: five verifiable from files (R1–R5) and three process commitments the meta note makes (R6–R8)."
-keywords: [rules, r1 to r8, eight rules, commitments, verifiable, conformance rules, process rules]
+summary: "The seven normative rules of a conforming vault: five verifiable from files (R1–R5) and two process commitments the meta note makes (R6–R7); plus agent workflow recommendation R8."
+keywords: [rules, r1 to r7, seven rules, commitments, verifiable, conformance rules, process rules, recommendation]
 entities:
   - {name: Mosaix Format, type: project}
 relations: []
@@ -16,4 +16,4 @@ rev: b04c6e1d9a57
 
 # §7 Rules
 
-Verifiable: [[R1 Atomicity]], [[R2 Self-description]], [[R3 Connectedness]], [[R4 Declared taxonomy]], [[R5 Composition over duplication]]. Commitments: [[R6 Record, don't resolve]], [[R7 Supersede, don't delete]], [[R8 Propose, don't apply]].
+Verifiable: [[R1 Atomicity]], [[R2 Self-description]], [[R3 Connectedness]], [[R4 Declared taxonomy]], [[R5 Composition over duplication]]. Commitments: [[R6 Record, don't resolve]], [[R7 Supersede, don't delete]]. Agent workflow recommendation (non-normative): [[R8 Propose, don't apply]].

@@ -47,7 +47,8 @@ def yaml_list(items):
 
 
 def frontmatter(n):
-    lines = ["---", f"title: {n['title']}", f"type: {n['type']}", f"updated: {n['updated']}",
+    id_line = [f"id: {n['id']}"] if n.get("id") else []
+    lines = ["---", f"title: {n['title']}"] + id_line + [f"type: {n['type']}", f"updated: {n['updated']}",
              f"tags: {yaml_list(n['tags'])}", f"status: {n['status']}",
              f'summary: "{n["summary"]}"', f"keywords: {yaml_list(n['keywords'])}"]
     if n.get("entities"):

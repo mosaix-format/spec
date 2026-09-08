@@ -61,6 +61,7 @@ Create `_meta/Conventions.md`:
 ```yaml
 ---
 title: Conventions
+id: 01JVKE4X2PTRNG6SM4BXVFW73Y   # replace with a fresh ULID
 updated: YYYY-MM-DD
 mosaix: "1.0"
 type: meta
@@ -143,6 +144,7 @@ Create `_meta/Open questions.md`:
 ```yaml
 ---
 title: Open questions
+id: 01JVKE4X2PKQPB8YGDH2NWF0BM   # replace with a fresh ULID
 updated: YYYY-MM-DD
 type: meta
 tags: [meta]
@@ -182,6 +184,7 @@ Every vault must have at least one `type: moc` note (§3.4). Create a Home MOC:
 ```yaml
 ---
 title: Home
+id: 01JVKE4X2P8RNMKQF3GHDBC90T   # replace with a fresh ULID
 updated: YYYY-MM-DD
 type: moc
 tags: [moc]
@@ -214,6 +217,7 @@ Now write the vault's first content note. Use the full CORE frontmatter:
 ```yaml
 ---
 title: [Note title]
+id: 01JVKE4X2PFNRW8BQDP5MHCG2X   # replace with a fresh ULID — generate one per note
 updated: YYYY-MM-DD
 tags: [topic-tag]
 summary: "[One sentence, 120–240 chars, about what this note contains.]"
@@ -236,14 +240,15 @@ Then update the Home MOC to link to this note.
 ## 7. Bootstrap checklist
 
 - [ ] `_meta/` folder exists
-- [ ] `_meta/Conventions.md` exists with `mosaix: "1.0"`, folders, tags, entity types
-- [ ] `_meta/Open questions.md` exists
+- [ ] `_meta/Conventions.md` exists with `mosaix: "1.0"`, folders, tags, entity types, and a valid `id`
+- [ ] `_meta/Open questions.md` exists with a valid `id`
 - [ ] `_synthesis/` folder exists (can be empty)
 - [ ] `_inbox/` folder exists (can be empty)
 - [ ] At least one `type: moc` note exists (Home)
 - [ ] Home links to Conventions and Open questions
 - [ ] Domain folders created per the owner's structure
 - [ ] `.gitignore` excludes `_private/` and `.obsidian/` if using git
+- [ ] Every note has a valid `id` (ULID, 26-char Crockford Base32, unique across the vault)
 - [ ] First content note written and linked from Home
 - [ ] Run the checker: `python audit_reference.py /path/to/vault`
 

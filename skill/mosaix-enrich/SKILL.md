@@ -128,9 +128,9 @@ For each enriched note:
 - [ ] All `links` entries resolve
 - [ ] `rev` is set (placeholder or computed)
 
-### Step 5 — Propose, don't apply
+### Step 5 — Propose, don't apply (R8 — agent recommendation)
 
-Write enriched notes to a branch or staging area (R8). Never write directly to the vault's main line.
+You SHOULD write enriched notes to a branch or staging area rather than directly to the vault's main line.
 
 ## 4. Batch enrichment
 

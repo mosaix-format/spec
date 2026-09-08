@@ -38,7 +38,7 @@ Mosaix Format is a specification, not software: it defines what a note carries a
 title: Mosaix Format — Specification v1.0
 version: 1.0.0
 status: published
-updated: 2026-09-04
+updated: 2026-09-08
 license: CC BY-SA 4.0
 author: Andrea Fiorino
 summary: "A file-level format for knowledge vaults made of atomic, self-describing notes that machines can retrieve one at a time and humans can read as composed documents."
@@ -84,6 +84,7 @@ A **note** answers one question. If a draft answers two, it is two notes. The bo
 | Key | Type | Written by | Purpose |
 |---|---|---|---|
 | `title` | string | human, or derived from the filename | the name of the node |
+| `id` | ULID (26 characters, Crockford Base32) | system | stable identifier for this note; survives renames; used as the primary reference target |
 | `updated` | date `YYYY-MM-DD` | human or system | last substantive change; drives staleness of the note |
 | `tags` | list of strings | human | taxonomy and filtering |
 | `summary` | string, 120–240 characters | human or enrichment | one declarative sentence saying what the note contains; the unit a machine reads first |
@@ -96,9 +97,12 @@ A **note** answers one question. If a draft answers two, it is two notes. The bo
 Notes:
 
 - `summary` MUST NOT repeat the title and MUST NOT begin with "This note…" or its equivalent. It is written for a reader who has not opened the note.
+- **`id` format and generation.** `id` MUST be a valid ULID: 26 characters in the Crockford Base32 alphabet (`0123456789ABCDEFGHJKMNPQRSTVWXYZ`), with the first character in `0–7` so that the encoded 48-bit millisecond timestamp does not overflow. Generators MUST produce a new random ULID for each note at creation time; they MUST NOT reuse or derive it from the note's content or filename.
+- **Reference resolution.** When a `links` entry (or any frontmatter field that references another note) is a valid ULID, checkers and tools MUST resolve it by matching against the `id` fields of other notes first. If no note with that `id` is found, the reference is an error. A string that is not a valid ULID is resolved by filename (basename without extension, case-sensitive), as in prior versions. This allows notes to be renamed without breaking references.
+- **Backward compatibility.** A vault whose notes do not carry `id` fields reports a **warning** (not an error) under v1.0, so that existing vaults are not made non-conformant by the addition of this key. From v2.0 onward, a missing or invalid `id` on a note outside `_inbox/`, `_private/` and declared payload folders is an **error**.
 - **Aliases.** A vault MAY write any CORE key under an alias declared in its meta note (§5.4); checkers treat a declared alias as the canonical key. The following aliases are recognised by default, so that vaults created before this version remain conformant: `mcp_entita` → `entities`, `mcp_relazioni` → `relations`, `mcp_collegamenti` → `links`, `mcp_rev` → `rev`, `aggiornato` → `updated`, `titolo` → `title`, `riassunto` → `summary`, `parole_chiave` → `keywords`; inside entity and relation items, `nome` → `name`, `tipo` → `type`, `da` → `from`, `a` → `to`; and the entity type values `persona azienda prodotto progetto strumento luogo documento evento` → `person company product project tool place document event`.
 - `entities` SHOULD list at most 12 items. A note that names more things than that is usually answering more than one question (R1); a checker reports the excess as a warning. MOCs and the meta note are exempt: listing is their job.
-- The canonical key order is `title · updated · [domain keys] · summary · keywords · entities · relations · links · rev`. Tools SHOULD preserve it.
+- The canonical key order is `title · id · updated · [domain keys] · summary · keywords · entities · relations · links · rev`. Tools SHOULD preserve it.
 - **The body is never touched by metadata operations.** Any process that rewrites frontmatter MUST leave the body byte-identical.
 
 ### 3.2 Frontmatter — reliability axes (recommended)
@@ -144,24 +148,25 @@ Default aliases: `tipo` → `type`; `sintesi` → `synthesis`; `documento` → `
 
 ```markdown
 ---
-title: Portwest — player card
+title: Westguard — player card
+id: 01JVKE4X2PFNRW8BQDP5MHCG2X
 updated: 2026-08-12
-tags: [player, ppe, competitor]
+tags: [player, industrial-coatings, competitor]
 status: sourced
-summary: "Irish PPE manufacturer present in 130+ countries with an own-brand line that undercuts distributors on price; the reference competitor for price."
-keywords: [portwest, price competitor, own brand, irish ppe manufacturer, 130 countries, private label]
+summary: "Nordic industrial coatings manufacturer present in 130+ countries with an own-brand line that undercuts distributors on price; the reference competitor for price."
+keywords: [westguard, price competitor, own brand, nordic industrial coatings manufacturer, 130 countries, private label]
 entities:
-  - {name: Portwest, type: company}
+  - {name: Westguard, type: company}
 relations:
-  - {from: Portwest, type: competes with, to: Ateş}
-links: [PPE consolidation 2025, Strategic scenarios]
+  - {from: Westguard, type: competes with, to: Meridian}
+links: [Coatings consolidation 2025, Strategic scenarios]
 rev: a81c0d33ef21
 ---
 
-# Portwest — player card
+# Westguard — player card
 
 Sells in 130+ countries. Own-brand line undercuts distributors. ✅ sourced (company site, 2026-07).
-See [[PPE consolidation 2025]] and [[Strategic scenarios]].
+See [[Coatings consolidation 2025]] and [[Strategic scenarios]].
 ```
 
 ## 4. Links and the graph
@@ -233,13 +238,13 @@ Example of a composed document's frontmatter, with a `layout` map. The map is fr
 
 ```yaml
 type: document
-fragments: [PPE consolidation 2025, Portwest — player card, Strategic scenarios]
-pool: [PPE trade fairs Europe 2026]
+fragments: [Coatings consolidation 2025, Westguard — player card, Strategic scenarios]
+pool: [Coatings trade fairs Europe 2026]
 layout:
-  cover: {title: Market entry brief — PPE, Europe, subtitle: Board reading, date: 2026-09-03}
+  cover: {title: Market entry brief — Industrial Coatings, Europe, subtitle: Board reading, date: 2026-09-03}
   page: A4
   sections:
-    - {title: Market, fragments: [PPE consolidation 2025, Portwest — player card]}
+    - {title: Market, fragments: [Coatings consolidation 2025, Westguard — player card]}
     - {title: Recommendation, fragments: [Strategic scenarios]}
   show: [summary, status]      # what of each fragment's frontmatter is printed
 ```
@@ -250,7 +255,7 @@ Because the composed document is itself a note, it inherits versioning, review, 
 
 ## 7. Rules of the vault
 
-A conforming vault obeys the following. R1–R5 are verifiable from files; R6–R8 are process rules the meta note commits to.
+A conforming vault obeys the following. R1–R5 are verifiable from files; R6–R7 are process rules the meta note commits to.
 
 - **R1 — Atomicity.** One note answers one question.
 - **R2 — Self-description.** Every note carries the CORE frontmatter (§3.1).
@@ -259,7 +264,12 @@ A conforming vault obeys the following. R1–R5 are verifiable from files; R6–
 - **R5 — Composition over duplication.** Content that must be read together is joined with a composed document (§6) or a synthesis (§5.2), never copied.
 - **R6 — Record, don't resolve.** A contradiction between notes is entered in the open-questions ledger with both versions. Nobody picks a winner silently. Numbers, prices, dates and commitments to third parties are never chosen on behalf of the owner.
 - **R7 — Supersede, don't delete.** A note that is no longer valid is marked superseded (`status: superseded`, `#status/archived`, or a banner) and left in place, because other notes link to it. Deletion is reserved for notes that were created in error.
-- **R8 — Propose, don't apply.** Any automated process that writes to the vault writes to a branch, a pull request, or a staging area that a human reviews. Automated processes never write to the vault's main line. `rev` is the mechanism that lets a reviewer see whether a proposal was made against the current body.
+
+### 7.1 Agent workflow recommendation
+
+**Propose, don't apply (R8).** Any automated process that writes to the vault SHOULD write to a branch, a pull request, or a staging area that a human reviews. Automated processes SHOULD NOT write to the vault's main line directly. `rev` is the mechanism that lets a reviewer see whether a proposal was made against the current body.
+
+This is a workflow recommendation, not a normative rule: a file cannot prove it was proposed rather than applied directly. The checker does not verify it. Skills and agent instructions carry it as a SHOULD.
 
 ## 8. Out of scope
 
@@ -292,6 +302,7 @@ A vault is **Mosaix 1.0 conformant** when a check over its files reports zero er
 |---|---|
 | Frontmatter present on every note outside `_inbox/`, `_private/` and declared payload folders | R2 |
 | `title`, `updated`, `tags`, `summary`, `keywords`, `rev` present (canonical or aliased) | R2 |
+| `id` present and a valid ULID on every note outside `_inbox/`, `_private/`, and payload folders | R2 (**warning** until v2.0, then error) |
 | `summary` length 120–240 characters | R2 |
 | `keywords` count 6–8 | R2 |
 | `entities` present on ≥ 80 % of notes; each `type` in the allowed set | R2 |
@@ -301,7 +312,7 @@ A vault is **Mosaix 1.0 conformant** when a check over its files reports zero er
 | open-questions ledger and meta note exist | §5.3, §5.4 |
 | every `type: document` note lists ≥ 2 `fragments`, all resolving | §6 |
 
-and zero or more **warnings** for: tags not declared in the taxonomy, domain keys not declared, `rev` older than the body (stale metadata), notes without any reliability marker, more than 12 `entities` on a note that is not a MOC.
+and zero or more **warnings** for: tags not declared in the taxonomy, domain keys not declared, `rev` older than the body (stale metadata), notes without any reliability marker, more than 12 `entities` on a note that is not a MOC, `id` missing or invalid ULID (becomes an error in v2.0).
 
 A reference checker, `audit_reference.py`, accompanies this specification. It uses only the Python standard library and produces the table above. Its output is the conformance report.
 
@@ -309,7 +320,7 @@ A reference checker, `audit_reference.py`, accompanies this specification. It us
 
 Versions follow `MAJOR.MINOR.PATCH`. A MINOR version may add optional keys, note types or warnings; it never turns a conformant vault into a non-conformant one. A MAJOR version may. Vaults SHOULD state the version they target in their meta note (`mosaix: "1.0"`).
 
-Under discussion for 1.1, not part of 1.0: a stable `id` key so links survive renames; a `question` key recording the single question a note answers; a mandatory closed relation vocabulary; an entity registry with aliases; `origin` (human · distilled · observed) and `as_of`, the date a fact was true.
+Under discussion for 1.1, not part of 1.0: a `question` key recording the single question a note answers; a mandatory closed relation vocabulary; an entity registry with aliases; `origin` (human · distilled · observed) and `as_of`, the date a fact was true.
 
 ## 12. Acknowledgements and provenance
 
@@ -325,6 +336,18 @@ The format was extracted from three vaults in production use (code documentation
 
 # Changelog — Mosaix Format
 
+## 1.0.1 — 2026-09-08
+
+- **R8 moved from normative rule to agent workflow recommendation (§7.1).** R8 ("Propose, don't apply") is now a non-normative SHOULD recommendation rather than a conformance rule. Rationale: a file cannot prove it was proposed rather than applied directly, so the checker cannot verify it; making it non-normative strengthens the claim that every remaining rule is machine-verifiable. The content and identifier are unchanged. Skills carry it as SHOULD. The checker is unaffected.
+- **Cluster model clarified as observed average, not prescribed limit.** The ~600 token figure in §7 (site §07) is an observed average on production vaults, not a ceiling. Wording updated to prevent misinterpretation.
+- **`spec.yaml` — machine-readable single source of truth.** Every CORE key, rule (R1–R7), recommendation (R8), conformance error (E001–E015) and warning (W001–W008) encoded in one parseable YAML file. The checker loads conformance messages from it (with hardcoded fallback).
+- **Conformance test corpus** (`tests/conformance/`). 39 test cases across `valid/`, `invalid/`, `warnings/` and `edge-cases/`, with `expected.json` and a runner (`run_conformance.py`). All 39 pass.
+- **Reference MCP server** (`mosaix_mcp/`). Stdlib-only Python package (~430 lines), JSON-RPC 2.0 over stdio, six tools: `read_note`, `write_note`, `search`, `compose`, `check`, `list_notes`. Writes validate against §10.
+- **`mosaix_init.py`** — scaffold a new vault with the standard structure, a meta note, an open-questions ledger and a pre-configured GitHub Actions workflow. Optional `--with-examples`.
+- **`mosaix_migrate.py`** — bring an existing directory of `.md` files toward Mosaix conformance with best-effort inference (title, summary, keywords, tags, links, rev). Body is never modified; every migrated note gets `reliability: to-confirm`. Supports `--dry-run` and `--git-dates`.
+- **`GOVERNANCE.md`** — versioning policy (SemVer), RFC process with GitHub Issue template, backward compatibility guarantee, deprecation policy, version declaration, BDFL model.
+- **`OBSIDIAN-PLUGIN-SPEC.md`** — functional specification for `obsidian-mosaix`: inline lint, scaffolding commands, graph enhancements (supersession chains, contradiction badges, orphan highlighting), status bar, sidebar panel, settings.
+
 ## 1.0.0 — 2026-09-04
 
 First public version. Extracted from three production vaults. Working title "SLIM Vault Format" renamed to "Mosaix Format" on 2026-09-03; the format's frontmatter key is `mosaix`. Canonical vocabulary switched to English on 2026-09-04, before publication; the Italian names used by the source vaults are default aliases.
@@ -339,7 +362,7 @@ First public version. Extracted from three production vaults. Working title "SLI
 - Reserved folders `_meta/`, `_synthesis/` (alias `_sintesi/`), `_inbox/`; optional unversioned `_private/`; declared payload folders.
 - Note types with format meaning: `moc`, `synthesis`, `document`.
 - Composed documents (`type: document`, `fragments`, `pool`, `layout`).
-- Rules R1–R8 (atomicity, self-description, connectedness, declared taxonomy, composition over duplication, record-don't-resolve, supersede-don't-delete, propose-don't-apply).
+- Rules R1–R7 (atomicity, self-description, connectedness, declared taxonomy, composition over duplication, record-don't-resolve, supersede-don't-delete); agent workflow recommendation R8 (propose-don't-apply, non-normative, §7.1).
 - Meta note frontmatter (`mosaix`, `folders`, `reliability`, `tags`, `domain_keys`, `aliases`, `entity_types`, `relation_types`, `payload`, `maintainers`) read by the checker.
 - Conformance checks (§10) and reference checker `audit_reference.py`.
 - Obsidian host profile (§9): host features are outside the format.

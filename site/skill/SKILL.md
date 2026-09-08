@@ -15,6 +15,7 @@ Every note MUST have YAML frontmatter with these keys, in this order:
 ```yaml
 ---
 title: Name of the node
+id: 01JVKE4X2PFNRW8BQDP5MHCG2X  # ULID — generate one per note at creation time
 updated: YYYY-MM-DD
 # (domain keys go here, if any)
 summary: "One declarative sentence, 120–240 characters. Does NOT repeat the title. Does NOT start with 'This note…'."
@@ -31,6 +32,7 @@ rev: 000000000000                        # 12 hex chars; placeholder until compu
 ### Key details
 
 - **`title`** — the name of the node. Usually matches the filename.
+- **`id`** — a ULID (26 characters, Crockford Base32: `0123456789ABCDEFGHJKMNPQRSTVWXYZ`). Generate a new ULID for every note at creation time — never reuse one. The `id` survives renames: if a `links` entry is a ULID, the checker resolves it against other notes' `id` fields before trying filename. Missing `id` = **warning** until v2.0.
 - **`updated`** — date of last substantive change.
 - **`summary`** — written for a reader who has NOT opened the note. One sentence, 120–240 chars.
 - **`keywords`** — how someone would *search* for this note. Not tags.
@@ -136,7 +138,7 @@ layout:
 
 The fragments stay atomic and separate. The document is only the view. An edit belongs to the fragment, not to the document.
 
-## 7. Rules R1–R8
+## 7. Rules R1–R7
 
 Follow these whenever you write or modify notes:
 
@@ -147,7 +149,10 @@ Follow these whenever you write or modify notes:
 5. **R5 — Composition over duplication.** Content that must be read together is joined with a composed document or a synthesis, never copied.
 6. **R6 — Record, don't resolve.** A contradiction between notes goes into the open-questions ledger with both versions. Never pick a winner silently. Never choose numbers, prices, dates, or commitments on behalf of the owner.
 7. **R7 — Supersede, don't delete.** A note that is no longer valid gets `status: superseded` and stays in place — other notes link to it. Delete only notes created in error.
-8. **R8 — Propose, don't apply.** You never write directly to the vault's main line. You write to a branch, a PR, or a staging area. Present your changes for human review.
+
+### Agent workflow recommendation (R8)
+
+**Propose, don't apply.** You SHOULD write to a branch, a PR, or a staging area rather than directly to the vault's main line. Present your changes for human review. This is a workflow recommendation, not a verifiable rule — the checker does not enforce it.
 
 ## 8. Links and wikilinks
 
@@ -173,7 +178,8 @@ When asked to explore, find, or understand a vault:
 Checklist before presenting a note:
 
 - [ ] Answers exactly one question (R1)
-- [ ] Has all CORE keys in canonical order (R2)
+- [ ] Has all CORE keys in canonical order (R2): `title · id · updated · summary · keywords · entities · relations · links · rev`
+- [ ] `id` is a valid ULID (26-char Crockford Base32) — generate a fresh one at note creation
 - [ ] `summary` is 120–240 chars, does not repeat title, does not start with "This note…"
 - [ ] `keywords` has 6–8 items, lowercase, no overlap with `tags`
 - [ ] `entities` has ≤12 items with valid types

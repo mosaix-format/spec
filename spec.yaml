@@ -1,5 +1,5 @@
-﻿# Mosaix Format — machine-readable specification
-# Version: 1.0.0  |  Updated: 2026-09-08
+# Mosaix Format — machine-readable specification
+# Version: 1.0.1  |  Updated: 2026-09-08
 #
 # Purpose: single source of truth for rules, keys, and constraints.
 # Future use: the checker (audit_reference.py) will load rules from here
@@ -11,7 +11,7 @@
 
 spec:
   name: Mosaix Format
-  version: "1.0.0"
+  version: "1.0.1"
   status: published
   updated: "2026-09-08"
   authority: Mosaix-Format-v1.0.en.md

@@ -148,7 +148,7 @@ When asked to audit a vault:
 1. **Run the checker** if available (always try `--verbose`)
 2. **Read the report** — errors first, then warnings
 3. **Group issues by type** — "12 notes missing summary" is one fix pattern, not 12 separate issues
-4. **Propose fixes** as a batch — write to a branch or staging area (R8)
+4. **Propose fixes** as a batch — write to a branch or staging area (R8 recommendation: SHOULD not apply directly to main)
 5. **Re-run the checker** after fixes to verify exit code 0
 6. **Report** the before/after: how many errors, how many fixed, what remains
 

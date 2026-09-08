@@ -7,6 +7,15 @@ keys:
     default: ~
     required: false
 
+  - key: id
+    type: string  # ULID — 26 chars, Crockford Base32, first char 0–7
+    constraint: >
+      must be a valid ULID (regex: ^[0-7][0-9A-HJKMNP-TV-Z]{25}$); generated once at note
+      creation and never changed; checker resolves ULID-format `links` entries id-first;
+      missing = warning in v1.0, error from v2.0
+    default: ~
+    required: true  # soft: warning until v2.0, then error
+
   - key: updated
     type: date  # YYYY-MM-DD
     constraint: last substantive change; drives staleness
@@ -55,4 +64,4 @@ keys:
     default: ~
     required: true
 
-# Canonical key order (§3.1): title · updated · [domain keys] · summary · keywords · entities · relations · links · rev
+# Canonical key order (§3.1): title · id · updated · [domain keys] · summary · keywords · entities · relations · links · rev

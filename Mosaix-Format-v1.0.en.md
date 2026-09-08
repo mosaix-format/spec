@@ -112,25 +112,25 @@ Default aliases: `tipo` → `type`; `sintesi` → `synthesis`; `documento` → `
 
 ```markdown
 ---
-title: Portwest — player card
+title: Westguard — player card
 id: 01JVKE4X2PFNRW8BQDP5MHCG2X
 updated: 2026-08-12
-tags: [player, ppe, competitor]
+tags: [player, industrial-coatings, competitor]
 status: sourced
-summary: "Irish PPE manufacturer present in 130+ countries with an own-brand line that undercuts distributors on price; the reference competitor for price."
-keywords: [portwest, price competitor, own brand, irish ppe manufacturer, 130 countries, private label]
+summary: "Nordic industrial coatings manufacturer present in 130+ countries with an own-brand line that undercuts distributors on price; the reference competitor for price."
+keywords: [westguard, price competitor, own brand, nordic industrial coatings manufacturer, 130 countries, private label]
 entities:
-  - {name: Portwest, type: company}
+  - {name: Westguard, type: company}
 relations:
-  - {from: Portwest, type: competes with, to: Ateş}
-links: [PPE consolidation 2025, Strategic scenarios]
+  - {from: Westguard, type: competes with, to: Meridian}
+links: [Coatings consolidation 2025, Strategic scenarios]
 rev: a81c0d33ef21
 ---
 
-# Portwest — player card
+# Westguard — player card
 
 Sells in 130+ countries. Own-brand line undercuts distributors. ✅ sourced (company site, 2026-07).
-See [[PPE consolidation 2025]] and [[Strategic scenarios]].
+See [[Coatings consolidation 2025]] and [[Strategic scenarios]].
 ```
 
 ## 4. Links and the graph
@@ -202,13 +202,13 @@ Example of a composed document's frontmatter, with a `layout` map. The map is fr
 
 ```yaml
 type: document
-fragments: [PPE consolidation 2025, Portwest — player card, Strategic scenarios]
-pool: [PPE trade fairs Europe 2026]
+fragments: [Coatings consolidation 2025, Westguard — player card, Strategic scenarios]
+pool: [Coatings trade fairs Europe 2026]
 layout:
-  cover: {title: Market entry brief — PPE, Europe, subtitle: Board reading, date: 2026-09-03}
+  cover: {title: Market entry brief — Industrial Coatings, Europe, subtitle: Board reading, date: 2026-09-03}
   page: A4
   sections:
-    - {title: Market, fragments: [PPE consolidation 2025, Portwest — player card]}
+    - {title: Market, fragments: [Coatings consolidation 2025, Westguard — player card]}
     - {title: Recommendation, fragments: [Strategic scenarios]}
   show: [summary, status]      # what of each fragment's frontmatter is printed
 ```
@@ -219,7 +219,7 @@ Because the composed document is itself a note, it inherits versioning, review, 
 
 ## 7. Rules of the vault
 
-A conforming vault obeys the following. R1–R5 are verifiable from files; R6–R8 are process rules the meta note commits to.
+A conforming vault obeys the following. R1–R5 are verifiable from files; R6–R7 are process rules the meta note commits to.
 
 - **R1 — Atomicity.** One note answers one question.
 - **R2 — Self-description.** Every note carries the CORE frontmatter (§3.1).
@@ -228,7 +228,12 @@ A conforming vault obeys the following. R1–R5 are verifiable from files; R6–
 - **R5 — Composition over duplication.** Content that must be read together is joined with a composed document (§6) or a synthesis (§5.2), never copied.
 - **R6 — Record, don't resolve.** A contradiction between notes is entered in the open-questions ledger with both versions. Nobody picks a winner silently. Numbers, prices, dates and commitments to third parties are never chosen on behalf of the owner.
 - **R7 — Supersede, don't delete.** A note that is no longer valid is marked superseded (`status: superseded`, `#status/archived`, or a banner) and left in place, because other notes link to it. Deletion is reserved for notes that were created in error.
-- **R8 — Propose, don't apply.** Any automated process that writes to the vault writes to a branch, a pull request, or a staging area that a human reviews. Automated processes never write to the vault's main line. `rev` is the mechanism that lets a reviewer see whether a proposal was made against the current body.
+
+### 7.1 Agent workflow recommendation
+
+**Propose, don't apply (R8).** Any automated process that writes to the vault SHOULD write to a branch, a pull request, or a staging area that a human reviews. Automated processes SHOULD NOT write to the vault's main line directly. `rev` is the mechanism that lets a reviewer see whether a proposal was made against the current body.
+
+This is a workflow recommendation, not a normative rule: a file cannot prove it was proposed rather than applied directly. The checker does not verify it. Skills and agent instructions carry it as a SHOULD.
 
 ## 8. Out of scope
 

@@ -82,7 +82,7 @@ List the distinct questions the document answers. Each becomes a candidate note.
 
 ### Step 3 — Draft the notes
 
-For each question, write a note with full CORE frontmatter. The body faithfully represents the source content relevant to that question.
+For each question, write a note with full CORE frontmatter. **Generate a fresh ULID for `id`** at note creation — every note gets its own unique id. The body faithfully represents the source content relevant to that question.
 
 ### Step 4 — Connect the notes
 
@@ -97,6 +97,7 @@ For each note:
 
 - [ ] Answers exactly one question (R1)
 - [ ] Has full CORE frontmatter (R2)
+- [ ] `id` is a valid ULID generated fresh for this note (never reused)
 - [ ] `summary` is 120–240 chars, standalone, does not start with "This note…"
 - [ ] `keywords` has 6–8 items
 - [ ] `entities` have valid types
@@ -119,11 +120,11 @@ For the batch:
 
 **Don't resolve contradictions.** If the source says the price is €500 and the vault says €450, log both in the open-questions ledger. Don't pick one.
 
-**Don't duplicate existing vault content.** If the vault already has a note about this concept, either link to it or update it (on a branch, R8). Don't create a second note saying the same thing.
+**Don't duplicate existing vault content.** If the vault already has a note about this concept, either link to it or update it (on a branch — see R8 recommendation). Don't create a second note saying the same thing.
 
 **Don't discard information.** Every substantive claim in the source should land in a note. If something doesn't fit anywhere, create a note and tag it `to-confirm`.
 
-**Don't write directly to main.** Ingested notes go to a branch or staging area for review (R8).
+**Don't write directly to main.** Ingested notes SHOULD go to a branch or staging area for review (R8 recommendation).
 
 ## 5. Example
 

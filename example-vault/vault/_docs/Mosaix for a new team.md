@@ -5,7 +5,7 @@ type: document
 updated: 2026-09-03
 tags: [composed-document, onboarding]
 status: sourced
-summary: "Composed document for someone joining a team that uses Mosaix: purpose, the note, the three commitments and what is out of scope, assembled from six notes without copying them."
+summary: "Composed document for someone joining a team that uses Mosaix: purpose, the note, two commitments plus agent recommendation R8, and what is out of scope, assembled from six notes without copying them."
 keywords: [onboarding, new team member, composed document example, read in ten minutes, fragments, assembled, document]
 entities:
   - {name: Mosaix Format, type: project}

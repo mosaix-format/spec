@@ -41,6 +41,7 @@ If the checker is not available, you can still audit manually using the rules be
 |---|---|
 | Frontmatter present on every note outside `_inbox/`, `_private/`, and declared payload folders | R2 |
 | `title`, `updated`, `tags`, `summary`, `keywords`, `rev` present (canonical or aliased) | R2 |
+| `id` present and a valid ULID (26-char Crockford Base32, first char 0–7) | R2 — **warning** until v2.0, then error |
 | `summary` length 120–240 characters | R2 |
 | `keywords` count 6–8 | R2 |
 | `entities` present on ≥80% of notes; each `type` in the allowed set | R2 |
@@ -59,6 +60,9 @@ If the checker is not available, you can still audit manually using the rules be
 | `rev` older than the body (stale metadata) | Enrichment is out of date |
 | Notes without any reliability marker (`status`) | No one knows if this is sourced or a guess |
 | More than 12 `entities` on a non-MOC note | The note may answer more than one question (R1) |
+| `id` missing or not a valid ULID | Becomes an error in v2.0; generate a ULID for this note |
+
+`links` entries that are valid ULIDs are resolved **id-first**: the checker matches against other notes' `id` fields before trying filename. This lets notes be renamed without breaking references. A ULID in `links` that matches no note's `id` is an **error** (not a warning).
 
 ## 3. Manual audit checklist
 
@@ -70,10 +74,11 @@ When the checker is not available, verify in this order:
 4. **Sample 5–10 notes** outside `_inbox/` and `_private/`:
    - Frontmatter present with `---` delimiters?
    - All CORE keys present (canonical or aliased)?
+   - `id` present and a valid ULID (26 chars, Crockford Base32)?
    - `summary` between 120–240 chars?
    - `keywords` has 6–8 items?
    - `entities` present with valid types?
-   - `links` entries resolve to real notes?
+   - `links` entries resolve to real notes (or to note ids if ULID format)?
 5. **Spot-check wikilinks** — follow 3–5 `[[links]]` and confirm the target exists.
 6. **Check for orphans** — find notes that no other note links to. Every note needs at least one incoming link.
 
@@ -143,7 +148,7 @@ When asked to audit a vault:
 1. **Run the checker** if available (always try `--verbose`)
 2. **Read the report** — errors first, then warnings
 3. **Group issues by type** — "12 notes missing summary" is one fix pattern, not 12 separate issues
-4. **Propose fixes** as a batch — write to a branch or staging area (R8)
+4. **Propose fixes** as a batch — write to a branch or staging area (R8 recommendation: SHOULD not apply directly to main)
 5. **Re-run the checker** after fixes to verify exit code 0
 6. **Report** the before/after: how many errors, how many fixed, what remains
 

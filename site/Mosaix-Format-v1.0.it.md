@@ -110,24 +110,24 @@ Alias di default: `tipo` → `type`; `sintesi` → `synthesis`; `documento` → 
 
 ```markdown
 ---
-title: Portwest — scheda player
+title: Westguard — scheda player
 updated: 2026-08-12
-tags: [player, dpi, competitor]
+tags: [player, rivestimenti, competitor]
 status: sourced
-summary: "Produttore irlandese di DPI presente in oltre 130 paesi con una linea a marchio proprio che batte i distributori sul prezzo; il competitor di riferimento per il prezzo."
-keywords: [portwest, competitor di prezzo, marchio proprio, produttore dpi irlandese, 130 paesi, private label]
+summary: "Produttore nordico di rivestimenti industriali presente in oltre 130 paesi con una linea a marchio proprio che batte i distributori sul prezzo; il competitor di riferimento per il prezzo."
+keywords: [westguard, competitor di prezzo, marchio proprio, produttore rivestimenti nordico, 130 paesi, private label]
 entities:
-  - {name: Portwest, type: company}
+  - {name: Westguard, type: company}
 relations:
-  - {from: Portwest, type: competes with, to: Ateş}
-links: [Consolidamento DPI 2025, Scenari strategici]
+  - {from: Westguard, type: competes with, to: Meridian}
+links: [Consolidamento rivestimenti 2025, Scenari strategici]
 rev: a81c0d33ef21
 ---
 
-# Portwest — scheda player
+# Westguard — scheda player
 
 Vende in oltre 130 paesi. La linea a marchio proprio batte i distributori. ✅ da fonte (sito aziendale, 2026-07).
-Vedi [[Consolidamento DPI 2025]] e [[Scenari strategici]].
+Vedi [[Consolidamento rivestimenti 2025]] e [[Scenari strategici]].
 ```
 
 ## 4. Collegamenti e grafo
@@ -199,13 +199,13 @@ Esempio di frontmatter di un documento composto, con una mappa `layout`. La mapp
 
 ```yaml
 type: document
-fragments: [Consolidamento DPI 2025, Portwest — scheda player, Scenari strategici]
-pool: [Fiere DPI Europa 2026]
+fragments: [Consolidamento rivestimenti 2025, Westguard — scheda player, Scenari strategici]
+pool: [Fiere rivestimenti Europa 2026]
 layout:
-  cover: {title: Brief di ingresso — DPI, Europa, subtitle: Lettura per il board, date: 2026-09-03}
+  cover: {title: Brief di ingresso — Rivestimenti industriali, Europa, subtitle: Lettura per il board, date: 2026-09-03}
   page: A4
   sections:
-    - {title: Mercato, fragments: [Consolidamento DPI 2025, Portwest — scheda player]}
+    - {title: Mercato, fragments: [Consolidamento rivestimenti 2025, Westguard — scheda player]}
     - {title: Raccomandazione, fragments: [Scenari strategici]}
   show: [summary, status]      # cosa stampare del frontmatter di ogni frammento
 ```
@@ -216,7 +216,7 @@ Poiché il documento composto è a sua volta una nota, eredita gratis versioname
 
 ## 7. Regole del vault
 
-Un vault conforme rispetta quanto segue. R1–R5 sono verificabili dai file; R6–R8 sono regole di processo che la nota meta si impegna a rispettare.
+Un vault conforme rispetta quanto segue. R1–R5 sono verificabili dai file; R6–R7 sono regole di processo che la nota meta si impegna a rispettare.
 
 - **R1 — Atomicità.** Una nota risponde a una domanda.
 - **R2 — Autodescrizione.** Ogni nota porta il frontmatter CORE (§3.1).
@@ -225,7 +225,12 @@ Un vault conforme rispetta quanto segue. R1–R5 sono verificabili dai file; R6�
 - **R5 — Composizione, non duplicazione.** Il contenuto che va letto insieme si unisce con un documento composto (§6) o una sintesi (§5.2), mai copiandolo.
 - **R6 — Registrare, non risolvere.** Una contraddizione fra note si inserisce nel registro delle domande aperte con entrambe le versioni. Nessuno sceglie un vincitore in silenzio. Numeri, prezzi, date e impegni verso terzi non si scelgono mai per conto del proprietario.
 - **R7 — Superare, non cancellare.** Una nota non più valida si marca come superata (`status: superseded`, `#status/archived`, o un banner) e si lascia al suo posto, perché altre note la linkano. La cancellazione è riservata alle note create per errore.
-- **R8 — Proporre, non applicare.** Qualunque processo automatico che scrive nel vault scrive su un branch, una pull request o un'area di staging che una persona rivede. I processi automatici non scrivono mai sulla linea principale del vault. `rev` è il meccanismo che permette a chi rivede di vedere se una proposta è stata fatta sul corpo attuale.
+
+### 7.1 Raccomandazione per il workflow agente
+
+**Proporre, non applicare (R8).** Qualunque processo automatico che scrive nel vault DOVREBBE scrivere su un branch, una pull request o un'area di staging che una persona rivede. I processi automatici NON DOVREBBERO scrivere direttamente sulla linea principale del vault. `rev` è il meccanismo che permette a chi rivede di vedere se una proposta è stata fatta sul corpo attuale.
+
+Questa è una raccomandazione di workflow, non una regola normativa: un file non può provare di essere stato proposto piuttosto che applicato direttamente. Il checker non la verifica. Le skill e le istruzioni per gli agenti la includono come SHOULD.
 
 ## 8. Fuori ambito
 

@@ -17,6 +17,7 @@ This is rule R5: **composition over duplication**. Content that must be read tog
 ```yaml
 ---
 title: Market Entry Brief — Organic Tea, Southeast Asia
+id: 01JVKE4X2PTRNG6SM4BXVFW73Y
 updated: 2026-09-03
 type: document
 tags: [document, market, tea]
@@ -122,6 +123,7 @@ Add narrative glue between embeds. Keep it short — the fragments carry the con
 ### Step 7 — Validate
 
 - [ ] `type: document` is set
+- [ ] `id` is a valid ULID (generated at note creation)
 - [ ] `fragments` has ≥2 entries
 - [ ] Every fragment resolves to an existing note
 - [ ] Every fragment and pool entry is in `links`

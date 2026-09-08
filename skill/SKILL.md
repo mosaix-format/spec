@@ -138,7 +138,7 @@ layout:
 
 The fragments stay atomic and separate. The document is only the view. An edit belongs to the fragment, not to the document.
 
-## 7. Rules R1–R8
+## 7. Rules R1–R7
 
 Follow these whenever you write or modify notes:
 
@@ -149,7 +149,10 @@ Follow these whenever you write or modify notes:
 5. **R5 — Composition over duplication.** Content that must be read together is joined with a composed document or a synthesis, never copied.
 6. **R6 — Record, don't resolve.** A contradiction between notes goes into the open-questions ledger with both versions. Never pick a winner silently. Never choose numbers, prices, dates, or commitments on behalf of the owner.
 7. **R7 — Supersede, don't delete.** A note that is no longer valid gets `status: superseded` and stays in place — other notes link to it. Delete only notes created in error.
-8. **R8 — Propose, don't apply.** You never write directly to the vault's main line. You write to a branch, a PR, or a staging area. Present your changes for human review.
+
+### Agent workflow recommendation (R8)
+
+**Propose, don't apply.** You SHOULD write to a branch, a PR, or a staging area rather than directly to the vault's main line. Present your changes for human review. This is a workflow recommendation, not a verifiable rule — the checker does not enforce it.
 
 ## 8. Links and wikilinks
 

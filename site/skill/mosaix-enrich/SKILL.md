@@ -17,7 +17,7 @@ A note starts with a body written by a human. Enrichment fills in the CORE front
 - **`links`** — wikilink targets, mirroring the `[[links]]` in the body
 - **`rev`** — hash of the body at the time of enrichment
 
-`title`, `updated`, and `tags` are typically human-written and not part of automated enrichment, though they may be suggested.
+`title`, `id`, `updated`, and `tags` are **not** part of automated enrichment. `id` in particular MUST be generated once at note creation and never changed or re-generated during enrichment — it is the note's permanent identity.
 
 ## 2. Quality criteria for each key
 
@@ -128,9 +128,9 @@ For each enriched note:
 - [ ] All `links` entries resolve
 - [ ] `rev` is set (placeholder or computed)
 
-### Step 5 — Propose, don't apply
+### Step 5 — Propose, don't apply (R8 — agent recommendation)
 
-Write enriched notes to a branch or staging area (R8). Never write directly to the vault's main line.
+You SHOULD write enriched notes to a branch or staging area rather than directly to the vault's main line.
 
 ## 4. Batch enrichment
 
@@ -150,6 +150,8 @@ When enriching multiple notes:
 **Don't write summaries that require the title to make sense.** "It is rated to IP68" fails without the title. "A compact soil sensor rated to IP68 for precision agriculture" stands alone.
 
 **Don't optimise keywords for SEO.** Keywords are for vault-internal search — how a colleague would look for this note. Not for Google.
+
+**Don't change `id`.** The `id` is the note's permanent identity. Never overwrite it, re-generate it, or copy it from another note. If a note is missing an `id`, generate a fresh ULID and add it — but that's a one-time setup step, not enrichment.
 
 **Don't change the body.** Enrichment fills frontmatter. The body stays untouched. If the body has errors, that's a separate edit.
 
