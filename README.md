@@ -31,7 +31,7 @@ example-vault/             the specification itself as a conformant vault (+ Obs
 example-vault-bakery/      a fictional bakery: the format on ordinary knowledge
 site/                      mosaixformat.org, served by GitHub Pages from this folder
 brand/                     mark, favicon, wordmark and identity notes
-skill/                     optional Claude Skill: agent instructions for reading and writing conformant notes
+skill/                     6 Claude skills: agent instructions for reading and writing conformant notes
 ```
 
 Both example vaults are generated from a single `vault-data.js` by `export_vault.py`, which also runs the checker and refreshes the copies the site serves. Edit the `.js`, not the `.md` files.
@@ -70,6 +70,34 @@ jobs:
 ```
 
 The conformance badge `https://mosaixformat.org/badge.svg` should only be displayed when this check is green.
+
+## Skills
+
+Six optional skills teach Claude how to read and write Mosaix-conformant notes. Each skill is a folder with a `SKILL.md` file — install only the ones you need.
+
+| Skill | What it does |
+|---|---|
+| `skill/` (base) | Write conformant notes — the foundation |
+| `skill/mosaix-audit/` | Verify a vault with the checker |
+| `skill/mosaix-compose/` | Assemble notes into composed documents |
+| `skill/mosaix-onboard/` | Bootstrap a vault from scratch |
+| `skill/mosaix-ingest/` | Split documents into atomic notes |
+| `skill/mosaix-enrich/` | Fill CORE frontmatter, validate quality |
+
+**Install a skill** (personal, all projects):
+
+```bash
+npx degit mosaix-format/spec/skill ~/.claude/skills/mosaix-format
+npx degit mosaix-format/spec/skill/mosaix-audit ~/.claude/skills/mosaix-audit
+```
+
+**Install for one project** (shared via repo):
+
+```bash
+npx degit mosaix-format/spec/skill .claude/skills/mosaix-format
+```
+
+Skills are non-normative: they encode the specification as agent instructions but add no rules beyond it. Nothing in the checker or the format depends on them.
 
 ## Contributing
 

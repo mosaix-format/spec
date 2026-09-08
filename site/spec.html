@@ -136,6 +136,7 @@
   <a href="#templates">Note templates</a>
   <a href="#errors">Errors and warnings</a>
   <a href="#agents">Working with agents</a>
+  <a href="#skills">Skills</a>
   <a href="#compared">Compared with</a>
   <a href="#faq">FAQ</a>
   <a href="#license">License</a>
@@ -685,6 +686,24 @@ rev:
   <p>The format is designed so that an agent never needs the whole vault. The unit of work is a <b>cluster</b>: one note plus its direct dependencies, resolved from <code>links</code> and <code>relations</code>, usually a few hundred tokens. A planner reads the map of content and the summaries, picks one tile per agent, and hands each agent its cluster. Agents run in parallel; there is no shared memory to keep in sync. Their results are new or revised tiles, proposed on a branch (R8) and composed with a <code>document</code> note.</p>
   <p>Three consequences follow. The model is a per-agent choice: a small local model for the tiles it passes, a vertical model where the domain needs it, a large model only where nothing smaller will do. A stale <code>rev</code> tells the reviewer that a proposal was made against an old body. And the ledger (R6) is where an agent records a contradiction it finds, instead of resolving it.</p>
   <div class="note warn"><b>Not in this specification.</b> How the planner chooses, how clusters are budgeted, how proposals are merged: implementations. The specification only guarantees that a conformant vault gives them the keys they need.</div>
+
+  <h2 id="skills"><span class="no">REFERENCE</span>Skills</h2>
+  <p>Six optional skills teach Claude how to read and write Mosaix-conformant notes. Each is a <code>SKILL.md</code> file; install only the ones you need.</p>
+  <div class="tw"><table>
+    <tr><th>Skill</th><th>What it does</th></tr>
+    <tr><td><a href="skill/SKILL.md" style="text-decoration:underline">skill/</a> (base)</td><td>Write conformant notes — the foundation all other skills build on</td></tr>
+    <tr><td><a href="skill/mosaix-audit/SKILL.md" style="text-decoration:underline">skill/mosaix-audit/</a></td><td>Verify a vault with the checker and interpret its output</td></tr>
+    <tr><td><a href="skill/mosaix-compose/SKILL.md" style="text-decoration:underline">skill/mosaix-compose/</a></td><td>Assemble atomic notes into composed documents</td></tr>
+    <tr><td><a href="skill/mosaix-onboard/SKILL.md" style="text-decoration:underline">skill/mosaix-onboard/</a></td><td>Bootstrap a new vault from scratch</td></tr>
+    <tr><td><a href="skill/mosaix-ingest/SKILL.md" style="text-decoration:underline">skill/mosaix-ingest/</a></td><td>Split existing documents into atomic notes</td></tr>
+    <tr><td><a href="skill/mosaix-enrich/SKILL.md" style="text-decoration:underline">skill/mosaix-enrich/</a></td><td>Fill CORE frontmatter and validate enrichment quality</td></tr>
+  </table></div>
+  <h4>Install a skill (personal, all projects)</h4>
+  <pre>npx degit mosaix-format/spec/skill ~/.claude/skills/mosaix-format
+npx degit mosaix-format/spec/skill/mosaix-audit ~/.claude/skills/mosaix-audit</pre>
+  <h4>Install for one project (shared via repo)</h4>
+  <pre>npx degit mosaix-format/spec/skill .claude/skills/mosaix-format</pre>
+  <div class="note">Skills are non-normative. They encode the specification as agent instructions but add no rules beyond it. Nothing in the checker or the format depends on them.</div>
 
   <h2 id="compared"><span class="no">REFERENCE</span>Compared with</h2>
   <p>Mosaix is a file-level format. It does not compete with editors, retrieval systems, or graph databases. It competes with the absence of a format: the situation where every vault invents its own conventions and no tool can assume anything about the files it reads. The table below places Mosaix next to things people already use, honestly.</p>
