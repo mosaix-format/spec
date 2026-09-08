@@ -1,0 +1,42 @@
+name: "RFC — Propose a spec change"
+description: "Propose a change to Mosaix Format specification"
+labels: ["rfc"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem does this proposal solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What specifically changes in the spec? Include exact text.
+    validations:
+      required: true
+  - type: textarea
+    id: backward-compat
+    attributes:
+      label: Backward compatibility
+      description: Does this break existing conformant vaults? How?
+    validations:
+      required: true
+  - type: textarea
+    id: checker-impact
+    attributes:
+      label: Checker impact
+      description: What changes in audit_reference.py?
+    validations:
+      required: true
+  - type: textarea
+    id: skill-impact
+    attributes:
+      label: Skill impact
+      description: Which skills need updating?
+  - type: textarea
+    id: corpus-impact
+    attributes:
+      label: Conformance corpus impact
+      description: What test cases need to be added or modified?

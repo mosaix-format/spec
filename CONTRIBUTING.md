@@ -1,9 +1,11 @@
 # Contributing to the Mosaix Format specification
 
+For the full governance model, versioning policy, RFC process, backward compatibility guarantees, and deprecation policy, see [GOVERNANCE.md](GOVERNANCE.md).
+
 The specification changes through this repository, in this order.
 
-1. **Open an issue** describing the case the current text gets wrong: a note, a vault excerpt, or a checker result that does not match the intent. Use the *Specification change* issue form. Issues without a concrete case are usually closed as questions.
-2. **Discuss.** Most changes are a clarification, an example, or a new warning. Anything that would make a conformant vault non-conformant is a MAJOR change and waits (see below and §11 of the specification).
+1. **Open an issue** describing the case the current text gets wrong: a note, a vault excerpt, or a checker result that does not match the intent. Use the *RFC* issue template for spec changes (see [GOVERNANCE.md §2](GOVERNANCE.md#2-rfc-process)); use the *Specification change* issue form for smaller clarifications. Issues without a concrete case are usually closed as questions.
+2. **Discuss.** Most changes are a clarification, an example, or a new warning. Anything that would make a conformant vault non-conformant is a MAJOR change and waits (see [GOVERNANCE.md §1](GOVERNANCE.md#1-versioning-policy-semver) and §11 of the specification).
 3. **Pull request** against `Mosaix-Format-v1.0.en.md`. English is normative; the Italian file follows in the same PR or a later one. Add a line to `CHANGELOG.md`. If a conformance check changes, change `audit_reference.py` in the same PR and make sure `example-vault/` still passes:
 
    ```
@@ -34,7 +36,7 @@ Translations are welcome as `Mosaix-Format-v1.0.<lang>.md`, where `<lang>` is a 
 
 > Courtesy translation. In case of discrepancy, the English version (`Mosaix-Format-v1.0.en.md`) prevails.
 
-Keep section numbers, key names, note types, status values and rule identifiers (R1–R8) as they are in the English file: they are part of the format, not of the prose.
+Keep section numbers, key names, note types, status values and rule identifiers (R1–R7, plus recommendation R8) as they are in the English file: they are part of the format, not of the prose.
 
 ## What this repository is not
 
