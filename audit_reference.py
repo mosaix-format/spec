@@ -12,6 +12,9 @@ Usage:
 --exclude=    comma-separated relative path prefixes to skip (e.g. content exports that are
               payload for a platform, not notes). Excluded files still resolve links.
 
+Conformance messages are loaded from spec.yaml (same directory as this script) when
+available; if spec.yaml is missing the checker falls back to built-in messages.
+
 Canonical vocabulary is English (§3.1). Italian names used by pre-1.0 vaults are accepted
 as default aliases (KEY_ALIASES, ITEM_ALIASES, VALUE_ALIASES) and reported by their
 canonical name.
@@ -67,6 +70,175 @@ RELIABILITY_MARKERS = ("✅", "⚠️", "🟢", "🟡", "❌", "status:", "sourc
 WIKILINK = re.compile(r"(?<!!)\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]")
 EMBED = re.compile(r"!\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]")
 BODY_TAG = re.compile(r"(?<![\w/&])#((?![0-9A-Fa-f]{3,8}\b)[A-Za-z][A-Za-z0-9_/\-]*)")
+
+
+# ---------- conformance messages ----------
+# Hardcoded fallback messages (used when spec.yaml is missing or unreadable).
+# Templates use {placeholder} syntax compatible with str.format().
+
+_FALLBACK_E: dict[str, str] = {
+    "E001": "{rel}: no frontmatter",
+    "E002": "{rel}: missing `{key}`",
+    "E003": "{rel}: summary length {len} (120–240)",
+    "E004": "{rel}: keywords count {count} (6–8)",
+    "E005": "{rel}: entity type `{type}` not allowed",
+    "E006": "{rel}: broken link [[{target}]]",
+    "E007": "{rel}: orphan (no incoming link)",
+    "E008": "{rel}: links id `{ulid}` does not resolve to any note",
+    "E009": "{rel}: links target `{target}` does not exist",
+    "E010": "{rel}: document with {count} fragments (≥2)",
+    "E011": "{rel}: fragment `{fragment}` does not exist",
+    "E012": "vault: no MOC note (type: moc, or Home/00-Index)",
+    "E013": "vault: no meta note (§5.4)",
+    "E014": "vault: no open-questions ledger (§5.3)",
+    "E015": "vault: entities coverage {n}/{total} = {pct} (<80%)",
+}
+
+_FALLBACK_W: dict[str, str] = {
+    "W001": "{rel}: {count} entities (>12); is this one question? (R1)",
+    "W002": "{rel}: relation type `{type}` not in relation_types",
+    "W003": "{rel}: missing `id` (required from v2.0; generate a ULID)",
+    "W004": "{rel}: `id` is not a valid ULID: `{value}`",
+    "W005": "{rel}: tag #{tag} not declared in meta note",
+    "W006": "meta note declares no tags: taxonomy check skipped",
+    "W007": "{rel}: no reliability marker",
+    "W008": "{rel}: rev may be stale (hint only)",
+}
+
+
+def _parse_conformance(path: Path) -> tuple[dict[str, dict], dict[str, dict]]:
+    """
+    Parse conformance.errors and conformance.warnings from spec.yaml.
+
+    Stdlib-only parser: handles the flat-list structure (list of dicts with scalar
+    fields) without any external YAML library. Returns (errors_dict, warnings_dict)
+    each keyed by id (e.g. "E001"). Only extracts id, slug, message, severity, rule;
+    skips multi-line block scalars (description:, etc.) and all other fields.
+    """
+    errors_out: dict[str, dict] = {}
+    warnings_out: dict[str, dict] = {}
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return {}, {}
+
+    in_conformance = False
+    current_section: str | None = None  # "errors" or "warnings"
+    current_item: dict | None = None
+    in_block_scalar = False
+    block_scalar_indent = 0
+    _WANTED = frozenset(("id", "slug", "message", "severity", "rule"))
+
+    for raw_line in text.splitlines():
+        indent = len(raw_line) - len(raw_line.lstrip())
+        stripped = raw_line.strip()
+
+        if not stripped or stripped.startswith("#"):
+            continue
+
+        if not in_conformance:
+            if stripped == "conformance:":
+                in_conformance = True
+            continue
+
+        # A top-level (indent=0) key means we've left the conformance section.
+        if indent == 0:
+            break
+
+        if in_block_scalar:
+            # Block scalar content is indented deeper than its key.
+            # When we find a line at the same or lower indent, the scalar ended.
+            if indent <= block_scalar_indent:
+                in_block_scalar = False
+                # Fall through to process this line as a regular field.
+            else:
+                continue
+
+        # Sub-section headers: "  errors:" or "  warnings:" at indent 2
+        if indent == 2 and stripped in ("errors:", "warnings:"):
+            current_section = stripped[:-1]  # "errors" → "errors", "warnings" → "warnings"
+            current_item = None
+            continue
+
+        if current_section is None:
+            continue
+
+        # New list item: "    - id: Exxx" at indent 4
+        if indent == 4 and stripped.startswith("- id:"):
+            item_id = stripped[5:].strip()
+            current_item = {"id": item_id}
+            target = errors_out if current_section == "errors" else warnings_out
+            target[item_id] = current_item
+            continue
+
+        if current_item is None:
+            continue
+
+        # Item fields at indent 6: "      key: value"
+        if indent == 6 and ":" in stripped:
+            k, _, v = stripped.partition(":")
+            k = k.strip()
+            v = v.strip()
+            if v in (">", "|"):
+                # Block scalar — skip content lines until indent returns to 6 or less.
+                in_block_scalar = True
+                block_scalar_indent = indent
+                continue
+            if not v:
+                continue
+            # Strip surrounding double or single quotes from YAML quoted scalars.
+            if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'":
+                v = v[1:-1]
+            if k in _WANTED:
+                current_item[k] = v
+
+    return errors_out, warnings_out
+
+
+def _load_messages() -> tuple[dict[str, str], dict[str, str]]:
+    """
+    Load message templates from spec.yaml if available.
+    Returns (errors_dict, warnings_dict) keyed by id, values are format strings.
+    Falls back to _FALLBACK_E / _FALLBACK_W with a stderr notice when spec.yaml
+    is missing, so the checker works standalone without spec.yaml.
+    """
+    spec_path = Path(__file__).parent / "spec.yaml"
+    if spec_path.exists():
+        try:
+            raw_e, raw_w = _parse_conformance(spec_path)
+            if raw_e and raw_w:
+                return (
+                    {eid: d["message"] for eid, d in raw_e.items() if "message" in d},
+                    {wid: d["message"] for wid, d in raw_w.items() if "message" in d},
+                )
+        except Exception:
+            pass
+    print(
+        "audit_reference: spec.yaml not found or unreadable; using built-in messages",
+        file=sys.stderr,
+    )
+    return dict(_FALLBACK_E), dict(_FALLBACK_W)
+
+
+_SPEC_E, _SPEC_W = _load_messages()
+
+
+def _e(code: str, **kw: object) -> str:
+    """Format an error message template by code, falling back to the hardcoded string."""
+    tpl = _SPEC_E.get(code) or _FALLBACK_E.get(code, code)
+    try:
+        return tpl.format(**kw)
+    except (KeyError, IndexError):
+        return tpl
+
+
+def _w(code: str, **kw: object) -> str:
+    """Format a warning message template by code, falling back to the hardcoded string."""
+    tpl = _SPEC_W.get(code) or _FALLBACK_W.get(code, code)
+    try:
+        return tpl.format(**kw)
+    except (KeyError, IndexError):
+        return tpl
 
 
 # ---------- minimal YAML subset (enough for the CORE keys) ----------
@@ -273,10 +445,10 @@ def audit(vault: Path, check_rev: bool = False, exclude: tuple[str, ...] = ()):
             if t in all_md:
                 incoming[t] += 1
             elif "." not in t:  # non-.md assets are not checked
-                errors.append(f"{rel}: broken link [[{target}]]")
+                errors.append(_e("E006", rel=rel, target=target))
 
         if fm is None:
-            errors.append(f"{rel}: no frontmatter")
+            errors.append(_e("E001", rel=rel))
             continue
 
         ntype = str(fm.get("type", "")).lower()
@@ -287,35 +459,35 @@ def audit(vault: Path, check_rev: bool = False, exclude: tuple[str, ...] = ()):
             if k not in fm or fm[k] in ("", [], None):
                 if k == "title":
                     continue  # derivable from filename
-                errors.append(f"{rel}: missing `{k}`")
+                errors.append(_e("E002", rel=rel, key=k))
 
         s = str(fm.get("summary", ""))
         if s and not (120 <= len(s) <= 240):
-            errors.append(f"{rel}: summary length {len(s)} (120–240)")
+            errors.append(_e("E003", rel=rel, len=len(s)))
         kw = fm.get("keywords", [])
         if isinstance(kw, list) and kw and not (6 <= len(kw) <= 8):
-            errors.append(f"{rel}: keywords count {len(kw)} (6–8)")
+            errors.append(_e("E004", rel=rel, count=len(kw)))
 
         ents = fm.get("entities", [])
         if isinstance(ents, list) and ents:
             entity_count += 1
             if len(ents) > 12 and ntype != "moc" and not n["is_meta"]:
-                warnings.append(f"{rel}: {len(ents)} entities (>12); is this one question? (R1)")
+                warnings.append(_w("W001", rel=rel, count=len(ents)))
             for e in ents:
                 if isinstance(e, dict) and str(e.get("type", "")).lower() not in entity_types:
-                    errors.append(f"{rel}: entity type `{e.get('type')}` not allowed")
+                    errors.append(_e("E005", rel=rel, type=e.get("type")))
 
         if relation_types:
             for r in fm.get("relations", []) or []:
                 if isinstance(r, dict) and str(r.get("type", "")).lower() not in relation_types:
-                    warnings.append(f"{rel}: relation type `{r.get('type')}` not in relation_types")
+                    warnings.append(_w("W002", rel=rel, type=r.get("type")))
 
         # id validation (warning until v2.0, then error — §3.1 backward compatibility)
         note_id = fm.get("id")
         if not note_id:
-            warnings.append(f"{rel}: missing `id` (required from v2.0; generate a ULID)")
+            warnings.append(_w("W003", rel=rel))
         elif not ULID_RE.match(str(note_id)):
-            warnings.append(f"{rel}: `id` is not a valid ULID: `{note_id}`")
+            warnings.append(_w("W004", rel=rel, value=note_id))
 
         for target in fm.get("links", []) or []:
             t = str(target).strip()
@@ -324,19 +496,19 @@ def audit(vault: Path, check_rev: bool = False, exclude: tuple[str, ...] = ()):
                 if t in id_to_stem:
                     incoming[id_to_stem[t]] += 1
                 else:
-                    errors.append(f"{rel}: links id `{t}` does not resolve to any note")
+                    errors.append(_e("E008", rel=rel, ulid=t))
             elif t in all_md:
                 incoming[t] += 1
             else:
-                errors.append(f"{rel}: links target `{t}` does not exist")
+                errors.append(_e("E009", rel=rel, target=t))
 
         if ntype == "document":
             frags = fm.get("fragments", []) or []
             if len(frags) < 2:
-                errors.append(f"{rel}: document with {len(frags)} fragments (≥2)")
+                errors.append(_e("E010", rel=rel, count=len(frags)))
             for f in frags:
                 if str(f) not in all_md:
-                    errors.append(f"{rel}: fragment `{f}` does not exist")
+                    errors.append(_e("E011", rel=rel, fragment=f))
 
         if n["is_meta"]:
             declared_tags |= {str(t) for t in (fm.get("tags", []) or [])}
@@ -348,33 +520,33 @@ def audit(vault: Path, check_rev: bool = False, exclude: tuple[str, ...] = ()):
         if check_rev and fm.get("rev"):
             digest = hashlib.sha256(body.strip().encode("utf-8")).hexdigest()[:12]
             if digest != str(fm["rev"]):
-                warnings.append(f"{rel}: rev may be stale (hint only)")
+                warnings.append(_w("W008", rel=rel))
 
     # orphans (a MOC / meta / ledger may legitimately have no incoming link)
     for name, n in notes.items():
         low = name.lower()
         if incoming.get(name, 0) == 0 and not n["is_meta"] and low not in LEDGER_NAMES and "moc" not in low and low not in MOC_NAMES:
-            errors.append(f"{n['rel']}: orphan (no incoming link)")
+            errors.append(_e("E007", rel=n["rel"]))
 
     # taxonomy warnings
     if declared_tags:
         for name, n in notes.items():
             for t in n.get("tags", set()):
                 if t not in declared_tags and not t.startswith(("type/", "status/", "tipo/", "stato/")):
-                    warnings.append(f"{n['rel']}: tag #{t} not declared in meta note")
+                    warnings.append(_w("W005", rel=n["rel"], tag=t))
     else:
-        warnings.append("meta note declares no tags: taxonomy check skipped")
+        warnings.append(_w("W006"))
 
     if not has_moc:
-        errors.append("vault: no MOC note (type: moc, or Home/00-Index)")
+        errors.append(_e("E012"))
     if not has_meta:
-        errors.append("vault: no meta note (§5.4)")
+        errors.append(_e("E013"))
     if not has_ledger:
-        errors.append("vault: no open-questions ledger (§5.3)")
+        errors.append(_e("E014"))
     if notes and entity_count / len(notes) < 0.80:
-        errors.append(f"vault: entities coverage {entity_count}/{len(notes)} = {entity_count/len(notes):.0%} (<80%)")
+        errors.append(_e("E015", n=entity_count, total=len(notes), pct=f"{entity_count/len(notes):.0%}"))
     for rel in reliability_missing:
-        warnings.append(f"{rel}: no reliability marker")
+        warnings.append(_w("W007", rel=rel))
 
     return {
         "vault": str(vault),

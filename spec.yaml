@@ -1,0 +1,565 @@
+﻿# Mosaix Format — machine-readable specification
+# Version: 1.0.0  |  Updated: 2026-09-08
+#
+# Purpose: single source of truth for rules, keys, and constraints.
+# Future use: the checker (audit_reference.py) will load rules from here
+# instead of having them hardcoded; Claude skills will be validated against
+# this file. For now it is read-only reference data.
+#
+# Authoritative source: Mosaix-Format-v1.0.en.md
+# License: CC BY-SA 4.0
+
+spec:
+  name: Mosaix Format
+  version: "1.0.0"
+  status: published
+  updated: "2026-09-08"
+  authority: Mosaix-Format-v1.0.en.md
+
+# ─────────────────────────────────────────────
+# §3.1  CORE frontmatter keys
+# ─────────────────────────────────────────────
+# Canonical order: title · id · updated · [domain keys] · summary ·
+#                  keywords · entities · relations · links · rev
+# Domain keys (tags and any vault-specific keys) sit between updated and summary.
+
+core_keys:
+
+  - key: title
+    type: string
+    required: false          # derivable from filename; checker skips if absent
+    constraints:
+      note: Basename of the file is used when omitted.
+
+  - key: id
+    type: string             # ULID — 26 chars, Crockford Base32
+    required: soft           # warning in v1.0; error from v2.0
+    constraints:
+      pattern: "^[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+      length: 26
+      first_char: "0–7"
+      immutable: true        # generated once at creation, never changed
+      unique: true           # never reused; never derived from content or filename
+    resolution:
+      note: >
+        ULID-format entries in `links` are resolved id-first (by matching this
+        field), then fall back to filename. This is the primary purpose of id in v1.0.
+    backward_compat:
+      v1_0: warning          # missing or invalid id = warning
+      v2_0: error            # missing or invalid id = error
+    exempt_folders:
+      - _inbox/
+      - _private/
+      - declared payload folders in meta note
+
+  - key: updated
+    type: date               # YYYY-MM-DD
+    required: true
+    constraints:
+      format: YYYY-MM-DD
+      semantics: Last substantive change; drives staleness checks.
+
+  - key: tags
+    type: list[string]
+    required: true
+    constraints:
+      each_item: Must appear in the meta note taxonomy (§5.4).
+
+  - key: summary
+    type: string
+    required: true
+    constraints:
+      min_chars: 120
+      max_chars: 240
+      must_not_repeat_title: true
+      must_not_start_with:
+        - "This note"
+        - "Questa nota"
+      audience: Written for a reader who has not opened the note.
+
+  - key: keywords
+    type: list[string]
+    required: true
+    constraints:
+      min_items: 6
+      max_items: 8
+      case: lowercase
+      no_overlap_with_tags: true
+
+  - key: entities
+    type: "list[{name: string, type: string}]"
+    required: false          # but contributes to the 80% coverage check
+    constraints:
+      max_items: 12
+      type_must_be_allowed: true    # built-in types or declared in meta note
+      exempt_from_cap:
+        - type: moc
+        - meta note itself
+    coverage_check:
+      threshold_pct: 80     # ≥80% of vault notes must carry entities
+
+  - key: relations
+    type: "list[{from: string, type: string, to: string}]"
+    required: false
+    constraints:
+      type_format: Short verb phrase in present tense.
+      type_must_be_declared: >
+        If `relation_types` is declared in the meta note, every relation type
+        must be from that vocabulary; otherwise any phrase is accepted.
+
+  - key: links
+    type: list[string]
+    required: false
+    constraints:
+      each_item: Must resolve to an existing note.
+      ulid_resolution: >
+        Entries matching the ULID pattern are resolved by `id` field first,
+        then fall back to filename matching.
+
+  - key: rev
+    type: string             # 12 hexadecimal characters
+    required: true
+    constraints:
+      pattern: "^[0-9a-f]{12}$"
+      length: 12
+      computation: "sha256(body)[:12] at the time entities/relations/links were last computed"
+      mismatch_meaning: Metadata is stale relative to the current body.
+
+# ─────────────────────────────────────────────
+# §7  Rules R1–R7  (normative)
+# ─────────────────────────────────────────────
+# R1–R5 are verifiable from files.
+# R6–R7 are process rules the meta note commits to.
+
+rules:
+
+  - id: R1
+    name: Atomicity
+    short: One note answers one question.
+    description: >
+      If a draft answers two questions, it is two notes. The boundary is the
+      question the note was written to answer; the title names that question.
+    checker_verifiable: true    # indirectly: >12 entities triggers a warning
+    normative: true
+
+  - id: R2
+    name: Self-description
+    short: Every note carries the CORE frontmatter (§3.1).
+    description: >
+      Every note must have a YAML frontmatter block with all required CORE keys
+      present and valid. Missing or malformed keys are conformance errors.
+    checker_verifiable: true
+    normative: true
+
+  - id: R3
+    name: Connectedness
+    short: No orphans, no broken links.
+    description: >
+      Every note must have at least one incoming wikilink; every wikilink or
+      embed in the body must resolve. ULID entries in `links` must resolve by
+      `id` field.
+    checker_verifiable: true
+    normative: true
+
+  - id: R4
+    name: Declared taxonomy
+    short: Every tag and every domain key is declared in the meta note (§5.4).
+    description: >
+      A tag used in a note and absent from the meta note taxonomy is a
+      conformance warning. Domain-specific frontmatter keys must also be
+      declared.
+    checker_verifiable: true
+    normative: true
+
+  - id: R5
+    name: Composition over duplication
+    short: Content that must be read together is joined, never copied.
+    description: >
+      If two or more notes must be read together, use a composed document (§6)
+      or a synthesis (§5.2). Copying content between notes is a violation.
+    checker_verifiable: false   # requires semantic judgment
+    normative: true
+
+  - id: R6
+    name: Record, don't resolve
+    short: Contradictions go to the open-questions ledger with both versions.
+    description: >
+      A contradiction between notes is entered in the open-questions ledger
+      with both versions. Nobody picks a winner silently. Numbers, prices,
+      dates and commitments to third parties are never chosen on behalf of
+      the vault owner.
+    checker_verifiable: false   # process rule
+    normative: true
+
+  - id: R7
+    name: Supersede, don't delete
+    short: A note that is no longer valid is marked superseded and left in place.
+    description: >
+      A superseded note is marked with `status: superseded`, `#status/archived`,
+      or a banner, and left in place because other notes link to it. Deletion
+      is reserved for notes that were created in error.
+    checker_verifiable: true    # checker can detect `status: superseded` notes
+    normative: true
+
+# ─────────────────────────────────────────────
+# R8  Recommendation  (non-normative)
+# ─────────────────────────────────────────────
+# R8 is kept separate because it governs automated processes, not vault
+# content. A vault can be conformant without enforcing R8 at the tooling level.
+
+recommendation:
+
+  - id: R8
+    name: Propose, don't apply
+    short: Automated processes write to a branch; humans review before merge.
+    description: >
+      Any automated process that writes to the vault writes to a branch,
+      a pull request, or a staging area that a human reviews. Automated
+      processes never write to the vault's main line. `rev` is the mechanism
+      that lets a reviewer see whether a proposal was made against the current
+      body.
+    checker_verifiable: false   # tooling/infrastructure rule
+    normative: false            # strong recommendation, not a conformance requirement
+
+# ─────────────────────────────────────────────
+# §3.1  Aliases (Italian and legacy keys)
+# ─────────────────────────────────────────────
+# All checkers must recognise these without any meta note declaration.
+
+aliases:
+  keys:                        # frontmatter key → canonical key
+    titolo: title
+    aggiornato: updated
+    riassunto: summary
+    parole_chiave: keywords
+    mcp_entita: entities
+    mcp_relazioni: relations
+    mcp_collegamenti: links
+    mcp_rev: rev
+    mcp_frammenti: fragments    # composed-document key
+    mcp_pool: pool              # composed-document key
+    mcp_layout: layout          # composed-document key
+    tipo: type
+    stato: status
+
+  item_fields:                 # fields inside entity/relation objects
+    nome: name
+    tipo: type
+    da: from
+    a: to
+
+  values:                      # field value → canonical value
+    entity_types:
+      persona: person
+      azienda: company
+      prodotto: product
+      progetto: project
+      strumento: tool
+      luogo: place
+      documento: document
+      evento: event
+    note_types:
+      sintesi: synthesis
+    status_values:
+      ok: sourced
+      confermare: to-confirm
+      superato: superseded
+
+  folders:
+    _sintesi/: _synthesis/
+
+  ledger_filenames:            # accepted aliases for the open-questions ledger
+    - Open questions.md        # canonical
+    - Assunzioni da confermare.md
+    - Domande aperte.md
+
+# ─────────────────────────────────────────────
+# §3.4  Note types
+# ─────────────────────────────────────────────
+
+note_types:
+
+  - type: moc
+    name: Map of Content
+    description: >
+      Entry point that narrates an area of the vault and lists its notes.
+      A vault MUST have at least one MOC (typically Home or 00-Index).
+    vault_minimum: 1
+    exempt_from_entity_cap: true
+
+  - type: synthesis
+    name: Synthesis note
+    folder: _synthesis/
+    description: >
+      Condenses an area of the vault into a text that can be read alone as
+      context for a task. MUST link to the notes it summarises. When it
+      disagrees with a note, the note wins and the synthesis is stale.
+    must_link_sources: true
+
+  - type: document
+    name: Composed document
+    description: >
+      A note whose frontmatter lists the notes it is assembled from (§6).
+      MUST carry `fragments` (ordered list, ≥2 items). Optionally carries
+      `pool` and `layout`.
+    required_keys:
+      - fragments              # list[string], ≥2 items
+    optional_keys:
+      - pool
+      - layout
+
+# ─────────────────────────────────────────────
+# §3.2  Reliability axes
+# ─────────────────────────────────────────────
+# Two independent axes. Convention (key vs. tag vs. inline symbol) is chosen
+# once per vault and documented in the meta note. Recommended: `status` key.
+
+reliability_axes:
+
+  axis_a:
+    question: Is it true?
+    values:
+      - value: sourced
+        symbol: "✅"
+        meaning: >
+          Comes from a document, a system, or a working conversation;
+          source is named.
+      - value: to-confirm
+        symbol: "⚠️"
+        meaning: >
+          Hypothesis, draft, or placeholder; not yet validated.
+      - value: superseded
+        symbol: "—"
+        meaning: >
+          No longer valid; kept in place per R7.
+
+  axis_b:
+    question: Does it exist? (for vaults that describe something being built)
+    values:
+      - value: implemented
+        symbol: "🟢"
+        meaning: Exists and works as described.
+      - value: decided
+        symbol: "🟡"
+        meaning: Decided, not yet built.
+      - value: open
+        symbol: "⚠️"
+        meaning: Undecided.
+      - value: excluded
+        symbol: "❌"
+        meaning: Decided against.
+
+  note: >
+    The two axes are independent. A statement may be `sourced` on Axis A and
+    `decided` on Axis B simultaneously.
+
+# ─────────────────────────────────────────────
+# §3.1  Built-in entity types
+# ─────────────────────────────────────────────
+# Vaults may declare additional types via `entity_types` in the meta note.
+
+entity_types:
+  - type: person
+    description: A named individual — employee, contact, author, or public figure.
+  - type: company
+    description: A legal entity, brand, or organisation.
+  - type: product
+    description: A commercial or internal product, line, or SKU.
+  - type: project
+    description: A bounded initiative with a defined goal.
+  - type: tool
+    description: A software tool, platform, or technical system.
+  - type: place
+    description: A country, city, region, or physical location.
+  - type: document
+    description: An external report, contract, standard, or publication.
+  - type: event
+    description: A conference, trade fair, meeting, or date-bound occurrence.
+
+# ─────────────────────────────────────────────
+# §10  Conformance — errors and warnings
+# ─────────────────────────────────────────────
+# id: short slug used by the checker to tag each finding.
+# severity: error = vault is non-conformant; warning = informational.
+# rule: the spec rule or section that requires this check.
+
+conformance:
+
+  errors:
+
+    - id: E001
+      slug: no_frontmatter
+      message: "{rel}: no frontmatter"
+      severity: error
+      rule: R2
+      description: The note has no YAML frontmatter block.
+
+    - id: E002
+      slug: missing_required_key
+      message: "{rel}: missing `{key}`"
+      severity: error
+      rule: R2
+      description: A required CORE key is absent from the frontmatter.
+      applies_to_keys: [updated, tags, summary, keywords, rev]
+
+    - id: E003
+      slug: summary_length
+      message: "{rel}: summary length {len} (120–240)"
+      severity: error
+      rule: R2
+      description: The summary is outside the allowed 120–240 character range.
+
+    - id: E004
+      slug: keywords_count
+      message: "{rel}: keywords count {count} (expected 6–8)"
+      severity: error
+      rule: R2
+      description: The keywords list has fewer than 6 or more than 8 items.
+
+    - id: E005
+      slug: entity_type_not_allowed
+      message: "{rel}: entity type `{type}` not allowed"
+      severity: error
+      rule: R2
+      description: An entity's `type` value is not in the built-in set and not declared in the meta note.
+
+    - id: E006
+      slug: broken_link
+      message: "{rel}: broken link [[{target}]]"
+      severity: error
+      rule: R3
+      description: A wikilink or embed in the body does not resolve to an existing note.
+
+    - id: E007
+      slug: orphan
+      message: "{rel}: orphan (no incoming link)"
+      severity: error
+      rule: R3
+      description: The note has no incoming wikilink from any other note.
+
+    - id: E008
+      slug: links_ulid_not_resolved
+      message: "{rel}: links id `{ulid}` does not resolve to any note"
+      severity: error
+      rule: R3
+      description: A ULID entry in `links` does not match any note's `id` field.
+
+    - id: E009
+      slug: links_target_not_found
+      message: "{rel}: links target `{target}` does not exist"
+      severity: error
+      rule: R3
+      description: A non-ULID entry in `links` does not resolve to an existing note file.
+
+    - id: E010
+      slug: document_too_few_fragments
+      message: "{rel}: document with {count} fragments (≥2)"
+      severity: error
+      rule: "§6"
+      description: "A note with `type: document` has fewer than 2 entries in `fragments`."
+
+    - id: E011
+      slug: fragment_not_found
+      message: "{rel}: fragment `{fragment}` does not exist"
+      severity: error
+      rule: "§6"
+      description: A path listed in `fragments` does not resolve to an existing note.
+
+    - id: E012
+      slug: no_moc
+      message: "vault: no MOC note (type: moc, or Home/00-Index)"
+      severity: error
+      rule: "§3.4"
+      description: "The vault has no note with `type: moc` and no note named Home or 00-Index."
+      scope: vault
+
+    - id: E013
+      slug: no_meta_note
+      message: "vault: no meta note (§5.4)"
+      severity: error
+      rule: "§5.4"
+      description: The vault has no meta note (Conventions.md, README.md, or CLAUDE.md with `mosaix:` marker).
+      scope: vault
+
+    - id: E014
+      slug: no_open_questions
+      message: "vault: no open-questions ledger (§5.3)"
+      severity: error
+      rule: "§5.3"
+      description: The vault has no open-questions ledger (Open questions.md or accepted aliases).
+      scope: vault
+
+    - id: E015
+      slug: entities_coverage_low
+      message: "vault: entities coverage {n}/{total} = {pct} (<80%)"
+      severity: error
+      rule: R2
+      description: Fewer than 80% of vault notes carry an `entities` list.
+      scope: vault
+
+  warnings:
+
+    - id: W001
+      slug: entities_too_many
+      message: "{rel}: {count} entities (>12); is this one question? (R1)"
+      severity: warning
+      rule: R1
+      description: A non-MOC, non-meta note has more than 12 entities; may violate atomicity.
+      exempt: [moc, meta note]
+
+    - id: W002
+      slug: relation_type_undeclared
+      message: "{rel}: relation type `{type}` not in relation_types"
+      severity: warning
+      rule: "§5.4"
+      description: A relation type is not in the `relation_types` vocabulary declared in the meta note.
+
+    - id: W003
+      slug: missing_id
+      message: "{rel}: missing `id` (required from v2.0; generate a ULID)"
+      severity: warning
+      rule: "§3.1"
+      description: The note has no `id` key. Becomes an error in v2.0.
+      future_severity: error   # from v2.0
+
+    - id: W004
+      slug: invalid_id
+      message: "{rel}: `id` is not a valid ULID: `{value}`"
+      severity: warning
+      rule: "§3.1"
+      description: The `id` value does not match the ULID pattern.
+      future_severity: error   # from v2.0
+
+    - id: W005
+      slug: tag_undeclared
+      message: "{rel}: tag #{tag} not declared in meta note"
+      severity: warning
+      rule: R4
+      description: A tag used in the note is absent from the meta note's taxonomy.
+
+    - id: W006
+      slug: meta_no_tags
+      message: "meta note declares no tags: taxonomy check skipped"
+      severity: warning
+      rule: "§5.4"
+      description: The meta note exists but declares no tags; per-note tag checks are skipped.
+      scope: vault
+
+    - id: W007
+      slug: no_reliability_marker
+      message: "{rel}: no reliability marker"
+      severity: warning
+      rule: "§3.2"
+      description: The note has no reliability marker on either Axis A or Axis B.
+
+    - id: W008
+      slug: rev_stale
+      message: "{rel}: rev may be stale (hint only)"
+      severity: warning
+      rule: "§3.1"
+      description: >
+        The stored `rev` does not match sha256(body)[:12]. Only emitted when
+        the checker is run with --check-rev.
+      requires_flag: --check-rev
+
+
