@@ -1,7 +1,9 @@
 # Changelog — Mosaix Format
 
-## 1.0.1 — 2026-09-08
+## 1.1.0 — 2026-09-08
 
+- **`id` — tenth CORE key.** ULID (26 chars, Crockford Base32). Missing or invalid `id` is a warning (W003) in 1.x and becomes an error in 2.0 (GOVERNANCE §4). Links resolve id-first, filename as fallback.
+- Labelled MINOR per GOVERNANCE §1: new optional key, new tooling, R8 relaxed from rule to recommendation. No 1.0 vault loses conformance.
 - **R8 moved from normative rule to agent workflow recommendation (§7.1).** R8 ("Propose, don't apply") is now a non-normative SHOULD recommendation rather than a conformance rule. Rationale: a file cannot prove it was proposed rather than applied directly, so the checker cannot verify it; making it non-normative strengthens the claim that every remaining rule is machine-verifiable. The content and identifier are unchanged. Skills carry it as SHOULD. The checker is unaffected.
 - **Cluster model clarified as observed average, not prescribed limit.** The ~600 token figure in §7 (site §07) is an observed average on production vaults, not a ceiling. Wording updated to prevent misinterpretation.
 - **`spec.yaml` — machine-readable single source of truth.** Every CORE key, rule (R1–R7), recommendation (R8), conformance error (E001–E015) and warning (W001–W008) encoded in one parseable YAML file. The checker loads conformance messages from it (with hardcoded fallback).

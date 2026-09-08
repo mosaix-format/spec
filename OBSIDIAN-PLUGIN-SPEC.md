@@ -4,7 +4,7 @@
 **Updated:** 2026-09-08  
 **Author:** Andrea Fiorino  
 **License:** MIT (plugin code) · CC BY-SA 4.0 (documentation, aligned with Mosaix Format spec)  
-**Target spec:** Mosaix Format v1.0.0  
+**Target spec:** Mosaix Format v1.1.0  
 **Minimum Obsidian:** v1.4 (requires `app.metadataCache` APIs introduced in that release)
 
 ---
@@ -292,7 +292,7 @@ Registered as a standard Obsidian plugin settings tab.
 | **Auto-validate** | radio | `on save` | `on save` triggers F1 on every save (debounced 500 ms). `manual only` disables auto-trigger; validation runs only via command. |
 | **Severity filter** | checkbox group | errors + warnings | Controls which severity levels show gutter markers and count toward the status bar. Options: `errors`, `warnings`. Both selected = show all. |
 | **Italian aliases** | toggle | off | When on, "Mosaix-ify" automatically renames Italian key names to canonical English names (with confirmation dialog). When off, Italian keys are recognised but not renamed. |
-| **spec.yaml path** | text | *(auto-detect)* | Path to `spec.yaml` relative to vault root. Leave empty to auto-detect (looks for `spec.yaml` in vault root, then in the directory containing the meta note). When found, error messages are loaded from this file; when absent, messages are hardcoded from the v1.0.0 spec. |
+| **spec.yaml path** | text | *(auto-detect)* | Path to `spec.yaml` relative to vault root. Leave empty to auto-detect (looks for `spec.yaml` in vault root, then in the directory containing the meta note). When found, error messages are loaded from this file; when absent, messages are hardcoded from the v1.1.0 spec. |
 | **Graph enhancements** | toggle | on | Enable/disable all F3 graph enhancements. |
 | **Vault scan interval** | number (minutes) | 5 | How often the background vault-level scan runs. Minimum: 1. Set to 0 to disable periodic scans. |
 

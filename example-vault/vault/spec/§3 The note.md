@@ -5,8 +5,8 @@ type: section
 updated: 2026-09-03
 tags: [spec, note, frontmatter, core]
 status: sourced
-summary: "The note is the tile: it answers one question and carries the CORE frontmatter of nine keys; the body is never touched by metadata operations; aliases are allowed if declared."
-keywords: [the note, tile, core keys, nine keys, frontmatter core, one question, byte identical body, aliases]
+summary: "The note is the tile: it answers one question and carries the CORE frontmatter of ten keys; the body is never touched by metadata operations; aliases are allowed if declared."
+keywords: [the note, tile, core keys, ten keys, frontmatter core, one question, byte identical body, aliases]
 entities:
   - {name: Mosaix Format, type: project}
 relations:

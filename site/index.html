@@ -426,7 +426,7 @@
 <nav>
   <a class="brand" href="index.html" aria-label="Mosaix home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>mosaix</a>
   <ul><li><a href="#tile">The tile</a></li><li><a href="#compose">Composition</a></li><li><a href="#rules">Rules</a></li><li><a href="#agents">Agents</a></li><li><a href="#check">Check a vault</a></li><li><a href="#next">What's next</a></li><li><a href="spec.html">Specification</a></li></ul>
-  <span class="ver">v1.0 · 2026-09</span>
+  <span class="ver">v1.1 · 2026-09</span>
 </nav>
 
 <!-- 1 HERO -->
@@ -507,9 +507,10 @@
   <div class="anat rev">
     <div>
       <div class="kick"><span><span class="no">03</span>The tile</span><button class="rp" data-rp="time">↻ replay</button></div>
-      <h2>Up close, a tile is a note you can read. And nine keys a machine reads first.</h2>
+      <h2>Up close, a tile is a note you can read. And ten keys a machine reads first.</h2>
       <p class="sub">Nothing in the body changes. The keys sit above it, in plain YAML. Hover a key to find it in the note.</p>
       <ul class="keys" id="keys">
+        <li data-k="id"><code>id</code><span>ULID — stable across renames. Warning if absent (W003).</span></li>
         <li data-k="summary"><code>summary</code><span>One declarative sentence, 120–240 characters.</span></li>
         <li data-k="keywords"><code>keywords</code><span>Six to eight terms: synonyms, spoken phrasings, questions.</span></li>
         <li data-k="entita"><code>entities</code><span>Named things, typed.</span></li>
@@ -525,6 +526,7 @@
     </div>
     <div class="note" id="note"><span class="k">---</span>
 <span class="k">title:</span> §6 Composed documents
+<span class="ln" data-k="id"><span class="k">id:</span> 01JVKE4X2PFNRW8BQDP5MHCG2X</span>
 <span class="k">updated:</span> <span id="nUpd">2026-09-03</span>
 <span class="k">tags:</span> [spec, mosaix, composed-document]
 <span class="ln" data-k="summary"><span class="k">summary:</span> <span class="hl" id="nSum">"Defines the note type that joins
@@ -575,7 +577,7 @@ documents. The format therefore defines …</span>
 <section class="sec tight" id="rules" style="border-top:1px solid var(--line)">
   <div class="kick"><span><span class="no">05</span>The rules</span></div>
   <h2>Seven rules. Two make the difference. Five are checked from files.</h2>
-  <p class="sub">A vault that obeys them can call itself Mosaix 1.0 conformant. Conformance is a property of the files, not of any tool.</p>
+  <p class="sub">A vault that obeys them can call itself Mosaix 1.1 conformant. Conformance is a property of the files, not of any tool.</p>
   <div class="rlab">The two that no other format has</div>
   <ul class="big3">
     <li style="--r:-.6deg"><div class="n">R6</div><b>Record, don't resolve</b><p>A contradiction between notes goes in the open-questions ledger with both versions, dates and consequence. Nobody picks a winner silently.</p><div class="ex">_meta/Open questions.md
@@ -720,8 +722,8 @@ python mosaix_migrate.py ~/notes --dry-run       # preview migration</code></pre
   <h2>Open tiles. Announced, not promised.</h2>
   <p class="sub">The fourth tile of the mark is outlined and empty: it stands for what is decided but not built. These are the open tiles of the format itself. Each is recorded in the example vault's ledger with a status, like any other open question.</p>
   <ul class="next">
-    <li><i></i><div><b>Mosaix 1.1</b><p>A stable <span class="mono">id</span> (ULID) so links survive renames — implemented, pending merge. Still in discussion: a <span class="mono">question</span> key, an optional closed relation vocabulary, an entity registry with aliases, <span class="mono">origin</span> and <span class="mono">as_of</span>. Every 1.0 vault stays conformant.</p><small>id implemented · other proposals in the ledger</small></div></li>
-    <li class="done"><i></i><div><b>Machine-readable spec and conformance corpus</b><p><a href="https://github.com/mosaix-format/spec" style="text-decoration:underline"><span class="mono">spec.yaml</span></a> encodes every CORE key, rule, alias, and conformance check in one parseable file. A test corpus of 39 cases — valid, invalid, warnings and edge-cases — with expected results and a runner verifies the checker against the spec. Both ship with 1.0.1.</p><small>shipped</small></div></li>
+    <li class="done"><i></i><div><b>Stable id (ULID) — shipped in 1.1.0</b><p>A stable <span class="mono">id</span> (ULID, 26 chars, Crockford Base32) so links survive renames. Missing <span class="mono">id</span> is a warning (W003) in 1.x; becomes an error in v2.0. Every 1.0 vault stays conformant. Still in discussion for 1.2: a <span class="mono">question</span> key, an optional closed relation vocabulary, an entity registry with aliases, <span class="mono">origin</span> and <span class="mono">as_of</span>.</p><small>shipped in 1.1.0</small></div></li>
+    <li class="done"><i></i><div><b>Machine-readable spec and conformance corpus</b><p><a href="https://github.com/mosaix-format/spec" style="text-decoration:underline"><span class="mono">spec.yaml</span></a> encodes every CORE key, rule, alias, and conformance check in one parseable file. A test corpus of 39 cases — valid, invalid, warnings and edge-cases — with expected results and a runner verifies the checker against the spec. Both ship with 1.1.0.</p><small>shipped</small></div></li>
     <li class="done"><i></i><div><b>Reference MCP server</b><p><span class="mono">mosaix_mcp/</span>: a stdlib-only Python package, JSON-RPC 2.0 over stdio, six tools — read, write, search, compose, check, list. Writes validate against §10 before persisting. No dependencies, no vector DB, no network: the "SQLite" of Mosaix.</p><small>shipped</small></div></li>
     <li class="done"><i></i><div><b>Vault scaffolding and migration</b><p><span class="mono">mosaix_init.py</span> creates a new vault with the standard structure, meta note, ledger and CI workflow. <span class="mono">mosaix_migrate.py</span> brings an existing directory of Markdown files toward conformance with best-effort inference — title, summary, keywords, tags, links, rev — without touching the body.</p><small>shipped</small></div></li>
     <li class="done"><i></i><div><b>Governance and Obsidian plugin spec</b><p><a href="GOVERNANCE.md" style="text-decoration:underline">GOVERNANCE.md</a> defines SemVer policy, the RFC process, backward compatibility guarantees and deprecation rules. <a href="OBSIDIAN-PLUGIN-SPEC.md" style="text-decoration:underline">OBSIDIAN-PLUGIN-SPEC.md</a> specifies six features for <span class="mono">obsidian-mosaix</span>: inline lint, scaffolding, graph enhancements, status bar, sidebar and settings.</p><small>shipped</small></div></li>
@@ -750,7 +752,7 @@ python mosaix_migrate.py ~/notes --dry-run       # preview migration</code></pre
 </section>
 
 <footer>
-  <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.0 · CC BY-SA 4.0 · © 2026 Andrea Fiorino · mosaixformat.org</span>
+  <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.1 · CC BY-SA 4.0 · © 2026 Andrea Fiorino · mosaixformat.org</span>
   <span><a href="spec.html">Specification</a> · <a href="spec.html#checker">Checker</a> · <a href="GOVERNANCE.md">Governance</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE.md">License</a> · <a href="privacy.html">Privacy</a> · <a href="https://mosaixformat.org">mosaixformat.org</a></span>
 </footer>
 </div>
@@ -763,8 +765,8 @@ python mosaix_migrate.py ~/notes --dry-run       # preview migration</code></pre
 
   /* ---------- HERO ---------- */
   const N = mobile ? 20 : 30, S = mobile ? 14 : 13;
-  const sections=[['§0 Status','Name, version, license and the meaning of conformance.'],['§1 Purpose','Machines read one note at a time; people read documents; nothing is silently lost.'],['§2 Substrate','Markdown, YAML frontmatter, wikilinks.'],['§3 The note','One question per note. Nine core keys above the body.'],['§4 Links and graph','No orphans, no broken links. The graph is derived from files.'],['§5 Vault structure','_meta, _synthesis, _inbox. The ledger and the meta note.'],['§6 Composed documents','A note type that joins atomic notes into one document.'],['§7 Rules','R1–R7 + agent recommendation R8.'],['§8 Out of scope','Enrichment, ingest, retrieval, editors: implementations, not format.'],['§9 Host profile','Obsidian is the reference host, not a dependency.'],['§10 Conformance','The checks a vault must pass.'],['§11 Versioning','MINOR never breaks a conformant vault.'],['§12 Provenance','Origin, working title and vocabulary history.']];
-  const fields=[['summary','One declarative sentence, 120–240 characters.'],['keywords','Six to eight terms, lowercase.'],['entities','Named things, typed.'],['relations','Typed links between entities.'],['links','Outbound wikilinks, machine-readable.'],['rev','Hash of the body when metadata was computed.'],['updated','Last substantive change.'],['tags','Taxonomy, declared in the meta note.'],['title','Name of the node.']];
+  const sections=[['§0 Status','Name, version, license and the meaning of conformance.'],['§1 Purpose','Machines read one note at a time; people read documents; nothing is silently lost.'],['§2 Substrate','Markdown, YAML frontmatter, wikilinks.'],['§3 The note','One question per note. Ten core keys above the body.'],['§4 Links and graph','No orphans, no broken links. The graph is derived from files.'],['§5 Vault structure','_meta, _synthesis, _inbox. The ledger and the meta note.'],['§6 Composed documents','A note type that joins atomic notes into one document.'],['§7 Rules','R1–R7 + agent recommendation R8.'],['§8 Out of scope','Enrichment, ingest, retrieval, editors: implementations, not format.'],['§9 Host profile','Obsidian is the reference host, not a dependency.'],['§10 Conformance','The checks a vault must pass.'],['§11 Versioning','MINOR never breaks a conformant vault.'],['§12 Provenance','Origin, working title and vocabulary history.']];
+  const fields=[['summary','One declarative sentence, 120–240 characters.'],['keywords','Six to eight terms, lowercase.'],['entities','Named things, typed.'],['relations','Typed links between entities.'],['links','Outbound wikilinks, machine-readable.'],['rev','Hash of the body when metadata was computed.'],['updated','Last substantive change.'],['tags','Taxonomy, declared in the meta note.'],['title','Name of the node.'],['id','ULID, stable across renames.']];
   const brief=[['Coatings consolidation 2025','Three acquisitions moved 18% of distribution under two groups.','→ paragraph 1 of the brief below'],['Westguard — player card','130+ countries, own-brand line, reference competitor for price.','→ paragraph 2'],['Open question #33','Romanian plant disputed between two sources.','→ paragraph 3 · ⚠ to confirm'],['Coatings trade fairs, Europe 2026','CoatExpo Munich is the most relevant fair.','→ paragraph 4'],['Strategic scenarios','Enter through marine coatings: 22–30% cost advantage.','→ paragraph 5']];
   const grid=document.getElementById('grid'), card=document.getElementById('card'), host=document.getElementById('mosaic');
   grid.style.setProperty('--n',N); grid.style.setProperty('--s',S+'px');

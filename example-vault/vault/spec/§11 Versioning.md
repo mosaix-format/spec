@@ -16,4 +16,4 @@ rev: 4e8c2a9f7d63
 
 # §11 Versioning
 
-Vaults SHOULD state `mosaix: "1.0"` in their meta note. What 1.1 may add is tracked in [[Open questions]].
+Vaults SHOULD state `mosaix: "1.1"` in their meta note. Shipped in 1.1: `id` — stable ULID identifier. What 1.2 may add is tracked in [[Open questions]].

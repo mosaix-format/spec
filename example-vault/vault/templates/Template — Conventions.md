@@ -37,7 +37,7 @@ keywords: []
 entities: []
 relations: []
 links: []
-mosaix: "1.0"
+mosaix: "1.1"
 folders: {01-Company: who they are, 02-Market: where they sell}
 reliability: {key: status, values: [sourced, to-confirm, superseded]}
 domain_keys: {client: string, country: ISO-3166 alpha-2}

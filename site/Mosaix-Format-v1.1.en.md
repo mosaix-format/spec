@@ -1,6 +1,6 @@
 ﻿---
-title: Mosaix Format — Specification v1.0
-version: 1.0.0
+title: Mosaix Format — Specification v1.1
+version: 1.1.0
 status: published
 updated: 2026-09-08
 license: CC BY-SA 4.0
@@ -9,11 +9,11 @@ summary: "A file-level format for knowledge vaults made of atomic, self-describi
 keywords: [knowledge vault, atomic notes, frontmatter, wikilinks, markdown, LLM context, bounded context, specification]
 ---
 
-# Mosaix Format — Specification v1.0
+# Mosaix Format — Specification v1.1
 
 ## 0. Status of this document
 
-This document specifies the **Mosaix Format**, version 1.0. The name comes from the mosaic: every note is a tile that stands on its own, and the picture exists only in the whole. It is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/): you may copy, adapt and redistribute it, including commercially, provided you credit the author and release derivatives under the same license. The name "Mosaix Format" and its version numbering are part of the specification: a vault may claim conformance to "Mosaix 1.0" only if it satisfies §10.
+This document specifies the **Mosaix Format**, version 1.1.0. The name comes from the mosaic: every note is a tile that stands on its own, and the picture exists only in the whole. It is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/): you may copy, adapt and redistribute it, including commercially, provided you credit the author and release derivatives under the same license. The name "Mosaix Format" and its version numbering are part of the specification: a vault may claim conformance to "Mosaix 1.0" only if it satisfies §10.
 
 The key words MUST, MUST NOT, SHOULD, SHOULD NOT and MAY are to be interpreted as described in RFC 2119.
 
@@ -170,7 +170,7 @@ The meta note declares these in its frontmatter so that tools can read them. Thi
 
 
 ```yaml
-mosaix: "1.0"
+mosaix: "1.1"
 folders: {01-Company: who they are, 02-Market: where they sell}
 reliability: {key: status, values: [sourced, to-confirm, superseded]}
 tags: [moc, meta, ledger, player, market]
@@ -282,9 +282,9 @@ A reference checker, `audit_reference.py`, accompanies this specification. It us
 
 ## 11. Versioning of this specification
 
-Versions follow `MAJOR.MINOR.PATCH`. A MINOR version may add optional keys, note types or warnings; it never turns a conformant vault into a non-conformant one. A MAJOR version may. Vaults SHOULD state the version they target in their meta note (`mosaix: "1.0"`).
+Versions follow `MAJOR.MINOR.PATCH`. A MINOR version may add optional keys, note types or warnings; it never turns a conformant vault into a non-conformant one. A MAJOR version may. Vaults SHOULD state the version they target in their meta note (`mosaix: "1.1"`).
 
-Under discussion for 1.1, not part of 1.0: a `question` key recording the single question a note answers; a mandatory closed relation vocabulary; an entity registry with aliases; `origin` (human · distilled · observed) and `as_of`, the date a fact was true.
+Shipped in 1.1.0: `id` — the stable ULID identifier (tenth CORE key, warning until v2.0). Under discussion for 1.2, not part of 1.1: a `question` key recording the single question a note answers; a mandatory closed relation vocabulary; an entity registry with aliases; `origin` (human · distilled · observed) and `as_of`, the date a fact was true.
 
 ## 12. Acknowledgements and provenance
 
@@ -292,6 +292,6 @@ The format was extracted from three vaults in production use (code documentation
 
 ---
 
-**Citing this specification.** Fiorino, A. (2026). *Mosaix Format — Specification v1.0.0*. https://mosaixformat.org — source tag `mosaix-format/spec@v1.0.0`.
+**Citing this specification.** Fiorino, A. (2026). *Mosaix Format — Specification v1.1.0*. https://mosaixformat.org — source tag `mosaix-format/spec@v1.1.0`.
 
-*Mosaix Format v1.0 — a format by SLIM — © 2026 Andrea Fiorino — CC BY-SA 4.0.*
+*Mosaix Format v1.1 — a format by SLIM — © 2026 Andrea Fiorino — CC BY-SA 4.0.*

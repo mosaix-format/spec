@@ -5,7 +5,7 @@ type: synthesis
 updated: 2026-09-03
 tags: [mosaix, synthesis]
 status: sourced
-summary: "One-page synthesis of the format: atomic notes with nine keys, seven normative rules plus agent recommendation R8, composed documents, and what is deliberately out of scope. Read alone before any task."
+summary: "One-page synthesis of the format: atomic notes with ten keys, seven normative rules plus agent recommendation R8, composed documents, and what is deliberately out of scope. Read alone before any task."
 keywords: [synthesis, overview, tl;dr, one page, what is mosaix, summary of the spec, quick read]
 entities:
   - {name: Mosaix Format, type: project}
@@ -18,4 +18,4 @@ rev: 5d2c88a01f44
 
 # Mosaix in one page
 
-A Mosaix vault is a folder of Markdown notes. Each note answers one question and carries nine keys above the body ([[§3 The note]]). Notes link with wikilinks; no orphans, no broken links. Content that must be read together is joined by a composed document, never copied ([[§6 Composed documents]]). Seven normative rules ([[§7 Rules]]): five checked from files, two commitments; plus agent workflow recommendation R8. Everything about producing, enriching, searching or editing notes is an implementation ([[§8 Out of scope]]).
+A Mosaix vault is a folder of Markdown notes. Each note answers one question and carries ten keys above the body ([[§3 The note]]). Notes link with wikilinks; no orphans, no broken links. Content that must be read together is joined by a composed document, never copied ([[§6 Composed documents]]). Seven normative rules ([[§7 Rules]]): five checked from files, two commitments; plus agent workflow recommendation R8. Everything about producing, enriching, searching or editing notes is an implementation ([[§8 Out of scope]]).

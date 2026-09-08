@@ -79,7 +79,7 @@ def frontmatter(n):
         if "show" in lay:
             lines.append(f"  show: {yaml_list(lay['show'])}")
     if n["path"].startswith("_meta/Conventions"):
-        lines.append('mosaix: "1.0"')
+        lines.append('mosaix: "1.1"')
         lines.append("folders: {01-People: who the partners are, 02-Products: what the bakery sells, 03-Suppliers: who provides ingredients, 04-Market: where they sell and who competes, 05-Operations: how the bakery runs, 06-Decisions: choices that shape the business}")
         lines.append("reliability: {key: status, values: [sourced, to-confirm, superseded]}")
         lines.append("domain_keys: {season: [spring, summer, autumn, winter], channel: [shop, market, wholesale]}")

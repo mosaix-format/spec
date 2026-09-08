@@ -11,7 +11,7 @@ entities:
   - {name: Forno Vialetto, type: company}
 relations: []
 links: [Open questions, Home]
-mosaix: "1.0"
+mosaix: "1.1"
 folders: {01-People: who the partners are, 02-Products: what the bakery sells, 03-Suppliers: who provides ingredients, 04-Market: where they sell and who competes, 05-Operations: how the bakery runs, 06-Decisions: choices that shape the business}
 reliability: {key: status, values: [sourced, to-confirm, superseded]}
 domain_keys: {season: [spring, summer, autumn, winter], channel: [shop, market, wholesale]}
@@ -25,7 +25,7 @@ rev: 1a2b3c4d5e6f
 
 # Conventions
 
-mosaix: "1.0". Folders: `01-People/` who the partners are, `02-Products/` what the bakery sells, `03-Suppliers/` who provides the ingredients, `04-Market/` where they sell and who competes, `05-Operations/` how the bakery runs, `06-Decisions/` choices that shape the business. Reserved: `_meta/`, `_synthesis/`, `_docs/`.
+mosaix: "1.1". Folders: `01-People/` who the partners are, `02-Products/` what the bakery sells, `03-Suppliers/` who provides the ingredients, `04-Market/` where they sell and who competes, `05-Operations/` how the bakery runs, `06-Decisions/` choices that shape the business. Reserved: `_meta/`, `_synthesis/`, `_docs/`.
 
 Reliability: frontmatter key `status` with values sourced · to-confirm · superseded. Domain keys: `season` (spring, summer, autumn, winter), `channel` (shop, market, wholesale). Entity type added: `recipe`. Relation types: supplies, owns, sells at, competes with, depends on.
 

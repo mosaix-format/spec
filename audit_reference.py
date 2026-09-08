@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-audit_reference.py — reference conformance checker for Mosaix Format v1.0 (§10).
+audit_reference.py — reference conformance checker for Mosaix Format v1.1 (§10).
 
 Standard library only. Read-only. Exit code 0 = conformant (no errors), 1 = errors found.
 
@@ -15,11 +15,11 @@ Usage:
 Conformance messages are loaded from spec.yaml (same directory as this script) when
 available; if spec.yaml is missing the checker falls back to built-in messages.
 
-Canonical vocabulary is English (§3.1). Italian names used by pre-1.0 vaults are accepted
+Canonical vocabulary is English (§3.1). Italian names used by pre-1.1 vaults are accepted
 as default aliases (KEY_ALIASES, ITEM_ALIASES, VALUE_ALIASES) and reported by their
 canonical name.
 
-`id` (10th CORE key): a missing or invalid ULID is reported as a WARNING in v1.0, not an
+`id` (10th CORE key): a missing or invalid ULID is reported as a WARNING in v1.x, not an
 error, so that existing vaults without `id` remain conformant. From v2.0 it will be an error.
 `links` entries that are valid ULIDs are resolved id-first (against other notes' `id` fields);
 plain strings fall back to filename resolution as before.
@@ -578,7 +578,7 @@ def main(argv: list[str]) -> int:
     if as_json:
         print(json.dumps(r, ensure_ascii=False, indent=2))
     else:
-        print(f"Mosaix 1.0 audit — {r['vault']}")
+        print(f"Mosaix 1.1 audit — {r['vault']}")
         print(f"notes: {r['notes']}  errors: {len(r['errors'])}  warnings: {len(r['warnings'])}")
         print("CONFORMANT" if r["conformant"] else "NOT CONFORMANT")
         shown = r["errors"] if not verbose else r["errors"] + r["warnings"]

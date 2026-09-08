@@ -11,7 +11,7 @@
   tooling. Never breaks the conformance of existing vaults. Examples: adding
   `question` as an optional CORE key, new entity types, new checker warnings.
 
-- **PATCH** (1.0.1, 1.0.2...): typo fixes in the spec, textual clarifications,
+- **PATCH** (1.1.1, 1.1.2...): typo fixes in the spec, textual clarifications,
   checker corrections with no semantic changes, documentation updates.
 
 The current version number lives in `spec.yaml` (source of truth).
@@ -51,7 +51,7 @@ enough.
 - A deprecated feature generates WARNING for at least one MINOR release before
   becoming ERROR
 - Documented in `CHANGELOG.md` with the date and planned removal version
-- Example: `id` is a warning in v1.0 → will become an error in v2.0
+- Example: `id` is a warning in v1.x → will become an error in v2.0
 
 ## 5. Version declaration
 

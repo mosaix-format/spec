@@ -48,7 +48,7 @@
 <nav class="top">
   <a class="brand" href="index.html" aria-label="Mosaix home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>mosaix</a>
   <ul><li><a href="index.html">Format</a></li><li><a href="spec.html">Specification</a></li><li><a href="spec.html#checker">Check a vault</a></li><li><a href="https://github.com/mosaix-format/spec">GitHub &#x2197;</a></li></ul>
-  <span class="ver">v1.0.0 · 2026-09-04</span>
+  <span class="ver">v1.1.0 · 2026-09-08</span>
 </nav>
 
 <article class="doc">
@@ -63,7 +63,7 @@
 
   <h2 id="hypothesis">The hypothesis</h2>
   <p>If each note carries its own context — a summary that says what it contains, entities that say what it is about, typed relations, and explicit links to the notes it depends on — then the input needed for a task on that note is the note itself plus its direct dependencies. That input does not grow with the size of the corpus. It is bounded by the note, not by the vault.</p>
-  <p>The Mosaix Format prescribes exactly this: nine frontmatter keys on every note (<a href="spec.html#s31" style="text-decoration:underline">§3.1</a> of the specification), a graph of wikilinks (<a href="spec.html#s4" style="text-decoration:underline">§4</a>), and a rule that one note answers one question (R1). The question is whether the prescription works in practice, and what it costs.</p>
+  <p>The Mosaix Format prescribes exactly this: ten frontmatter keys on every note (<a href="spec.html#s31" style="text-decoration:underline">§3.1</a> of the specification), a graph of wikilinks (<a href="spec.html#s4" style="text-decoration:underline">§4</a>), and a rule that one note answers one question (R1). The question is whether the prescription works in practice, and what it costs.</p>
 
   <h2 id="method">How we measured</h2>
   <p>We ran a code-generation study. The task was to produce a complete Python package — ten dataclasses, four enums, serialisation, a test suite, packaging — split into 28 atomic tasks. Each task had a written contract specifying its purpose, its inputs, its output file, and its dependencies on other tasks. Each task received roughly 600 tokens of context. The same package was also generated in a single prompt containing the full specification, roughly 7,800 tokens.</p>
@@ -99,7 +99,7 @@
 </article>
 
 <footer>
-  <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.0 · CC BY-SA 4.0 · © 2026 Andrea Fiorino · mosaixformat.org</span>
+  <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.1 · CC BY-SA 4.0 · © 2026 Andrea Fiorino · mosaixformat.org</span>
   <span><a href="index.html">Format</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE.md">License</a> · <a href="https://github.com/mosaix-format/spec">GitHub</a></span>
 </footer>
 </div>
