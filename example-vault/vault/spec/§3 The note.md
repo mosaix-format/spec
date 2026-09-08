@@ -1,5 +1,6 @@
 ---
 title: §3 The note
+id: 01JVKE4X2PKNPWRFJGHMVDYTBX
 type: section
 updated: 2026-09-03
 tags: [spec, note, frontmatter, core]

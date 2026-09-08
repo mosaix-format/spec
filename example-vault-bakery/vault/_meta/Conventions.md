@@ -1,5 +1,6 @@
 ---
 title: Conventions
+id: 01JVTQ8YBNDHFMVWXKBNPQRYGT
 type: meta
 updated: 2026-09-05
 tags: [moc, meta, ledger, synthesis, people, product, bread, pastry, seasonal, supplier, market, neighbourhood, competitor, event, operations, equipment, policy, decision, composed-document]

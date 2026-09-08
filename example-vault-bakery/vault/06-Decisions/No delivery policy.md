@@ -1,5 +1,6 @@
 ---
 title: No delivery policy
+id: 01JVTQ8YBNWKDMHBXNPRVQFTGY
 type: decision
 updated: 2026-09-05
 tags: [decision]

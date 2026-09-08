@@ -1,5 +1,6 @@
 ---
 title: R2 Self-description
+id: 01JVKE4X2PRXTMJHFVNDGPWKYB
 type: rule
 updated: 2026-09-03
 tags: [rule, verifiable]

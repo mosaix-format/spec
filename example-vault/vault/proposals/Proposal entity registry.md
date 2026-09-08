@@ -1,5 +1,6 @@
 ---
 title: Proposal entity registry
+id: 01JVKE4X2PCDRFTV5WBHKXMPQN
 type: proposal
 updated: 2026-09-03
 tags: [proposal, 1.1]

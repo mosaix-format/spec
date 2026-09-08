@@ -1,5 +1,6 @@
 ---
 title: §10 Conformance
+id: 01JVKE4X2PTWVBNHFXKPQGRJMD
 type: section
 updated: 2026-09-03
 tags: [spec, conformance, checker]

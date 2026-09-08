@@ -1,5 +1,6 @@
 ---
 title: Hazelnut tart (old recipe)
+id: 01JVTQ8YBNVYNBXKMDFTPQWRGH
 type: product
 updated: 2026-09-05
 tags: [product, pastry]

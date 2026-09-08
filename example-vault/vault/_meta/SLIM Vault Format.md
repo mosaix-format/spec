@@ -1,5 +1,6 @@
 ---
 title: SLIM Vault Format
+id: 01JVKE4X2PWXBC3TV9KPMRQG6H
 type: superseded
 updated: 2026-09-03
 tags: [meta, superseded]

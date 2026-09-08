@@ -1,5 +1,6 @@
 ---
 title: Template — Open questions
+id: 01JVKE4X2P2DXNMKVHFWBPGRQT
 type: ledger
 updated: 2026-09-05
 tags: [template]

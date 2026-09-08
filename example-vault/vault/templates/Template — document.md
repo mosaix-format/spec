@@ -1,5 +1,6 @@
 ---
 title: Template — document
+id: 01JVKE4X2P5RBHWDTXNKQVPMFG
 type: template
 updated: 2026-09-05
 tags: [template]

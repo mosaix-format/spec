@@ -1,0 +1,31 @@
+# Mosaix Format v1.0 — built-in entity types (§3.1)
+# Use `entity_types` in the meta note to declare additional types.
+types:
+  - type: person
+    one_line: A named individual — employee, contact, author, or public figure.
+
+  - type: company
+    one_line: A legal entity, brand, or organisation.
+
+  - type: product
+    one_line: A commercial or internal product, line, or SKU.
+
+  - type: project
+    one_line: A bounded initiative with a defined goal.
+
+  - type: tool
+    one_line: A software tool, platform, or technical system.
+
+  - type: place
+    one_line: A country, city, region, or physical location.
+
+  - type: document
+    one_line: An external report, contract, standard, or publication.
+
+  - type: event
+    one_line: A conference, trade fair, meeting, or date-bound occurrence.
+
+# Custom types: declare them in the meta note under `entity_types`.
+# Example:
+#   entity_types: [department, regulation]
+# The reference checker will accept them without modification.

@@ -1,5 +1,6 @@
 ---
 title: Baking shifts
+id: 01JVTQ8YBNDBPKQNXRWTHVMGFY
 type: operations
 updated: 2026-09-05
 tags: [operations]

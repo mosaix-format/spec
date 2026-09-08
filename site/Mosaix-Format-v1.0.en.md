@@ -2,7 +2,7 @@
 title: Mosaix Format — Specification v1.0
 version: 1.0.0
 status: published
-updated: 2026-09-04
+updated: 2026-09-08
 license: CC BY-SA 4.0
 author: Andrea Fiorino
 summary: "A file-level format for knowledge vaults made of atomic, self-describing notes that machines can retrieve one at a time and humans can read as composed documents."
@@ -48,6 +48,7 @@ A **note** answers one question. If a draft answers two, it is two notes. The bo
 | Key | Type | Written by | Purpose |
 |---|---|---|---|
 | `title` | string | human, or derived from the filename | the name of the node |
+| `id` | ULID (26 characters, Crockford Base32) | system | stable identifier for this note; survives renames; used as the primary reference target |
 | `updated` | date `YYYY-MM-DD` | human or system | last substantive change; drives staleness of the note |
 | `tags` | list of strings | human | taxonomy and filtering |
 | `summary` | string, 120–240 characters | human or enrichment | one declarative sentence saying what the note contains; the unit a machine reads first |
@@ -60,9 +61,12 @@ A **note** answers one question. If a draft answers two, it is two notes. The bo
 Notes:
 
 - `summary` MUST NOT repeat the title and MUST NOT begin with "This note…" or its equivalent. It is written for a reader who has not opened the note.
+- **`id` format and generation.** `id` MUST be a valid ULID: 26 characters in the Crockford Base32 alphabet (`0123456789ABCDEFGHJKMNPQRSTVWXYZ`), with the first character in `0–7` so that the encoded 48-bit millisecond timestamp does not overflow. Generators MUST produce a new random ULID for each note at creation time; they MUST NOT reuse or derive it from the note's content or filename.
+- **Reference resolution.** When a `links` entry (or any frontmatter field that references another note) is a valid ULID, checkers and tools MUST resolve it by matching against the `id` fields of other notes first. If no note with that `id` is found, the reference is an error. A string that is not a valid ULID is resolved by filename (basename without extension, case-sensitive), as in prior versions. This allows notes to be renamed without breaking references.
+- **Backward compatibility.** A vault whose notes do not carry `id` fields reports a **warning** (not an error) under v1.0, so that existing vaults are not made non-conformant by the addition of this key. From v2.0 onward, a missing or invalid `id` on a note outside `_inbox/`, `_private/` and declared payload folders is an **error**.
 - **Aliases.** A vault MAY write any CORE key under an alias declared in its meta note (§5.4); checkers treat a declared alias as the canonical key. The following aliases are recognised by default, so that vaults created before this version remain conformant: `mcp_entita` → `entities`, `mcp_relazioni` → `relations`, `mcp_collegamenti` → `links`, `mcp_rev` → `rev`, `aggiornato` → `updated`, `titolo` → `title`, `riassunto` → `summary`, `parole_chiave` → `keywords`; inside entity and relation items, `nome` → `name`, `tipo` → `type`, `da` → `from`, `a` → `to`; and the entity type values `persona azienda prodotto progetto strumento luogo documento evento` → `person company product project tool place document event`.
 - `entities` SHOULD list at most 12 items. A note that names more things than that is usually answering more than one question (R1); a checker reports the excess as a warning. MOCs and the meta note are exempt: listing is their job.
-- The canonical key order is `title · updated · [domain keys] · summary · keywords · entities · relations · links · rev`. Tools SHOULD preserve it.
+- The canonical key order is `title · id · updated · [domain keys] · summary · keywords · entities · relations · links · rev`. Tools SHOULD preserve it.
 - **The body is never touched by metadata operations.** Any process that rewrites frontmatter MUST leave the body byte-identical.
 
 ### 3.2 Frontmatter — reliability axes (recommended)
@@ -109,6 +113,7 @@ Default aliases: `tipo` → `type`; `sintesi` → `synthesis`; `documento` → `
 ```markdown
 ---
 title: Portwest — player card
+id: 01JVKE4X2PFNRW8BQDP5MHCG2X
 updated: 2026-08-12
 tags: [player, ppe, competitor]
 status: sourced
@@ -256,6 +261,7 @@ A vault is **Mosaix 1.0 conformant** when a check over its files reports zero er
 |---|---|
 | Frontmatter present on every note outside `_inbox/`, `_private/` and declared payload folders | R2 |
 | `title`, `updated`, `tags`, `summary`, `keywords`, `rev` present (canonical or aliased) | R2 |
+| `id` present and a valid ULID on every note outside `_inbox/`, `_private/`, and payload folders | R2 (**warning** until v2.0, then error) |
 | `summary` length 120–240 characters | R2 |
 | `keywords` count 6–8 | R2 |
 | `entities` present on ≥ 80 % of notes; each `type` in the allowed set | R2 |
@@ -265,7 +271,7 @@ A vault is **Mosaix 1.0 conformant** when a check over its files reports zero er
 | open-questions ledger and meta note exist | §5.3, §5.4 |
 | every `type: document` note lists ≥ 2 `fragments`, all resolving | §6 |
 
-and zero or more **warnings** for: tags not declared in the taxonomy, domain keys not declared, `rev` older than the body (stale metadata), notes without any reliability marker, more than 12 `entities` on a note that is not a MOC.
+and zero or more **warnings** for: tags not declared in the taxonomy, domain keys not declared, `rev` older than the body (stale metadata), notes without any reliability marker, more than 12 `entities` on a note that is not a MOC, `id` missing or invalid ULID (becomes an error in v2.0).
 
 A reference checker, `audit_reference.py`, accompanies this specification. It uses only the Python standard library and produces the table above. Its output is the conformance report.
 
@@ -273,7 +279,7 @@ A reference checker, `audit_reference.py`, accompanies this specification. It us
 
 Versions follow `MAJOR.MINOR.PATCH`. A MINOR version may add optional keys, note types or warnings; it never turns a conformant vault into a non-conformant one. A MAJOR version may. Vaults SHOULD state the version they target in their meta note (`mosaix: "1.0"`).
 
-Under discussion for 1.1, not part of 1.0: a stable `id` key so links survive renames; a `question` key recording the single question a note answers; a mandatory closed relation vocabulary; an entity registry with aliases; `origin` (human · distilled · observed) and `as_of`, the date a fact was true.
+Under discussion for 1.1, not part of 1.0: a `question` key recording the single question a note answers; a mandatory closed relation vocabulary; an entity registry with aliases; `origin` (human · distilled · observed) and `as_of`, the date a fact was true.
 
 ## 12. Acknowledgements and provenance
 

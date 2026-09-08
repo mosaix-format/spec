@@ -1,5 +1,6 @@
 ---
 title: The wood-fired oven
+id: 01JVTQ8YBNFMTGVWRBNKXDPQYH
 type: tool
 updated: 2026-09-05
 tags: [operations, equipment]

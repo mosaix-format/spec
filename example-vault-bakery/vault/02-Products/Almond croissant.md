@@ -1,5 +1,6 @@
 ---
 title: Almond croissant
+id: 01JVTQ8YBNFPRWKGNXHTVDMBQY
 type: product
 updated: 2026-09-05
 tags: [product, pastry]

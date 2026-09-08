@@ -1,5 +1,6 @@
 ---
 title: Unsold bread policy
+id: 01JVTQ8YBNXNHBKTWDGPVRMFYQ
 type: policy
 updated: 2026-09-05
 tags: [operations, policy]

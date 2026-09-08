@@ -1,5 +1,6 @@
 ---
 title: Opening the second shop — brief
+id: 01JVTQ8YBN5PNHGXDBTRYMWKFV
 type: document
 updated: 2026-09-05
 tags: [composed-document]

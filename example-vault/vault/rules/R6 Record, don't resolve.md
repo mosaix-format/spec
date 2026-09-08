@@ -1,5 +1,6 @@
 ---
 title: R6 Record, don't resolve
+id: 01JVKE4X2PDNJYRMFKGWBHVPQX
 type: rule
 updated: 2026-09-03
 tags: [rule, commitment]

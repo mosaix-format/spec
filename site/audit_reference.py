@@ -16,6 +16,11 @@ Canonical vocabulary is English (§3.1). Italian names used by pre-1.0 vaults ar
 as default aliases (KEY_ALIASES, ITEM_ALIASES, VALUE_ALIASES) and reported by their
 canonical name.
 
+`id` (10th CORE key): a missing or invalid ULID is reported as a WARNING in v1.0, not an
+error, so that existing vaults without `id` remain conformant. From v2.0 it will be an error.
+`links` entries that are valid ULIDs are resolved id-first (against other notes' `id` fields);
+plain strings fall back to filename resolution as before.
+
 © 2026 Andrea Fiorino — CC BY-SA 4.0 (same licence as the specification).
 """
 from __future__ import annotations
@@ -29,6 +34,10 @@ from pathlib import Path
 
 CORE_KEYS = ("title", "updated", "tags", "summary", "keywords", "rev")
 ENTITY_TYPES = {"person", "company", "product", "project", "tool", "place", "document", "event"}
+
+# ULID: 26 chars, Crockford Base32, first char 0–7 (48-bit timestamp, no overflow).
+# Required on every note (§3.1, 10th CORE key); missing/invalid = warning until v2.0.
+ULID_RE = re.compile(r"^[0-7][0-9A-HJKMNP-TV-Z]{25}$")
 
 # Default aliases (§3.1, §3.2, §3.4, §6). A vault may declare more in its meta note.
 KEY_ALIASES = {
@@ -234,6 +243,12 @@ def audit(vault: Path, check_rev: bool = False, exclude: tuple[str, ...] = ()):
         is_meta = p.stem.lower() in META_NAMES or any(part.lower() in META_DIRS for part in rel_parts[:-1])
         notes[p.stem] = {"path": p, "fm": fm, "body": body, "rel": rel, "is_meta": is_meta}
 
+    # id → stem index for id-first link resolution (§3.1 reference resolution rule)
+    id_to_stem: dict[str, str] = {}
+    for name, n in notes.items():
+        if n["fm"] and isinstance(n["fm"].get("id"), str):
+            id_to_stem[n["fm"]["id"]] = name
+
     incoming: dict[str, int] = defaultdict(int)
     declared_tags: set[str] = {str(t) for t in (meta_decl.get("tags") or [])}
     declared_keys: set[str] = set(meta_decl.get("domain_keys") or {}) if isinstance(meta_decl.get("domain_keys"), dict) else set()
@@ -295,9 +310,22 @@ def audit(vault: Path, check_rev: bool = False, exclude: tuple[str, ...] = ()):
                 if isinstance(r, dict) and str(r.get("type", "")).lower() not in relation_types:
                     warnings.append(f"{rel}: relation type `{r.get('type')}` not in relation_types")
 
+        # id validation (warning until v2.0, then error — §3.1 backward compatibility)
+        note_id = fm.get("id")
+        if not note_id:
+            warnings.append(f"{rel}: missing `id` (required from v2.0; generate a ULID)")
+        elif not ULID_RE.match(str(note_id)):
+            warnings.append(f"{rel}: `id` is not a valid ULID: `{note_id}`")
+
         for target in fm.get("links", []) or []:
             t = str(target).strip()
-            if t in all_md:
+            # id-first resolution: ULID reference → match by id, then filename as fallback
+            if ULID_RE.match(t):
+                if t in id_to_stem:
+                    incoming[id_to_stem[t]] += 1
+                else:
+                    errors.append(f"{rel}: links id `{t}` does not resolve to any note")
+            elif t in all_md:
                 incoming[t] += 1
             else:
                 errors.append(f"{rel}: links target `{t}` does not exist")

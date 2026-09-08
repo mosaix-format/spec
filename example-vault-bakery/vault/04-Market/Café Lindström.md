@@ -1,5 +1,6 @@
 ---
 title: Café Lindström
+id: 01JVTQ8YBNMXNPBDKGFHVQRTYW
 type: competitor
 updated: 2026-09-05
 tags: [market, competitor]

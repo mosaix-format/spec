@@ -1,5 +1,6 @@
 ---
 title: §5 Vault structure
+id: 01JVKE4X2PNDTMWPHKXBFVRGQJ
 type: section
 updated: 2026-09-03
 tags: [spec, structure, folders]

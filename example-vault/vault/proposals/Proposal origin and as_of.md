@@ -1,5 +1,6 @@
 ---
 title: Proposal origin and as_of
+id: 01JVKE4X2PYKVJQ8NXTDFBMW3R
 type: proposal
 updated: 2026-09-03
 tags: [proposal, 1.1]

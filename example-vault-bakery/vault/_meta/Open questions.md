@@ -1,5 +1,6 @@
 ---
 title: Open questions
+id: 01JVTQ8YBNYWKVPGRNBXQFTHDM
 type: ledger
 updated: 2026-09-05
 tags: [meta, ledger]

@@ -1,5 +1,6 @@
 ---
 title: §7 Rules
+id: 01JVKE4X2PQHWNKBMTFXRJDPVG
 type: section
 updated: 2026-09-03
 tags: [spec, rules]

@@ -1,5 +1,6 @@
 ---
 title: Conventions
+id: 01JVKE4X2PTRNG6SM4BXVFW73Y
 type: meta
 updated: 2026-09-05
 tags: [1.1, checker, commitment, composed-document, composition, conformance, conventions, core, document, folders, frontmatter, graph, guide, history, host, key, keywords, ledger, license, links, markdown, meta, moc, mosaix, note, obsidian, onboarding, proposal, provenance, purpose, rule, rules, scope, spec, staleness, status, structure, substrate, summary, superseded, synthesis, taxonomy, template, time, verifiable, versioning]

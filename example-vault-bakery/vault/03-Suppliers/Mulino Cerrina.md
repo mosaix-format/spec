@@ -1,5 +1,6 @@
 ---
 title: Mulino Cerrina
+id: 01JVTQ8YBNRWTPXFHBDGNVMKQY
 type: supplier
 updated: 2026-09-05
 tags: [supplier]

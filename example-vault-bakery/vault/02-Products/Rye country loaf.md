@@ -1,5 +1,6 @@
 ---
 title: Rye country loaf
+id: 01JVTQ8YBNTWKDHNPGXBVMFRYQ
 type: product
 updated: 2026-09-05
 tags: [product, bread]

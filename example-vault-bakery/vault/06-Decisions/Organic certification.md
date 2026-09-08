@@ -1,5 +1,6 @@
 ---
 title: Organic certification
+id: 01JVTQ8YBNYQPXVMKGBNDWFTHR
 type: decision
 updated: 2026-09-05
 tags: [decision]

@@ -1,5 +1,6 @@
 ---
 title: §8 Out of scope
+id: 01JVKE4X2PRFXVDNHPKWBQTMGJ
 type: section
 updated: 2026-09-03
 tags: [spec, scope]

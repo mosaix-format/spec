@@ -1,5 +1,6 @@
 ---
 title: Mosaix for a new team
+id: 01JVKE4X2PHBDF5NV2RJWQCK4G
 type: document
 updated: 2026-09-03
 tags: [composed-document, onboarding]

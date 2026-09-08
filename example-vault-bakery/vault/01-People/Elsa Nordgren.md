@@ -1,5 +1,6 @@
 ---
 title: Elsa Nordgren
+id: 01JVTQ8YBNQTNHXBKDMFVWRPYG
 type: person
 updated: 2026-09-05
 tags: [people]

@@ -1,5 +1,6 @@
 ---
 title: R8 Propose, don't apply
+id: 01JVKE4X2PFWDMTNYPRXHKGQBV
 type: rule
 updated: 2026-09-03
 tags: [rule, commitment]

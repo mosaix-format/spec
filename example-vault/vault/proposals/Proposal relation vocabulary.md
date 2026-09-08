@@ -1,5 +1,6 @@
 ---
 title: Proposal relation vocabulary
+id: 01JVKE4X2PJ5CNBTRDPQWMHKXY
 type: proposal
 updated: 2026-09-03
 tags: [proposal, 1.1]

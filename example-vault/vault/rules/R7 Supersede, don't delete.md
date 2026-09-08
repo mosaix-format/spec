@@ -1,5 +1,6 @@
 ---
 title: R7 Supersede, don't delete
+id: 01JVKE4X2PEVBKQHPRDNTFWYMJ
 type: rule
 updated: 2026-09-03
 tags: [rule, commitment]

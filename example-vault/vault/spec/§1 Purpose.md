@@ -1,5 +1,6 @@
 ---
 title: §1 Purpose
+id: 01JVKE4X2PHFWVBTXDNPRQKYMG
 type: section
 updated: 2026-09-03
 tags: [spec, purpose]

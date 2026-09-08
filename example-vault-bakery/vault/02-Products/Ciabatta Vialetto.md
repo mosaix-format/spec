@@ -1,5 +1,6 @@
 ---
 title: Ciabatta Vialetto
+id: 01JVTQ8YBNNHWTVGPRDBKXFMQY
 type: product
 updated: 2026-09-05
 tags: [product, bread]

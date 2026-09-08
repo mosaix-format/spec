@@ -1,5 +1,6 @@
 ---
 title: §4 Links and the graph
+id: 01JVKE4X2PMBXQHFGTJNKDPWRV
 type: section
 updated: 2026-09-03
 tags: [spec, links, graph]

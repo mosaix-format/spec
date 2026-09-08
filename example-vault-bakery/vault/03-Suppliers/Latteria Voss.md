@@ -1,5 +1,6 @@
 ---
 title: Latteria Voss
+id: 01JVTQ8YBNKQDMVXNBGHPWFTRY
 type: supplier
 updated: 2026-09-05
 tags: [supplier]

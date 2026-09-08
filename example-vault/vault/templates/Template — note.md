@@ -1,5 +1,6 @@
 ---
 title: Template — note
+id: 01JVKE4X2P6VHKRNBDTQPWXFMG
 type: template
 updated: 2026-09-05
 tags: [template]

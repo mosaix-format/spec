@@ -1,5 +1,6 @@
 ---
 title: R1 Atomicity
+id: 01JVKE4X2P9FKBPVHTYMDNWQGX
 type: rule
 updated: 2026-09-03
 tags: [rule, verifiable]

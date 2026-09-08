@@ -1,5 +1,6 @@
 ---
 title: Saturday market at Piazza Solari
+id: 01JVTQ8YBNNKBPRHXGDTVWMFQY
 type: event
 updated: 2026-09-05
 tags: [market, event]

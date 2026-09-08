@@ -1,5 +1,6 @@
 ---
 title: Template — MOC
+id: 01JVKE4X2PZKTGFWPXHBRQNVDM
 type: moc
 updated: 2026-09-05
 tags: [template]

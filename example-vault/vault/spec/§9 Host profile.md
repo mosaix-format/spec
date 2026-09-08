@@ -1,5 +1,6 @@
 ---
 title: §9 Host profile
+id: 01JVKE4X2PSGBMTPWDKVJNHXFR
 type: section
 updated: 2026-09-03
 tags: [spec, obsidian, host]

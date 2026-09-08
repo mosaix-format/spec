@@ -1,5 +1,6 @@
 ---
 title: Template — synthesis
+id: 01JVKE4X2P7MXFTQNKBHWDVPGR
 type: synthesis
 updated: 2026-09-05
 tags: [template]

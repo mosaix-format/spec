@@ -1,5 +1,6 @@
 ---
 title: key relations
+id: 01JVKE4X2PXJBF6TYQHKCW9GN2
 type: key
 updated: 2026-09-03
 tags: [key, core, graph]

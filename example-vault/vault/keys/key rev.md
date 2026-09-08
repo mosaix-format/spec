@@ -1,5 +1,6 @@
 ---
 title: key rev
+id: 01JVKE4X2PPYWB3NHBGXF8QRDM
 type: key
 updated: 2026-09-03
 tags: [key, core, staleness]

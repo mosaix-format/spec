@@ -1,5 +1,6 @@
 ---
 title: Viale Giardini neighbourhood
+id: 01JVTQ8YBNHXTMWVBDNKQRPFGY
 type: place
 updated: 2026-09-05
 tags: [market, neighbourhood]

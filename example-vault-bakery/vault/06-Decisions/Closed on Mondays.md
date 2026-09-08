@@ -1,5 +1,6 @@
 ---
 title: Closed on Mondays
+id: 01JVTQ8YBNHPFTGWXBDKVRNMQY
 type: decision
 updated: 2026-09-05
 tags: [decision]

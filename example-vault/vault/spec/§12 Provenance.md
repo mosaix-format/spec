@@ -1,5 +1,6 @@
 ---
 title: §12 Provenance
+id: 01JVKE4X2PWFQHXBRTNGMVDKJP
 type: section
 updated: 2026-09-03
 tags: [spec, provenance, history]

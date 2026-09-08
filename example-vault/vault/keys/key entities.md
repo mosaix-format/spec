@@ -1,5 +1,6 @@
 ---
 title: key entities
+id: 01JVKE4X2PFNRW8BQDP5MHCG2X
 type: key
 updated: 2026-09-03
 tags: [key, core, graph]

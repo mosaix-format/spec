@@ -1,5 +1,6 @@
 ---
 title: §2 Substrate
+id: 01JVKE4X2PJBKXPTNFHDGRVWMQ
 type: section
 updated: 2026-09-03
 tags: [spec, substrate, markdown]

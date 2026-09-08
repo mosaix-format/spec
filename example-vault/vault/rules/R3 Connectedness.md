@@ -1,5 +1,6 @@
 ---
 title: R3 Connectedness
+id: 01JVKE4X2P4WKGNDYJBTPMXHFQ
 type: rule
 updated: 2026-09-03
 tags: [rule, verifiable]

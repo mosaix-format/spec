@@ -1,5 +1,6 @@
 ---
 title: Panificio Reale
+id: 01JVTQ8YBNGFVHYKTWNPBDRXMQ
 type: competitor
 updated: 2026-09-05
 tags: [market, competitor]

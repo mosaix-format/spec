@@ -1,5 +1,6 @@
 ---
 title: Home
+id: 01JVKE4X2P8RNMKQF3GHDBC90T
 type: moc
 updated: 2026-09-03
 tags: [mosaix, moc]

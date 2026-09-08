@@ -1,5 +1,6 @@
 ---
 title: §0 Status
+id: 01JVKE4X2PGHRJPNFYMWKVBDTQ
 type: section
 updated: 2026-09-03
 tags: [spec, status, license]

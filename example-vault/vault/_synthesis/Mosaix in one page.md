@@ -1,5 +1,6 @@
 ---
 title: Mosaix in one page
+id: 01JVKE4X2PD4NKF7HMWYJR1VCB
 type: synthesis
 updated: 2026-09-03
 tags: [mosaix, synthesis]

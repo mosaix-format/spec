@@ -1,5 +1,6 @@
 ---
 title: R5 Composition over duplication
+id: 01JVKE4X2PCGXHRQMNBJVD5WPF
 type: rule
 updated: 2026-09-03
 tags: [rule, verifiable]

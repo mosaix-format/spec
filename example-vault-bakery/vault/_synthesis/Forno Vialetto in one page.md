@@ -1,5 +1,6 @@
 ---
 title: Forno Vialetto in one page
+id: 01JVTQ8YBNBFRMTXVWDKNQHPYG
 type: synthesis
 updated: 2026-09-05
 tags: [synthesis]

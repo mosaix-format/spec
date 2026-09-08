@@ -1,5 +1,6 @@
 ---
 title: R4 Declared taxonomy
+id: 01JVKE4X2PBFX7NKMWHDPGYTQR
 type: rule
 updated: 2026-09-03
 tags: [rule, verifiable]

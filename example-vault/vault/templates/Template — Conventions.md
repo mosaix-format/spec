@@ -1,5 +1,6 @@
 ---
 title: Template — Conventions
+id: 01JVKE4X2PYBPNWRKFVDMHXTQG
 type: template
 updated: 2026-09-05
 tags: [template]

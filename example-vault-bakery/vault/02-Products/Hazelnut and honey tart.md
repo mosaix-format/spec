@@ -1,5 +1,6 @@
 ---
 title: Hazelnut and honey tart
+id: 01JVTQ8YBNGRXMPKFNBDWHVTYQ
 type: product
 updated: 2026-09-05
 tags: [product, pastry, seasonal]

@@ -1,5 +1,6 @@
 ---
 title: Biolievito Kraus
+id: 01JVTQ8YBNPFGNQHKRDBWVXMTY
 type: supplier
 updated: 2026-09-05
 tags: [supplier]

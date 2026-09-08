@@ -1,5 +1,6 @@
 ---
 title: §11 Versioning
+id: 01JVKE4X2PVDKRTBNJWPHGXFQM
 type: section
 updated: 2026-09-03
 tags: [spec, versioning]

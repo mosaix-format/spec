@@ -1,5 +1,6 @@
 ---
 title: §6 Composed documents
+id: 01JVKE4X2PPGVXNQMHRFWBKDTY
 type: section
 updated: 2026-09-03
 tags: [spec, document, composition]
