@@ -1,0 +1,14 @@
+# Build context: only site/ is copied into the image.
+.git
+.github
+__pycache__
+*.pyc
+mosaix-py
+mosaix_mcp
+tests
+reviews
+example-vault
+example-vault-bakery
+brand
+skill
+*.py
