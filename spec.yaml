@@ -1,27 +1,27 @@
 # Mosaix Format — machine-readable specification
-# Version: 1.1.0  |  Updated: 2026-09-08
+# Version: 1.2.0  |  Updated: 2026-09-09
 #
 # Purpose: single source of truth for rules, keys, and constraints.
 # Future use: the checker (audit_reference.py) will load rules from here
 # instead of having them hardcoded; Claude skills will be validated against
 # this file. For now it is read-only reference data.
 #
-# Authoritative source: Mosaix-Format-v1.0.en.md
+# Authoritative source: Mosaix-Format-v1.2.en.md
 # License: CC BY-SA 4.0
 
 spec:
   name: Mosaix Format
-  version: "1.1.0"
+  version: "1.2.0"
   status: published
-  updated: "2026-09-08"
-  authority: Mosaix-Format-v1.1.en.md
+  updated: "2026-09-09"
+  authority: Mosaix-Format-v1.2.en.md
 
 # ─────────────────────────────────────────────
 # §3.1  CORE frontmatter keys
 # ─────────────────────────────────────────────
-# Canonical order: title · id · updated · [domain keys] · summary ·
-#                  keywords · entities · relations · links · rev
-# Domain keys (tags and any vault-specific keys) sit between updated and summary.
+# Canonical order: title · id · updated · [domain keys] · question · summary ·
+#                  keywords · entities · relations · links · rev · origin · as_of
+# Domain keys (tags and any vault-specific keys) sit between updated and question.
 
 core_keys:
 
@@ -64,6 +64,15 @@ core_keys:
     required: true
     constraints:
       each_item: Must appear in the meta note taxonomy (§5.4).
+
+  - key: question
+    type: string
+    required: false
+    aliases: [domanda]
+    constraints:
+      must_end_with: "?"
+      semantics: The single question this note answers (R1: atomicity).
+    note: "If present, summary SHOULD answer this question."
 
   - key: summary
     type: string
@@ -124,6 +133,34 @@ core_keys:
       length: 12
       computation: "sha256(body)[:12] at the time entities/relations/links were last computed"
       mismatch_meaning: Metadata is stale relative to the current body.
+
+  - key: origin
+    type: string             # enum: human | distilled | observed
+    required: false
+    introduced: "1.2.0"
+    constraints:
+      allowed_values: [human, distilled, observed]
+      semantics: >
+        Who wrote the note. `human` = written by a person;
+        `distilled` = synthesised or generated from other notes/sources;
+        `observed` = captured from an external system or event.
+    checker_validates: false  # documentation-only in v1.2; checker does not enforce
+    aliases:
+      - origine
+
+  - key: as_of
+    type: date               # YYYY-MM-DD
+    required: false
+    introduced: "1.2.0"
+    constraints:
+      format: YYYY-MM-DD
+      semantics: >
+        When the described fact was true. Distinct from `updated`, which
+        records when the note was last edited. Useful for market data,
+        prices, decisions, and any fact that changes over time.
+    checker_validates: false  # documentation-only in v1.2; checker does not enforce
+    aliases:
+      - data_fatto
 
 # ─────────────────────────────────────────────
 # §7  Rules R1–R7  (normative)
@@ -236,6 +273,8 @@ aliases:
     mcp_relazioni: relations
     mcp_collegamenti: links
     mcp_rev: rev
+    origine: origin
+    data_fatto: as_of
     mcp_frammenti: fragments    # composed-document key
     mcp_pool: pool              # composed-document key
     mcp_layout: layout          # composed-document key
@@ -375,6 +414,70 @@ entity_types:
     description: An external report, contract, standard, or publication.
   - type: event
     description: A conference, trade fair, meeting, or date-bound occurrence.
+
+# ─────────────────────────────────────────────
+# §5.4.1–5.4.2  Meta note extensions (v1.2, optional)
+# ─────────────────────────────────────────────
+# Both blocks are optional and backward-compatible.
+# A vault that omits them remains fully conformant.
+
+meta_note_extensions:
+
+  entity_registry:
+    introduced: "1.2"
+    optional: true
+    description: >
+      Extends entity_types with per-type aliases and human-readable descriptions.
+      A checker MUST accept both the canonical type name and any listed alias as a
+      valid `type` value in an `entities` entry. The `description` field is
+      informational only and never affects validation.
+    schema:
+      type: map
+      key: canonical entity type (built-in or declared in entity_types)
+      value:
+        aliases:
+          type: list[string]
+          required: false
+          description: Alternative spellings the checker treats as equivalent to the canonical name.
+        description:
+          type: string
+          required: false
+          description: Human-readable explanation of the entity type. Not machine-validated.
+    example: |
+      entity_registry:
+        department: {aliases: [dipartimento, reparto], description: "Organizational unit"}
+        regulation: {aliases: [normativa, standard], description: "Industry standard or regulation"}
+
+  relation_vocabulary:
+    introduced: "1.2"
+    optional: true
+    description: >
+      Declares typed relation constraints. When present, a checker MAY emit warnings
+      (never errors) when a `relations` entry uses an undeclared type or when the
+      entity types on each side of the relation do not match the declared from/to lists.
+      Absence of this block disables these checks entirely.
+    schema:
+      type: map
+      key: relation type (short verb phrase, present tense)
+      value:
+        from:
+          type: list[string]
+          required: false
+          description: Entity types allowed on the left side of the relation.
+        to:
+          type: list[string]
+          required: false
+          description: Entity types allowed on the right side of the relation.
+        description:
+          type: string
+          required: false
+          description: Human-readable explanation of the relation. Not machine-validated.
+    checker_severity: warning
+    example: |
+      relation_vocabulary:
+        owns: {from: [company], to: [product, department], description: "Ownership or control"}
+        supplies: {from: [company], to: [company]}
+        regulates: {from: [regulation], to: [product, company]}
 
 # ─────────────────────────────────────────────
 # §10  Conformance — errors and warnings

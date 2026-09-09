@@ -1,0 +1,2 @@
+[console_scripts]
+mosaix = mosaix.cli:main

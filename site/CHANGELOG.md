@@ -1,5 +1,9 @@
 # Changelog — Mosaix Format
 
+## 1.2.0 — 2026-09-09
+
+- **`question` — optional CORE key.** A string field that records the single question this note answers (R1: atomicity). MUST end with `?`. Alias: `domanda`. Positioned before `summary` in canonical order; if present, `summary` SHOULD answer it. Documentation-only in v1.2: the checker does not validate it.
+
 ## 1.1.0 — 2026-09-08
 
 - **`id` — tenth CORE key.** ULID (26 chars, Crockford Base32). Missing or invalid `id` is a warning (W003) in 1.x and becomes an error in 2.0 (GOVERNANCE §4). Links resolve id-first, filename as fallback.

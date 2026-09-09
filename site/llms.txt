@@ -6,8 +6,8 @@ Mosaix Format is a specification, not software: it defines what a note carries a
 
 ## Specification
 
-- [Specification v1.1 (English, normative)](https://mosaixformat.org/Mosaix-Format-v1.1.en.md): the full text of the format, in Markdown; the source of truth.
-- [Specifica v1.1 (italiano)](https://mosaixformat.org/Mosaix-Format-v1.1.it.md): courtesy translation; the English file prevails in case of discrepancy.
+- [Specification v1.2 (English, normative)](https://mosaixformat.org/Mosaix-Format-v1.2.en.md): the full text of the format, in Markdown; the source of truth.
+- [Specifica v1.2 (italiano)](https://mosaixformat.org/Mosaix-Format-v1.2.it.md): courtesy translation; the English file prevails in case of discrepancy.
 - [Changelog](https://mosaixformat.org/CHANGELOG.md): what changed at each version.
 
 ## Checker

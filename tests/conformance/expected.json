@@ -42,5 +42,12 @@
   "edge-cases/no_ledger_vault/":      {"errors": ["E014"], "warnings": []},
   "edge-cases/low_coverage_vault/":   {"errors": ["E015"], "warnings": []},
   "edge-cases/no_meta_tags_vault/":   {"errors": ["E002"], "warnings": ["W006"]},
-  "edge-cases/e007_orphan_vault/":    {"errors": ["E007"], "warnings": []}
+  "edge-cases/e007_orphan_vault/":    {"errors": ["E007"], "warnings": []},
+  "edge-cases/ulid_link_resolution/": {"errors": ["E008"], "warnings": []},
+  "edge-cases/payload_folder/":       {"errors": [], "warnings": []},
+  "edge-cases/custom_entity_type/":  {"errors": [], "warnings": []},
+  "edge-cases/heading_anchor/":        {"errors": ["E006"], "warnings": []},
+  "edge-cases/italian_aliases/":       {"errors": [], "warnings": ["W003"]},
+  "edge-cases/entity_registry/":      {"errors": [], "warnings": []},
+  "edge-cases/relation_vocabulary/":  {"errors": [], "warnings": ["W002"]}
 }

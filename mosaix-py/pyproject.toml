@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mosaix"
+version = "0.1.0"
+description = "Python library for the Mosaix Format"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Andrea Fiorino", email = "andrea@alfagomma.dev" }]
+
+[project.scripts]
+mosaix = "mosaix.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

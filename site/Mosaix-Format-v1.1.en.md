@@ -51,6 +51,7 @@ A **note** answers one question. If a draft answers two, it is two notes. The bo
 | `id` | ULID (26 characters, Crockford Base32) | system | stable identifier for this note; survives renames; used as the primary reference target |
 | `updated` | date `YYYY-MM-DD` | human or system | last substantive change; drives staleness of the note |
 | `tags` | list of strings | human | taxonomy and filtering |
+| `question` | string | human | optional, recommended — the single question this note answers (R1: atomicity); MUST end with `?`. Alias: `domanda` |
 | `summary` | string, 120–240 characters | human or enrichment | one declarative sentence saying what the note contains; the unit a machine reads first |
 | `keywords` | list of 6–8 lowercase strings | human or enrichment | how someone would search for this note: synonyms, spoken-language phrasings, questions. MUST NOT duplicate `tags` |
 | `entities` | list of `{name, type}`, at most 12 | enrichment or human | named things in the note; `type` MUST be one of `person`, `company`, `product`, `project`, `tool`, `place`, `document`, `event`, or a type declared in the meta note (§5.4) |
@@ -60,13 +61,13 @@ A **note** answers one question. If a draft answers two, it is two notes. The bo
 
 Notes:
 
-- `summary` MUST NOT repeat the title and MUST NOT begin with "This note…" or its equivalent. It is written for a reader who has not opened the note.
+- `summary` MUST NOT repeat the title and MUST NOT begin with "This note…" or its equivalent. It is written for a reader who has not opened the note. If `question` is present, `summary` SHOULD answer it.
 - **`id` format and generation.** `id` MUST be a valid ULID: 26 characters in the Crockford Base32 alphabet (`0123456789ABCDEFGHJKMNPQRSTVWXYZ`), with the first character in `0–7` so that the encoded 48-bit millisecond timestamp does not overflow. Generators MUST produce a new random ULID for each note at creation time; they MUST NOT reuse or derive it from the note's content or filename.
 - **Reference resolution.** When a `links` entry (or any frontmatter field that references another note) is a valid ULID, checkers and tools MUST resolve it by matching against the `id` fields of other notes first. If no note with that `id` is found, the reference is an error. A string that is not a valid ULID is resolved by filename (basename without extension, case-sensitive), as in prior versions. This allows notes to be renamed without breaking references.
 - **Backward compatibility.** A vault whose notes do not carry `id` fields reports a **warning** (not an error) under v1.0, so that existing vaults are not made non-conformant by the addition of this key. From v2.0 onward, a missing or invalid `id` on a note outside `_inbox/`, `_private/` and declared payload folders is an **error**.
 - **Aliases.** A vault MAY write any CORE key under an alias declared in its meta note (§5.4); checkers treat a declared alias as the canonical key. The following aliases are recognised by default, so that vaults created before this version remain conformant: `mcp_entita` → `entities`, `mcp_relazioni` → `relations`, `mcp_collegamenti` → `links`, `mcp_rev` → `rev`, `aggiornato` → `updated`, `titolo` → `title`, `riassunto` → `summary`, `parole_chiave` → `keywords`; inside entity and relation items, `nome` → `name`, `tipo` → `type`, `da` → `from`, `a` → `to`; and the entity type values `persona azienda prodotto progetto strumento luogo documento evento` → `person company product project tool place document event`.
 - `entities` SHOULD list at most 12 items. A note that names more things than that is usually answering more than one question (R1); a checker reports the excess as a warning. MOCs and the meta note are exempt: listing is their job.
-- The canonical key order is `title · id · updated · [domain keys] · summary · keywords · entities · relations · links · rev`. Tools SHOULD preserve it.
+- The canonical key order is `title · id · updated · [domain keys] · question · summary · keywords · entities · relations · links · rev`. Tools SHOULD preserve it.
 - **The body is never touched by metadata operations.** Any process that rewrites frontmatter MUST leave the body byte-identical.
 
 ### 3.2 Frontmatter — reliability axes (recommended)
@@ -183,6 +184,38 @@ maintainers: [{name: A. Fiorino, area: market}]
 ```
 
 All are optional except `mosaix`.
+
+#### 5.4.1 `entity_registry` (optional, v1.2)
+
+A vault that needs aliases or human-readable descriptions for its entity types MAY add an `entity_registry` block to the meta note frontmatter:
+
+```yaml
+entity_registry:
+  department: {aliases: [dipartimento, reparto], description: "Organizational unit"}
+  regulation: {aliases: [normativa, standard], description: "Industry standard or regulation"}
+```
+
+Each key is a canonical entity type (either built-in or declared in `entity_types`). The `aliases` list lets users write alternative names — a checker MUST accept both the canonical name and any listed alias as a valid `type` value in `entities`. The `description` field is informational only.
+
+A vault without `entity_registry` is fully conformant. The block does not change the set of valid types — it only adds aliases for types already declared.
+
+#### 5.4.2 `relation_vocabulary` (optional, v1.2)
+
+A vault MAY declare a typed relation vocabulary to enable richer validation:
+
+```yaml
+relation_vocabulary:
+  owns: {from: [company], to: [product, department], description: "Ownership or control"}
+  supplies: {from: [company], to: [company]}
+  regulates: {from: [regulation], to: [product, company]}
+```
+
+Each key is a relation type. The optional `from` and `to` arrays name the entity types that may appear on each side of that relation. If `relation_vocabulary` is present, a checker MAY validate that:
+
+- every `relations` entry uses only types listed in the vocabulary (a **warning** if not);
+- the `from` and `to` entity types match what the vocabulary declares (a **warning** if not).
+
+These checks are **warnings, not errors** — the vocabulary is a documentation aid, not a hard constraint. A vault without `relation_vocabulary` is fully conformant; this block is purely additive and backward-compatible.
 
 ## 6. Composed documents
 

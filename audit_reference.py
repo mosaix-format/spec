@@ -2,7 +2,14 @@
 """
 audit_reference.py — reference conformance checker for Mosaix Format v1.1 (§10).
 
-Standard library only. Read-only. Exit code 0 = conformant (no errors), 1 = errors found.
+Standard library only. Read-only.
+
+Exit codes:
+    0 — fully clean: zero errors AND zero warnings
+    1 — broken: at least one error E
+    2 — acceptable with warnings: zero errors, at least one warning W
+
+CI can distinguish "clean" (0) from "acceptable but noisy" (2) from "broken" (1).
 
 Usage:
     python audit_reference.py <vault_dir> [--json] [--check-rev] [--verbose] [--exclude=path1,path2]
@@ -402,8 +409,20 @@ def audit(vault: Path, check_rev: bool = False, exclude: tuple[str, ...] = ()):
             break
     extra_aliases = meta_decl.get("aliases") if isinstance(meta_decl.get("aliases"), dict) else {}
     entity_types = set(ENTITY_TYPES) | {str(t).lower() for t in (meta_decl.get("entity_types") or [])}
+    # entity_registry: dict[canonical_name → {aliases: [...], ...}] — §5.4
+    entity_registry = meta_decl.get("entity_registry")
+    if isinstance(entity_registry, dict):
+        for canonical, cfg in entity_registry.items():
+            entity_types.add(str(canonical).lower())
+            if isinstance(cfg, dict):
+                for alias in (cfg.get("aliases") or []):
+                    entity_types.add(str(alias).lower())
     payload = tuple(str(x) for x in (meta_decl.get("payload") or []))
     relation_types = {str(t).lower() for t in (meta_decl.get("relation_types") or [])}
+    # relation_vocabulary: dict[name → {...}] — §5.4; takes priority over relation_types
+    relation_vocabulary = meta_decl.get("relation_vocabulary")
+    if isinstance(relation_vocabulary, dict):
+        relation_types = {str(k).lower() for k in relation_vocabulary}
 
     for p, rel_parts, rel in files:
         if any(rel.startswith(x) for x in payload):
@@ -586,7 +605,11 @@ def main(argv: list[str]) -> int:
             print("  " + line)
         if len(shown) > 200:
             print(f"  … {len(shown) - 200} more")
-    return 0 if r["conformant"] else 1
+    if r["errors"]:
+        return 1
+    if r["warnings"]:
+        return 2
+    return 0
 
 
 if __name__ == "__main__":
