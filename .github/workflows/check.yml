@@ -1,0 +1,39 @@
+# Reference workflow for vault owners.
+# Copy this file into your vault repository at .github/workflows/check.yml.
+#
+# Exit codes from audit_reference.py:
+#   0 — fully clean (zero errors, zero warnings)       → always green
+#   1 — broken (at least one error E)                  → merge blocked
+#   2 — acceptable with warnings (no errors, ≥1 W)     → merge allowed
+#
+# This workflow blocks merges on errors (exit 1) and lets warnings (exit 2) through.
+# To require a fully clean vault, remove the "Treat exit 2 as success" step and use
+# the plain `run: python audit_reference.py . --json` form instead.
+
+name: Mosaix Conformance
+on: [push, pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Download the reference checker from the spec repository.
+      # Pin to a tag for reproducibility; update when you upgrade the format version.
+      - name: Download audit_reference.py
+        run: |
+          curl -fsSL \
+            https://raw.githubusercontent.com/mosaix-format/spec/v1.1.0/audit_reference.py \
+            -o audit_reference.py
+
+      # Block merges on errors (exit 1); allow warnings (exit 2).
+      - name: Run Mosaix conformance check
+        run: |
+          python audit_reference.py . --json
+          code=$?
+          [ $code -eq 1 ] && exit 1 || exit 0

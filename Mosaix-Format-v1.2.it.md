@@ -1,21 +1,21 @@
 ﻿---
-title: Mosaix Format — Specifica v1.1
-version: 1.1.0
+title: Mosaix Format — Specifica v1.2
+version: 1.2.0
 status: pubblicata
-updated: 2026-09-08
+updated: 2026-09-09
 license: CC BY-SA 4.0
 author: Andrea Fiorino
 summary: "Formato a livello di file per vault di conoscenza fatti di note atomiche e autodescrittive, che le macchine recuperano una alla volta e le persone leggono come documenti composti."
 keywords: [vault di conoscenza, note atomiche, frontmatter, wikilink, markdown, contesto LLM, contesto delimitato, specifica]
 ---
 
-# Mosaix Format — Specifica v1.1
+# Mosaix Format — Specifica v1.2
 
-> Traduzione di cortesia. In caso di discrepanza fa fede la versione inglese (`Mosaix-Format-v1.1.en.md`).
+> Traduzione di cortesia. In caso di discrepanza fa fede la versione inglese (`Mosaix-Format-v1.2.en.md`).
 
 ## 0. Stato del documento
 
-Questo documento specifica il **Mosaix Format**, versione 1.1.0. Il nome viene dal mosaico: ogni nota è una tessera che sta in piedi da sola, e l'immagine esiste solo nell'insieme. È rilasciato con licenza [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/): si può copiare, adattare e ridistribuire, anche commercialmente, citando l'autore e rilasciando le derivate con la stessa licenza. Il nome "Mosaix Format" e la numerazione di versione fanno parte della specifica: un vault può dichiararsi conforme a "Mosaix 1.0" solo se soddisfa il §10.
+Questo documento specifica il **Mosaix Format**, versione 1.2.0. Il nome viene dal mosaico: ogni nota è una tessera che sta in piedi da sola, e l'immagine esiste solo nell'insieme. È rilasciato con licenza [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/): si può copiare, adattare e ridistribuire, anche commercialmente, citando l'autore e rilasciando le derivate con la stessa licenza. Il nome "Mosaix Format" e la numerazione di versione fanno parte della specifica: un vault può dichiararsi conforme a "Mosaix 1.0" solo se soddisfa il §10.
 
 Le parole chiave DEVE, NON DEVE, DOVREBBE, NON DOVREBBE e PUÒ vanno interpretate come in RFC 2119 (MUST, MUST NOT, SHOULD, SHOULD NOT, MAY).
 
@@ -53,20 +53,23 @@ Una **nota** risponde a una domanda. Se una bozza risponde a due, sono due note.
 | `id` | ULID (26 caratteri, Crockford Base32) | sistema | identificatore stabile per questa nota; sopravvive ai rinomini; usato come destinazione di riferimento primaria |
 | `updated` | data `AAAA-MM-GG` | persona o sistema | ultima modifica sostanziale; governa l'obsolescenza della nota |
 | `tags` | lista di stringhe | persona | tassonomia e filtri |
+| `question` | stringa | persona | opzionale, raccomandato — la singola domanda a cui questa nota risponde (R1: atomicità); DEVE terminare con `?`. Alias: `domanda` |
 | `summary` | stringa, 120–240 caratteri | persona o arricchimento | una frase dichiarativa che dice cosa contiene la nota; l'unità che una macchina legge per prima |
 | `keywords` | lista di 6–8 stringhe minuscole | persona o arricchimento | come qualcuno cercherebbe questa nota: sinonimi, formulazioni parlate, domande. NON DEVE duplicare `tags` |
 | `entities` | lista di `{name, type}`, al massimo 12 | arricchimento o persona | cose con un nome citate nella nota; `type` DEVE essere uno fra `person`, `company`, `product`, `project`, `tool`, `place`, `document`, `event`, oppure un tipo dichiarato nella nota meta (§5.4) |
 | `relations` | lista di `{from, type, to}` | arricchimento o persona | collegamenti tipizzati fra entità con nome; `type` è una breve locuzione verbale al presente (`owns`, `depends on`, `supplies`), oppure un valore del vocabolario di relazioni del vault se dichiarato |
 | `links` | lista di stringhe | arricchimento o persona | destinazioni wikilink a cui questa nota punta; ognuna DEVE risolversi in una nota esistente |
 | `rev` | stringa, 12 caratteri esadecimali | sistema | hash del corpo al momento in cui `entities`, `relations` e `links` sono stati calcolati; se non coincide con il corpo attuale i metadati sono obsoleti |
+| `origin` | enum string (`human`, `distilled`, `observed`) | persona o sistema | chi ha scritto la nota: `human` = scritta da una persona; `distilled` = sintetizzata o generata da altre note/fonti; `observed` = acquisita da un sistema o evento esterno. Opzionale, raccomandato. Alias: `origine` |
+| `as_of` | data `AAAA-MM-GG` | persona | quando il fatto descritto era vero, distinto da `updated` che registra quando la nota è stata modificata. Opzionale, raccomandato. Alias: `data_fatto` |
 
 Note:
 
-- `summary` NON DEVE ripetere il titolo e NON DEVE iniziare con "Questa nota…" o equivalente. Si scrive per chi non ha aperto la nota.
+- `summary` NON DEVE ripetere il titolo e NON DEVE iniziare con "Questa nota…" o equivalente. Si scrive per chi non ha aperto la nota. Se `question` è presente, `summary` DOVREBBE rispondervi.
 - **Formato e generazione di `id`.** `id` DEVE essere un ULID valido: 26 caratteri nell'alfabeto Crockford Base32 (`0123456789ABCDEFGHJKMNPQRSTVWXYZ`), con il primo carattere tra `0` e `7`. I generatori DEVONO produrre un nuovo ULID casuale per ogni nota alla creazione. `id` sopravvive ai rinomini: se una voce di `links` è un ULID valido, i checker la risolvono prima sull'`id` delle altre note. Un `id` mancante o non valido genera un **avviso** (non un errore) in v1.x; da v2.0 diventa un errore.
-- **Alias.** Un vault PUÒ scrivere qualunque chiave CORE con un alias dichiarato nella nota meta (§5.4); i checker trattano un alias dichiarato come la chiave canonica. I seguenti alias sono riconosciuti di default, così che i vault creati prima di questa versione restino conformi: `mcp_entita` → `entities`, `mcp_relazioni` → `relations`, `mcp_collegamenti` → `links`, `mcp_rev` → `rev`, `aggiornato` → `updated`, `titolo` → `title`, `riassunto` → `summary`, `parole_chiave` → `keywords`; nelle voci di entità e relazioni, `nome` → `name`, `tipo` → `type`, `da` → `from`, `a` → `to`; e i valori di tipo entità `persona azienda prodotto progetto strumento luogo documento evento` → `person company product project tool place document event`.
+- **Alias.** Un vault PUÒ scrivere qualunque chiave CORE con un alias dichiarato nella nota meta (§5.4); i checker trattano un alias dichiarato come la chiave canonica. I seguenti alias sono riconosciuti di default, così che i vault creati prima di questa versione restino conformi: `mcp_entita` → `entities`, `mcp_relazioni` → `relations`, `mcp_collegamenti` → `links`, `mcp_rev` → `rev`, `aggiornato` → `updated`, `titolo` → `title`, `riassunto` → `summary`, `parole_chiave` → `keywords`, `origine` → `origin`, `data_fatto` → `as_of`; nelle voci di entità e relazioni, `nome` → `name`, `tipo` → `type`, `da` → `from`, `a` → `to`; e i valori di tipo entità `persona azienda prodotto progetto strumento luogo documento evento` → `person company product project tool place document event`.
 - `entities` DOVREBBE elencare al massimo 12 voci. Una nota che nomina più cose di così di solito risponde a più di una domanda (R1); un checker segnala l'eccesso come avviso. I MOC e la nota meta sono esenti: elencare è il loro compito.
-- L'ordine canonico delle chiavi è `title · id · updated · [chiavi di dominio] · summary · keywords · entities · relations · links · rev`. Gli strumenti DOVREBBERO preservarlo.
+- L'ordine canonico delle chiavi è `title · id · updated · [chiavi di dominio] · question · summary · keywords · entities · relations · links · rev · origin · as_of`. Gli strumenti DOVREBBERO preservarlo.
 - **Il corpo non viene mai toccato dalle operazioni sui metadati.** Qualunque processo che riscrive il frontmatter DEVE lasciare il corpo identico byte per byte.
 
 ### 3.2 Frontmatter — assi di affidabilità (raccomandati)
@@ -281,9 +284,9 @@ Un checker di riferimento, `audit_reference.py`, accompagna questa specifica. Us
 
 ## 11. Versionamento della specifica
 
-Le versioni seguono `MAJOR.MINOR.PATCH`. Una versione MINOR può aggiungere chiavi opzionali, tipi di nota o avvisi; non trasforma mai un vault conforme in uno non conforme. Una versione MAJOR può farlo. I vault DOVREBBERO dichiarare la versione a cui puntano nella nota meta (`mosaix: "1.1"`).
+Le versioni seguono `MAJOR.MINOR.PATCH`. Una versione MINOR può aggiungere chiavi opzionali, tipi di nota o avvisi; non trasforma mai un vault conforme in uno non conforme. Una versione MAJOR può farlo. I vault DOVREBBERO dichiarare la versione a cui puntano nella nota meta (`mosaix: "1.2"`).
 
-Introdotto in 1.1.0: `id` — identificatore ULID stabile (decima chiave CORE, avviso fino alla v2.0). In discussione per la 1.2, non parte della 1.1: una chiave `question` che registra la singola domanda a cui la nota risponde; un vocabolario chiuso di relazioni obbligatorio; un registro delle entità con alias; `origin` (human · distilled · observed) e `as_of`, la data in cui un fatto era vero.
+Introdotto in 1.1.0: `id` — identificatore ULID stabile (decima chiave CORE, avviso fino alla v2.0). Introdotto in 1.2.0: `origin` (chi ha scritto la nota: `human`, `distilled` o `observed`; alias `origine`) e `as_of` (quando il fatto descritto era vero; alias `data_fatto`) — entrambi opzionali, raccomandati. In discussione per una versione futura: una chiave `question` che registra la singola domanda a cui la nota risponde; un vocabolario chiuso di relazioni obbligatorio; un registro delle entità con alias.
 
 ## 12. Riconoscimenti e provenienza
 
@@ -291,6 +294,6 @@ Il formato è stato estratto da tre vault in uso in produzione (documentazione d
 
 ---
 
-**Per citare questa specifica.** Fiorino, A. (2026). *Mosaix Format — Specification v1.1.0*. https://mosaixformat.org — tag sorgente `mosaix-format/spec@v1.1.0`.
+**Per citare questa specifica.** Fiorino, A. (2026). *Mosaix Format — Specification v1.2.0*. https://mosaixformat.org — tag sorgente `mosaix-format/spec@v1.2.0`.
 
-*Mosaix Format v1.1 — un formato di SLIM — © 2026 Andrea Fiorino — CC BY-SA 4.0.*
+*Mosaix Format v1.2 — un formato di SLIM — © 2026 Andrea Fiorino — CC BY-SA 4.0.*

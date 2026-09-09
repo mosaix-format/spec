@@ -34,12 +34,13 @@ brand/mosaix-x.svg
 # Site: source of og.png stays; only the export matters
 
 
-# Harem review scripts and raw results (internal — may contain API keys and prompt logs)
-reviews/
+# Harem evaluation scripts (contain API keys)
+mosaix_harem_r*.py
 mosaix_peer_review.py
 mosaix_potential_review.py
-mosaix_harem_r3.py
-mosaix_harem_r4.py
+
+# Harem review raw results (internal)
+reviews/
 
 # Example vault: generated syntheses
 example-vault/vault/_sintesi/

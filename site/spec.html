@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mosaix Format — Specification 1.0</title>
-<meta name="description" content="The Mosaix Format specification, version 1.1: the note, the ten core keys, links and the graph, vault structure, composed documents, the seven rules and one agent recommendation, conformance, and reference material.">
+<title>Mosaix Format — Specification 1.2</title>
+<meta name="description" content="The Mosaix Format specification, version 1.2: the note, the core keys, links and the graph, vault structure, composed documents, the seven rules and one agent recommendation, conformance, and reference material.">
 <link rel="canonical" href="https://mosaixformat.org/spec.html">
-<link rel="alternate" type="text/markdown" href="Mosaix-Format-v1.0.en.md" title="Specification (Markdown)">
+<link rel="alternate" type="text/markdown" href="Mosaix-Format-v1.2.en.md" title="Specification (Markdown)">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="fonts/plex.css">
 <style>
@@ -96,7 +96,7 @@
 <nav class="top">
   <a class="brand" href="index.html" aria-label="Mosaix home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>mosaix</a>
   <ul><li><a href="index.html">Format</a></li><li><a class="on" href="spec.html">Specification</a></li><li><a href="#checker">Check a vault</a></li><li><a href="https://github.com/mosaix-format/spec">GitHub ↗</a></li></ul>
-  <span class="ver">v1.1.0 · 2026-09-08</span>
+  <span class="ver">v1.2.0 · 2026-09-09</span>
 </nav>
 
 <div class="layout">
@@ -141,12 +141,12 @@
   <a href="#compared">Compared with</a>
   <a href="#faq">FAQ</a>
   <a href="#license">License</a>
-  <div class="lang"><a class="on" href="#">EN</a><a href="Mosaix-Format-v1.1.it.md" download title="Traduzione di cortesia (Markdown)">IT ↓</a></div>
-  <div class="dl"><a href="audit_reference.py" download>audit_reference.py</a><a href="spec.yaml" download>spec.yaml</a><a href="Mosaix-Format-v1.1.en.md" download>Specification (Markdown)</a><a href="mosaix-example-vault.zip" download>Example vault (.zip)</a><a href="mosaix-bakery-vault.zip" download>Second example: a bakery (.zip)</a><a href="badge.svg" download>Conformance badge (.svg)</a></div>
+  <div class="lang"><a class="on" href="#">EN</a><a href="Mosaix-Format-v1.2.it.md" download title="Traduzione di cortesia (Markdown)">IT ↓</a></div>
+  <div class="dl"><a href="audit_reference.py" download>audit_reference.py</a><a href="spec.yaml" download>spec.yaml</a><a href="Mosaix-Format-v1.2.en.md" download>Specification (Markdown)</a><a href="mosaix-example-vault.zip" download>Example vault (.zip)</a><a href="mosaix-bakery-vault.zip" download>Second example: a bakery (.zip)</a><a href="badge.svg" download>Conformance badge (.svg)</a></div>
 </aside>
 
 <article class="doc">
-  <div class="meta">Mosaix Format · Specification and reference · v1.1.0 · 2026-09-08 · CC BY-SA 4.0 · English is normative</div>
+  <div class="meta">Mosaix Format · Specification and reference · v1.2.0 · 2026-09-09 · CC BY-SA 4.0 · English is normative</div>
   <h1>Mosaix Format</h1>
   <p class="lede">A file-level format for knowledge vaults made of atomic, self-describing notes. Machines retrieve one note at a time and have enough context to act. People read many notes as one document. Nothing is silently lost.</p>
 
@@ -161,7 +161,7 @@
   <ol class="steps">
     <li><div><b>Create the skeleton.</b> A folder with <code>Home.md</code> (the map of content), <code>_meta/Conventions.md</code>, <code>_meta/Open questions.md</code>, and the folders you need. Numbered prefixes (<code>01-</code>, <code>02-</code>) are a reading order, not a build order.</div></li>
     <li><div><b>Write one note per question.</b> If a draft answers two questions, split it. Put the ten CORE keys above the body (§3.1). Link every note from at least one other note or from <code>Home.md</code>.</div></li>
-    <li><div><b>Declare your taxonomy.</b> Every tag and every domain key you use goes in <code>_meta/Conventions.md</code>, together with the reliability convention you chose (§3.2) and <code>mosaix: "1.1"</code>.</div></li>
+    <li><div><b>Declare your taxonomy.</b> Every tag and every domain key you use goes in <code>_meta/Conventions.md</code>, together with the reliability convention you chose (§3.2) and <code>mosaix: "1.2"</code>.</div></li>
     <li><div><b>Record what you don't know.</b> Contradictions, unconfirmed numbers, open decisions: one entry each in <code>_meta/Open questions.md</code>, with the competing versions, dates, sources and the consequence of choosing.</div></li>
     <li><div><b>Run the checker.</b> <code>python audit_reference.py path/to/vault</code>. Exit code 0 means conformant. Fix errors note by note; warnings are advice.</div></li>
     <li><div><b>Compose when people need to read.</b> A note with <code>type: document</code> and <code>fragments</code> lists the notes to read together. The fragments stay separate; the document is the view (§6).</div></li>
@@ -170,7 +170,7 @@
 my-vault/
 ├── Home.md                      <span class="k">← type: moc, links every note</span>
 ├── _meta/
-│   ├── Conventions.md           <span class="k">← taxonomy, reliability convention, mosaix: "1.1"</span>
+│   ├── Conventions.md           <span class="k">← taxonomy, reliability convention, mosaix: "1.2"</span>
 │   └── Open questions.md        <span class="k">← the ledger (R6)</span>
 ├── _synthesis/
 │   └── Overview.md              <span class="k">← optional: a synthesis to hand to a newcomer or a model</span>
@@ -196,7 +196,7 @@ my-vault/
 
   <!-- ================= SPEC ================= -->
   <h2 id="s0"><span class="no">§0</span>Status of this document</h2>
-  <p>This document specifies the <b>Mosaix Format</b>, version 1.1.0. The name comes from the mosaic: every note is a tile that stands on its own, and the picture exists only in the whole. It is licensed under CC BY-SA 4.0: you may copy, adapt and redistribute it, including commercially, provided you credit the author and release derivatives under the same license. The name "Mosaix Format" and its version numbering are part of the specification: a vault may claim conformance to "Mosaix 1.1" only if it satisfies §10.</p>
+  <p>This document specifies the <b>Mosaix Format</b>, version 1.2.0. The name comes from the mosaic: every note is a tile that stands on its own, and the picture exists only in the whole. It is licensed under CC BY-SA 4.0: you may copy, adapt and redistribute it, including commercially, provided you credit the author and release derivatives under the same license. The name "Mosaix Format" and its version numbering are part of the specification: a vault may claim conformance to "Mosaix 1.2" only if it satisfies §10.</p>
   <p>The key words <span class="kw">MUST</span>, <span class="kw">MUST NOT</span>, <span class="kw">SHOULD</span>, <span class="kw">SHOULD NOT</span> and <span class="kw">MAY</span> are to be interpreted as described in RFC 2119.</p>
 
   <h2 id="s1"><span class="no">§1</span>Purpose</h2>
@@ -229,6 +229,7 @@ my-vault/
     <tr><td>id</td><td>ULID string (26 chars, Crockford Base32)</td><td>system</td><td>stable identifier; survives renames; missing = W003 warning in 1.x, error from v2.0</td></tr>
     <tr><td>updated</td><td>date <code>YYYY-MM-DD</code></td><td>human or system</td><td>last substantive change; drives staleness of the note</td></tr>
     <tr><td>tags</td><td>list of strings</td><td>human</td><td>taxonomy and filtering; every tag declared in the meta note</td></tr>
+    <tr><td>question</td><td>string</td><td>human</td><td>optional, recommended — the single question this note answers (R1: atomicity); <span class="kw">MUST</span> end with <code>?</code>. Alias: <code>domanda</code>. Documentation-only in v1.2: the checker does not validate it.</td></tr>
     <tr><td>summary</td><td>string, 120–240 chars</td><td>human or enrichment</td><td>one declarative sentence saying what the note contains; the unit a machine reads first</td></tr>
     <tr><td>keywords</td><td>6–8 lowercase strings</td><td>human or enrichment</td><td>how someone would search for this note: synonyms, spoken phrasings, questions. <span class="kw">MUST NOT</span> duplicate <code>tags</code></td></tr>
     <tr><td>entities</td><td>list of <code>{name, type}</code></td><td>enrichment or human</td><td>named things in the note; <code>type</code> <span class="kw">MUST</span> be one of <code>person</code>, <code>company</code>, <code>product</code>, <code>project</code>, <code>tool</code>, <code>place</code>, <code>document</code>, <code>event</code>, or a type declared in the meta note</td></tr>
@@ -240,7 +241,7 @@ my-vault/
     <li><code>summary</code> <span class="kw">MUST NOT</span> repeat the title and <span class="kw">MUST NOT</span> begin with "This note…" or its equivalent. It is written for a reader who has not opened the note.</li>
     <li><b>Aliases.</b> A vault <span class="kw">MAY</span> write any CORE key under an alias declared in its meta note. Recognised by default, so that vaults created before this version stay conformant: <code>mcp_entita → entities</code>, <code>mcp_relazioni → relations</code>, <code>mcp_collegamenti → links</code>, <code>mcp_rev → rev</code>, <code>aggiornato → updated</code>, <code>titolo → title</code>, <code>riassunto → summary</code>, <code>parole_chiave → keywords</code>; inside items, <code>nome → name</code>, <code>tipo → type</code>, <code>da → from</code>, <code>a → to</code>; and the Italian entity-type values (<code>persona azienda prodotto progetto strumento luogo documento evento</code>) map to the English ones. Checkers report by canonical name.</li>
     <li><code>entities</code> <span class="kw">SHOULD</span> list at most 12 items. A note that names more things than that is usually answering more than one question (R1); the checker reports the excess as a warning. MOCs and the meta note are exempt: listing is their job.</li>
-    <li>The canonical key order is <code>title · id · updated · [domain keys] · summary · keywords · entities · relations · links · rev</code>. Tools <span class="kw">SHOULD</span> preserve it.</li>
+    <li>The canonical key order is <code>title · id · updated · [domain keys] · question · summary · keywords · entities · relations · links · rev · origin · as_of</code>. Tools <span class="kw">SHOULD</span> preserve it.</li>
     <li><b>The body is never touched by metadata operations.</b> Any process that rewrites frontmatter <span class="kw">MUST</span> leave the body byte-identical.</li>
   </ul>
   <pre><span class="k">---</span>
@@ -408,8 +409,8 @@ Read the five fragments in order. ![[Coatings consolidation 2025]] …</pre>
   <p>and zero or more <b>warnings</b> for: missing or invalid <code>id</code> (W003 — becomes an error in v2.0), tags not declared in the taxonomy, domain keys not declared, <code>rev</code> older than the body (stale metadata), notes without any reliability marker, more than 12 <code>entities</code> on a note that is not a MOC. A reference checker, <code>audit_reference.py</code>, accompanies this specification. It uses only the Python standard library and produces the table above. Its output is the conformance report.</p>
 
   <h2 id="s11"><span class="no">§11</span>Versioning of this specification</h2>
-  <p>Versions follow <code>MAJOR.MINOR.PATCH</code>. A MINOR version may add optional keys, note types or warnings; it never turns a conformant vault into a non-conformant one. A MAJOR version may. Vaults <span class="kw">SHOULD</span> state the version they target in their meta note (<code>mosaix: "1.1"</code>).</p>
-  <div class="note"><b>Shipped in 1.1.0:</b> a stable <code>id</code> key (ULID) so links survive renames — missing <code>id</code> is W003 in 1.x, error from v2.0. <b>Under discussion for 1.2</b> (recorded in the example vault's ledger): a <code>question</code> key recording the single question a note answers; a closed relation vocabulary per vault; an entity registry with aliases; <code>origin</code> (human · distilled · observed) and <code>as_of</code>, the date a fact was true.</div>
+  <p>Versions follow <code>MAJOR.MINOR.PATCH</code>. A MINOR version may add optional keys, note types or warnings; it never turns a conformant vault into a non-conformant one. A MAJOR version may. Vaults <span class="kw">SHOULD</span> state the version they target in their meta note (<code>mosaix: "1.2"</code>).</p>
+  <div class="note"><b>Shipped in 1.1.0:</b> a stable <code>id</code> key (ULID) so links survive renames — missing <code>id</code> is W003 in 1.x, error from v2.0. <b>Shipped in 1.2.0:</b> the <code>question</code> key — the single question a note answers (R1 atomicity), documentation-only: the checker does not validate it. <b>Under discussion for a future version:</b> a mandatory closed relation vocabulary; an entity registry with aliases; <code>origin</code> (human · distilled · observed) and <code>as_of</code>, the date a fact was true.</div>
 
   <h2 id="s12"><span class="no">§12</span>Provenance</h2>
   <p>The format was extracted from three vaults in production use (code documentation, industrial market intelligence, education marketing), by measuring which conventions each had invented and keeping the intersection that a machine could rely on. Those vaults used Italian key names; they are kept as default aliases so that they remain conformant unchanged. The two-axis reliability model, the open-questions ledger and the supersede-don't-delete rule come from the practice of working with several sources of different dates. The composed-document type comes from the observation that a vault of good atomic notes is unreadable by the people who need it most.</p>
@@ -425,7 +426,7 @@ tags: [meta, conventions]
 summary: "Conventions of this vault: folders, reliability, taxonomy, domain keys, aliases, payload folders, maintainers."
 keywords: [conventions, meta, taxonomy, folders, reliability, aliases, payload, maintainers]
 rev: 0a1f3c9e7b21
-<span class="hl">mosaix: "1.1"</span>                          <span class="k"># target version</span>
+<span class="hl">mosaix: "1.2"</span>                          <span class="k"># target version</span>
 folders:                                <span class="k"># which question each folder answers</span>
   01-Company: who they are
   02-Market: where they sell
@@ -483,7 +484,7 @@ Prose: how to write here, who decides what, how to record a contradiction.</pre>
   <p>Almost nobody starts from zero. A vault of Markdown notes with wikilinks is already most of the way there; what is usually missing is the frontmatter, the taxonomy and the governance notes. Do it in this order, running the checker after each step: the error count is the progress bar.</p>
   <ol class="steps">
     <li><div><b>Run the checker once, as is.</b> Note the numbers. A typical untouched vault of 150–200 notes reports 70–100 errors and several hundred warnings; almost all warnings are undeclared tags, almost all errors are missing frontmatter and orphans.</div></li>
-    <li><div><b>Create the two governance notes.</b> <code>_meta/Conventions.md</code> with <code>mosaix: "1.1"</code> and, for now, the list of tags already in use (collect them with any tag pane or a grep for <code>#</code>). <code>_meta/Open questions.md</code>, empty is fine. This alone clears the warnings.</div></li>
+    <li><div><b>Create the two governance notes.</b> <code>_meta/Conventions.md</code> with <code>mosaix: "1.2"</code> and, for now, the list of tags already in use (collect them with any tag pane or a grep for <code>#</code>). <code>_meta/Open questions.md</code>, empty is fine. This alone clears the warnings.</div></li>
     <li><div><b>Make sure there is a map.</b> If <code>Home.md</code> or an index exists, give it <code>type: moc</code> and link every area from it. Orphans drop as you go.</div></li>
     <li><div><b>Declare payload folders.</b> Exports, raw sources, generated copies: list them under <code>payload:</code> so they stop counting as notes.</div></li>
     <li><div><b>Add frontmatter area by area.</b> Start with the notes the map links first. <code>summary</code> and <code>keywords</code> by hand or with a tool; <code>rev</code> only when a tool computes the keys, otherwise leave it and accept the warning. Split any note that answers two questions.</div></li>
@@ -496,7 +497,7 @@ Prose: how to write here, who decides what, how to record a contradiction.</pre>
   <pre><span class="k">---</span>
 title: Metodo e convenzioni
 type: meta
-<span class="hl">mosaix: "1.1"</span>
+<span class="hl">mosaix: "1.2"</span>
 aliases:                     <span class="k"># your key → canonical key</span>
   aggiornato: updated
   riassunto: summary
@@ -569,7 +570,7 @@ jobs:
     permissions: { contents: read, pull-requests: write }
     steps:
       - uses: actions/checkout@v4
-      - uses: mosaix-format/spec@v1.1.0
+      - uses: mosaix-format/spec@v1.2.0
         with: { vault: ., exclude: "exports/" }</pre>
   <p>The action posts the conformance report as a comment on every pull request and fails the check if the vault is not conformant. Display the badge <code>https://mosaixformat.org/badge.svg</code> only when this check is green.</p>
 
@@ -775,14 +776,14 @@ npx degit mosaix-format/spec/skill/mosaix-audit ~/.claude/skills/mosaix-audit</p
 
   <h2 id="license"><span class="no">REFERENCE</span>License and citation</h2>
   <p>The specification and the reference checker are licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" style="text-decoration:underline">CC BY-SA 4.0</a>. Credit "Mosaix Format, Andrea Fiorino". The names "Mosaix" and "SLIM", the tooling that produces, enriches, searches or composes vaults, and any vault content are not covered by this license. Conformance claims ("Mosaix 1.0 conformant") are permitted only for vaults that pass the checks in §10.</p>
-  <pre>Fiorino, A. (2026). Mosaix Format — Specification v1.1.0.
-https://mosaixformat.org — source: mosaix-format/spec@v1.1.0</pre>
+  <pre>Fiorino, A. (2026). Mosaix Format — Specification v1.2.0.
+https://mosaixformat.org — source: mosaix-format/spec@v1.2.0</pre>
   <p>Cite the tagged version, not the page: the tag is immutable, the page follows the latest MINOR. A DOI for each tagged release is planned (see <a href="index.html#next" style="text-decoration:underline">What's next</a>); until then the git tag is the stable reference.</p>
 </article>
 </div>
 
 <footer>
-  <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.1 · CC BY-SA 4.0 · © 2026 Andrea Fiorino · mosaixformat.org</span>
+  <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.2 · CC BY-SA 4.0 · © 2026 Andrea Fiorino · mosaixformat.org</span>
   <span><a href="index.html">Format</a> · <a href="GOVERNANCE.md">Governance</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE.md">License</a> · <a href="https://github.com/mosaix-format/spec">GitHub</a></span>
 </footer>
 </div>

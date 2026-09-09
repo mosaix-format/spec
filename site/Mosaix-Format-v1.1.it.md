@@ -53,6 +53,7 @@ Una **nota** risponde a una domanda. Se una bozza risponde a due, sono due note.
 | `id` | ULID (26 caratteri, Crockford Base32) | sistema | identificatore stabile per questa nota; sopravvive ai rinomini; usato come destinazione di riferimento primaria |
 | `updated` | data `AAAA-MM-GG` | persona o sistema | ultima modifica sostanziale; governa l'obsolescenza della nota |
 | `tags` | lista di stringhe | persona | tassonomia e filtri |
+| `question` | stringa | persona | opzionale, raccomandato — la singola domanda a cui questa nota risponde (R1: atomicità); DEVE terminare con `?`. Alias: `domanda` |
 | `summary` | stringa, 120–240 caratteri | persona o arricchimento | una frase dichiarativa che dice cosa contiene la nota; l'unità che una macchina legge per prima |
 | `keywords` | lista di 6–8 stringhe minuscole | persona o arricchimento | come qualcuno cercherebbe questa nota: sinonimi, formulazioni parlate, domande. NON DEVE duplicare `tags` |
 | `entities` | lista di `{name, type}`, al massimo 12 | arricchimento o persona | cose con un nome citate nella nota; `type` DEVE essere uno fra `person`, `company`, `product`, `project`, `tool`, `place`, `document`, `event`, oppure un tipo dichiarato nella nota meta (§5.4) |
@@ -62,11 +63,11 @@ Una **nota** risponde a una domanda. Se una bozza risponde a due, sono due note.
 
 Note:
 
-- `summary` NON DEVE ripetere il titolo e NON DEVE iniziare con "Questa nota…" o equivalente. Si scrive per chi non ha aperto la nota.
+- `summary` NON DEVE ripetere il titolo e NON DEVE iniziare con "Questa nota…" o equivalente. Si scrive per chi non ha aperto la nota. Se `question` è presente, `summary` DOVREBBE rispondervi.
 - **Formato e generazione di `id`.** `id` DEVE essere un ULID valido: 26 caratteri nell'alfabeto Crockford Base32 (`0123456789ABCDEFGHJKMNPQRSTVWXYZ`), con il primo carattere tra `0` e `7`. I generatori DEVONO produrre un nuovo ULID casuale per ogni nota alla creazione. `id` sopravvive ai rinomini: se una voce di `links` è un ULID valido, i checker la risolvono prima sull'`id` delle altre note. Un `id` mancante o non valido genera un **avviso** (non un errore) in v1.x; da v2.0 diventa un errore.
 - **Alias.** Un vault PUÒ scrivere qualunque chiave CORE con un alias dichiarato nella nota meta (§5.4); i checker trattano un alias dichiarato come la chiave canonica. I seguenti alias sono riconosciuti di default, così che i vault creati prima di questa versione restino conformi: `mcp_entita` → `entities`, `mcp_relazioni` → `relations`, `mcp_collegamenti` → `links`, `mcp_rev` → `rev`, `aggiornato` → `updated`, `titolo` → `title`, `riassunto` → `summary`, `parole_chiave` → `keywords`; nelle voci di entità e relazioni, `nome` → `name`, `tipo` → `type`, `da` → `from`, `a` → `to`; e i valori di tipo entità `persona azienda prodotto progetto strumento luogo documento evento` → `person company product project tool place document event`.
 - `entities` DOVREBBE elencare al massimo 12 voci. Una nota che nomina più cose di così di solito risponde a più di una domanda (R1); un checker segnala l'eccesso come avviso. I MOC e la nota meta sono esenti: elencare è il loro compito.
-- L'ordine canonico delle chiavi è `title · id · updated · [chiavi di dominio] · summary · keywords · entities · relations · links · rev`. Gli strumenti DOVREBBERO preservarlo.
+- L'ordine canonico delle chiavi è `title · id · updated · [chiavi di dominio] · question · summary · keywords · entities · relations · links · rev`. Gli strumenti DOVREBBERO preservarlo.
 - **Il corpo non viene mai toccato dalle operazioni sui metadati.** Qualunque processo che riscrive il frontmatter DEVE lasciare il corpo identico byte per byte.
 
 ### 3.2 Frontmatter — assi di affidabilità (raccomandati)
@@ -183,6 +184,38 @@ maintainers: [{name: A. Fiorino, area: mercato}]
 ```
 
 Tutte opzionali tranne `mosaix`.
+
+#### 5.4.1 `entity_registry` (opzionale, v1.2)
+
+Un vault che ha bisogno di alias o descrizioni leggibili per i propri tipi di entità PUÒ aggiungere un blocco `entity_registry` al frontmatter della nota meta:
+
+```yaml
+entity_registry:
+  department: {aliases: [dipartimento, reparto], description: "Unità organizzativa"}
+  regulation: {aliases: [normativa, standard], description: "Standard o normativa di settore"}
+```
+
+Ogni chiave è un tipo di entità canonico (built-in o dichiarato in `entity_types`). La lista `aliases` permette di scrivere nomi alternativi — un checker DEVE accettare sia il nome canonico sia qualsiasi alias dichiarato come valore valido di `type` in `entities`. Il campo `description` è puramente informativo.
+
+Un vault senza `entity_registry` è pienamente conforme. Il blocco non modifica l'insieme dei tipi validi: aggiunge solo alias per tipi già dichiarati.
+
+#### 5.4.2 `relation_vocabulary` (opzionale, v1.2)
+
+Un vault PUÒ dichiarare un vocabolario tipizzato di relazioni per abilitare una validazione più ricca:
+
+```yaml
+relation_vocabulary:
+  owns: {from: [company], to: [product, department], description: "Proprietà o controllo"}
+  supplies: {from: [company], to: [company]}
+  regulates: {from: [regulation], to: [product, company]}
+```
+
+Ogni chiave è un tipo di relazione. Gli array opzionali `from` e `to` indicano i tipi di entità ammessi su ciascun lato di quella relazione. Se `relation_vocabulary` è presente, un checker PUÒ verificare che:
+
+- ogni voce di `relations` usi solo tipi elencati nel vocabolario (un **avviso** in caso contrario);
+- i tipi di entità in `from` e `to` corrispondano a quanto dichiarato nel vocabolario (un **avviso** in caso contrario).
+
+Questi controlli sono **avvisi, non errori** — il vocabolario è un ausilio documentale, non un vincolo rigido. Un vault senza `relation_vocabulary` è pienamente conforme; questo blocco è puramente additivo e retro-compatibile.
 
 ## 6. Documenti composti
 

@@ -1,0 +1,61 @@
+# Mosaix Format — Quick Reference for LLMs
+
+Mosaix Format is a file-level specification for knowledge vaults: a set of rules
+that makes every Markdown note self-describing and machine-retrievable in isolation.
+One note = one concept. No note needs another note open to be understood.
+
+---
+
+## Example note (all CORE keys)
+
+```
+---
+title: Cold-brew extraction ratio
+id: 01J8XKZQ3NMBPV2FRHD4T6CWYE
+updated: 2026-09-09
+tags: [process, coffee]
+summary: "The standard cold-brew ratio is 1:8 coffee to water by weight; steeping
+  time is 18–24 h at 4 °C. Coarser grind reduces astringency in long steeps."
+keywords: [cold brew, extraction, ratio, steep time, grind size, temperature, coffee]
+entities:
+  - {name: cold-brew, type: process}
+  - {name: steep time, type: property}
+relations:
+  - {from: cold-brew, type: requires, to: steep time}
+links: [01J8XKZQ3N000000000000GRND]
+rev: a3f9c1208b4e
+---
+
+Cold brew extracts at a 1:8 ratio (coffee:water, by weight). Steep 18–24 h at 4 °C.
+Coarser grind → less astringency. Finer grind → faster extraction, higher risk of
+bitterness. Filter immediately after steep; store up to 10 days refrigerated.
+```
+
+Key order is fixed: title · id · updated · [domain keys] · summary · keywords ·
+entities · relations · links · rev.
+
+---
+
+## The 3 rules that matter
+
+1. ATOMICITY — one note covers one concept only. If you need two concepts, write
+   two notes and link them via `links`.
+
+2. NO ORPHANS — every entry in `links` must resolve to an existing note (matched
+   by ULID in the target's `id` field). A link to a non-existent note is an error.
+
+3. BODY IS FROZEN FOR rev — `rev` is sha256(body)[:12] at the time
+   entities/relations/links were computed. Never rewrite the body after setting rev
+   without regenerating rev. Frontmatter edits alone do not require a rev update.
+
+---
+
+## Validate
+
+    python audit_reference.py <vault-directory>
+
+Exit code 0 = conformant. Standard library only, read-only, no network required.
+
+---
+
+Full spec: https://mosaixformat.org/llms-full.txt

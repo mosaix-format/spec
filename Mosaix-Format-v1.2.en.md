@@ -1,19 +1,19 @@
 ﻿---
-title: Mosaix Format — Specification v1.1
-version: 1.1.0
+title: Mosaix Format — Specification v1.2
+version: 1.2.0
 status: published
-updated: 2026-09-08
+updated: 2026-09-09
 license: CC BY-SA 4.0
 author: Andrea Fiorino
 summary: "A file-level format for knowledge vaults made of atomic, self-describing notes that machines can retrieve one at a time and humans can read as composed documents."
 keywords: [knowledge vault, atomic notes, frontmatter, wikilinks, markdown, LLM context, bounded context, specification]
 ---
 
-# Mosaix Format — Specification v1.1
+# Mosaix Format — Specification v1.2
 
 ## 0. Status of this document
 
-This document specifies the **Mosaix Format**, version 1.1.0. The name comes from the mosaic: every note is a tile that stands on its own, and the picture exists only in the whole. It is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/): you may copy, adapt and redistribute it, including commercially, provided you credit the author and release derivatives under the same license. The name "Mosaix Format" and its version numbering are part of the specification: a vault may claim conformance to "Mosaix 1.0" only if it satisfies §10.
+This document specifies the **Mosaix Format**, version 1.2.0. The name comes from the mosaic: every note is a tile that stands on its own, and the picture exists only in the whole. It is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/): you may copy, adapt and redistribute it, including commercially, provided you credit the author and release derivatives under the same license. The name "Mosaix Format" and its version numbering are part of the specification: a vault may claim conformance to "Mosaix 1.0" only if it satisfies §10.
 
 The key words MUST, MUST NOT, SHOULD, SHOULD NOT and MAY are to be interpreted as described in RFC 2119.
 
@@ -51,22 +51,25 @@ A **note** answers one question. If a draft answers two, it is two notes. The bo
 | `id` | ULID (26 characters, Crockford Base32) | system | stable identifier for this note; survives renames; used as the primary reference target |
 | `updated` | date `YYYY-MM-DD` | human or system | last substantive change; drives staleness of the note |
 | `tags` | list of strings | human | taxonomy and filtering |
+| `question` | string | human | optional, recommended — the single question this note answers (R1: atomicity); MUST end with `?`. Alias: `domanda` |
 | `summary` | string, 120–240 characters | human or enrichment | one declarative sentence saying what the note contains; the unit a machine reads first |
 | `keywords` | list of 6–8 lowercase strings | human or enrichment | how someone would search for this note: synonyms, spoken-language phrasings, questions. MUST NOT duplicate `tags` |
 | `entities` | list of `{name, type}`, at most 12 | enrichment or human | named things in the note; `type` MUST be one of `person`, `company`, `product`, `project`, `tool`, `place`, `document`, `event`, or a type declared in the meta note (§5.4) |
 | `relations` | list of `{from, type, to}` | enrichment or human | typed links between named entities; `type` is a short verb phrase in the present tense (`owns`, `depends on`, `supplies`), or a value from the vault's relation vocabulary if one is declared |
 | `links` | list of strings | enrichment or human | wikilink targets this note points to; each MUST resolve to an existing note |
 | `rev` | string, 12 hex chars | system | hash of the body at the time `entities`, `relations` and `links` were last computed; a mismatch with the current body means the metadata is stale |
+| `origin` | enum string (`human`, `distilled`, `observed`) | human or system | who wrote the note: `human` = written by a person; `distilled` = synthesised or generated from other notes/sources; `observed` = captured from an external system or event. Optional, recommended. Alias: `origine` |
+| `as_of` | date `YYYY-MM-DD` | human | when the described fact was true, distinct from `updated` which records when the note was last edited. Optional, recommended. Alias: `data_fatto` |
 
 Notes:
 
-- `summary` MUST NOT repeat the title and MUST NOT begin with "This note…" or its equivalent. It is written for a reader who has not opened the note.
+- `summary` MUST NOT repeat the title and MUST NOT begin with "This note…" or its equivalent. It is written for a reader who has not opened the note. If `question` is present, `summary` SHOULD answer it.
 - **`id` format and generation.** `id` MUST be a valid ULID: 26 characters in the Crockford Base32 alphabet (`0123456789ABCDEFGHJKMNPQRSTVWXYZ`), with the first character in `0–7` so that the encoded 48-bit millisecond timestamp does not overflow. Generators MUST produce a new random ULID for each note at creation time; they MUST NOT reuse or derive it from the note's content or filename.
 - **Reference resolution.** When a `links` entry (or any frontmatter field that references another note) is a valid ULID, checkers and tools MUST resolve it by matching against the `id` fields of other notes first. If no note with that `id` is found, the reference is an error. A string that is not a valid ULID is resolved by filename (basename without extension, case-sensitive), as in prior versions. This allows notes to be renamed without breaking references.
 - **Backward compatibility.** A vault whose notes do not carry `id` fields reports a **warning** (not an error) under v1.0, so that existing vaults are not made non-conformant by the addition of this key. From v2.0 onward, a missing or invalid `id` on a note outside `_inbox/`, `_private/` and declared payload folders is an **error**.
-- **Aliases.** A vault MAY write any CORE key under an alias declared in its meta note (§5.4); checkers treat a declared alias as the canonical key. The following aliases are recognised by default, so that vaults created before this version remain conformant: `mcp_entita` → `entities`, `mcp_relazioni` → `relations`, `mcp_collegamenti` → `links`, `mcp_rev` → `rev`, `aggiornato` → `updated`, `titolo` → `title`, `riassunto` → `summary`, `parole_chiave` → `keywords`; inside entity and relation items, `nome` → `name`, `tipo` → `type`, `da` → `from`, `a` → `to`; and the entity type values `persona azienda prodotto progetto strumento luogo documento evento` → `person company product project tool place document event`.
+- **Aliases.** A vault MAY write any CORE key under an alias declared in its meta note (§5.4); checkers treat a declared alias as the canonical key. The following aliases are recognised by default, so that vaults created before this version remain conformant: `mcp_entita` → `entities`, `mcp_relazioni` → `relations`, `mcp_collegamenti` → `links`, `mcp_rev` → `rev`, `aggiornato` → `updated`, `titolo` → `title`, `riassunto` → `summary`, `parole_chiave` → `keywords`, `origine` → `origin`, `data_fatto` → `as_of`; inside entity and relation items, `nome` → `name`, `tipo` → `type`, `da` → `from`, `a` → `to`; and the entity type values `persona azienda prodotto progetto strumento luogo documento evento` → `person company product project tool place document event`.
 - `entities` SHOULD list at most 12 items. A note that names more things than that is usually answering more than one question (R1); a checker reports the excess as a warning. MOCs and the meta note are exempt: listing is their job.
-- The canonical key order is `title · id · updated · [domain keys] · summary · keywords · entities · relations · links · rev`. Tools SHOULD preserve it.
+- The canonical key order is `title · id · updated · [domain keys] · question · summary · keywords · entities · relations · links · rev · origin · as_of`. Tools SHOULD preserve it.
 - **The body is never touched by metadata operations.** Any process that rewrites frontmatter MUST leave the body byte-identical.
 
 ### 3.2 Frontmatter — reliability axes (recommended)
@@ -282,9 +285,9 @@ A reference checker, `audit_reference.py`, accompanies this specification. It us
 
 ## 11. Versioning of this specification
 
-Versions follow `MAJOR.MINOR.PATCH`. A MINOR version may add optional keys, note types or warnings; it never turns a conformant vault into a non-conformant one. A MAJOR version may. Vaults SHOULD state the version they target in their meta note (`mosaix: "1.1"`).
+Versions follow `MAJOR.MINOR.PATCH`. A MINOR version may add optional keys, note types or warnings; it never turns a conformant vault into a non-conformant one. A MAJOR version may. Vaults SHOULD state the version they target in their meta note (`mosaix: "1.2"`).
 
-Shipped in 1.1.0: `id` — the stable ULID identifier (tenth CORE key, warning until v2.0). Under discussion for 1.2, not part of 1.1: a `question` key recording the single question a note answers; a mandatory closed relation vocabulary; an entity registry with aliases; `origin` (human · distilled · observed) and `as_of`, the date a fact was true.
+Shipped in 1.1.0: `id` — the stable ULID identifier (tenth CORE key, warning until v2.0). Shipped in 1.2.0: `origin` (who wrote the note: `human`, `distilled`, or `observed`; alias `origine`) and `as_of` (when the described fact was true; alias `data_fatto`) — both optional, recommended. Under discussion for a future version: a `question` key recording the single question a note answers; a mandatory closed relation vocabulary; an entity registry with aliases.
 
 ## 12. Acknowledgements and provenance
 
@@ -292,6 +295,6 @@ The format was extracted from three vaults in production use (code documentation
 
 ---
 
-**Citing this specification.** Fiorino, A. (2026). *Mosaix Format — Specification v1.1.0*. https://mosaixformat.org — source tag `mosaix-format/spec@v1.1.0`.
+**Citing this specification.** Fiorino, A. (2026). *Mosaix Format — Specification v1.2.0*. https://mosaixformat.org — source tag `mosaix-format/spec@v1.2.0`.
 
-*Mosaix Format v1.1 — a format by SLIM — © 2026 Andrea Fiorino — CC BY-SA 4.0.*
+*Mosaix Format v1.2 — a format by SLIM — © 2026 Andrea Fiorino — CC BY-SA 4.0.*

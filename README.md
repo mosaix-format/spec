@@ -111,6 +111,61 @@ jobs:
 
 The conformance badge `https://mosaixformat.org/badge.svg` should only be displayed when this check is green.
 
+## Conformance badge
+
+Add the badge to your vault's README to signal that it passes the Mosaix conformance check on every push:
+
+```markdown
+![Mosaix Conformant](https://img.shields.io/badge/Mosaix-conformant-green)
+```
+
+### Adding the GitHub Action
+
+Copy `.github/workflows/check.yml` from this repository into your vault's repository (create the directory if it doesn't exist):
+
+```yaml
+name: Mosaix Conformance
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python audit_reference.py . --json
+```
+
+The workflow downloads `audit_reference.py` from the Mosaix spec repository via the composite action `mosaix-format/spec@v1.1.0`, or you can copy `audit_reference.py` directly alongside your notes and run it from there — it has no dependencies beyond the Python standard library.
+
+### Exit codes and CI policy
+
+| Code | Meaning | Recommended CI behaviour |
+|------|---------|--------------------------|
+| `0` | Fully clean — zero errors and zero warnings | Always green; merge freely |
+| `1` | Broken — at least one error (E) | Block the merge; errors are violations of normative rules |
+| `2` | Acceptable with warnings — zero errors, at least one warning (W) | Merge allowed; warnings are advisory, not normative failures |
+
+To block merges only on errors (code 1) but let warnings (code 2) through, use a shell step that treats exit code 2 as success:
+
+```yaml
+- name: Mosaix conformance check
+  run: |
+    python audit_reference.py . --json
+    code=$?
+    [ $code -eq 1 ] && exit 1 || exit 0
+```
+
+Alternatively, to require a fully clean vault (no warnings either), fail on any non-zero exit code — the default behaviour of `run:` steps in GitHub Actions.
+
+### Rules for displaying the badge
+
+- The badge is valid as long as the CI workflow above passes on the default branch.
+- The badge is **not** a certification. It means the vault passed the reference checker at the time of the last push, nothing more.
+- Remove or update the badge if the vault's default branch is in a broken state (exit code 1).
+- Warnings (exit code 2) are compatible with displaying the badge.
+
 ## Skills
 
 Six optional skills teach Claude how to read and write Mosaix-conformant notes. Each skill is a folder with a `SKILL.md` file — install only the ones you need.

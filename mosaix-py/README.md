@@ -1,0 +1,50 @@
+# mosaix
+
+Python library for the [Mosaix Format](https://mosaix.io) — stdlib only, no dependencies.
+
+## Install (editable)
+
+```bash
+pip install -e .
+```
+
+## Usage
+
+```python
+from mosaix import parse_note, validate_vault, VaultGraph
+
+note = parse_note("path/to/note.md")
+print(note.title, note.id)
+
+report = validate_vault("path/to/vault")
+print(report.conformant, len(report.errors))
+
+g = VaultGraph("path/to/vault")
+print(g.orphans())
+print(g.components())
+```
+
+## CLI
+
+```bash
+mosaix check <vault_dir>
+mosaix check <vault_dir> --json
+mosaix check <vault_dir> --check-rev --exclude=exports
+```
+
+Exit codes: `0` clean · `1` errors · `2` warnings only.
+
+## Modules
+
+| Module | Purpose |
+|---|---|
+| `parser.py` | `parse_note(path) → Note` |
+| `validator.py` | `validate_note(note)`, `validate_vault(path) → Report` |
+| `crud.py` | `create_note()`, `update_frontmatter()`, `delete_note()` (raises) |
+| `graph.py` | `VaultGraph`: orphans, broken_links, components |
+| `_yaml.py` | Minimal YAML parser (internal, extracted from audit_reference.py) |
+| `cli.py` | `mosaix check` entry point |
+
+## License
+
+MIT © 2026 Andrea Fiorino
