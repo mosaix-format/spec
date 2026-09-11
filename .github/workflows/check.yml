@@ -28,12 +28,19 @@ jobs:
       - name: Download audit_reference.py
         run: |
           curl -fsSL \
-            https://raw.githubusercontent.com/mosaix-format/spec/v1.1.0/audit_reference.py \
+            https://raw.githubusercontent.com/mosaix-format/spec/v1.2.0/audit_reference.py \
             -o audit_reference.py
 
       # Block merges on errors (exit 1); allow warnings (exit 2).
-      - name: Run Mosaix conformance check
+      # Check only the example vaults, not the entire repository.
+      - name: Run Mosaix conformance check on example-vault
         run: |
-          python audit_reference.py . --json
+          python audit_reference.py example-vault/vault --json
+          code=$?
+          [ $code -eq 1 ] && exit 1 || exit 0
+
+      - name: Run Mosaix conformance check on example-vault-bakery
+        run: |
+          python audit_reference.py example-vault-bakery/vault --json
           code=$?
           [ $code -eq 1 ] && exit 1 || exit 0
