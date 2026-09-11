@@ -16,11 +16,14 @@ git clone <repo> && cd <repo>
 ## Usage
 
 ```bash
-# Read-only (safe default)
-python -m mosaix_mcp /path/to/vault
+# Start without a vault — choose which vault to load via switch_vault tool
+python -m mosaix_mcp --writable
 
-# With write support
+# Start with a default vault (still switchable at runtime)
 python -m mosaix_mcp /path/to/vault --writable
+
+# Read-only (safe default, no --writable)
+python -m mosaix_mcp /path/to/vault
 
 # Verbose error output on stderr
 python -m mosaix_mcp /path/to/vault --verbose
@@ -30,6 +33,7 @@ python -m mosaix_mcp /path/to/vault --verbose
 
 | Tool | Description |
 |---|---|
+| `switch_vault` | Load or switch to a different vault at runtime — re-indexes the new path |
 | `read_note` | Read a note — returns parsed frontmatter (JSON) and body |
 | `write_note` | Write a validated note; applies R7 supersede if file exists (requires `--writable`) |
 | `search` | Case-insensitive substring search across summary, keywords, title (or any field) |
@@ -108,36 +112,48 @@ Covers E001–E015 and W003–W004 from §10. The `id` field matches the spec co
 
 Returns `[{path, title, type, tags, updated}]` sorted by `updated` descending.
 
+### `switch_vault`
+
+```json
+{"vault_path": "/absolute/path/to/your/vault"}
+```
+
+Re-indexes the vault at the given path. All subsequent tool calls operate on
+this vault until you call `switch_vault` again. Returns `{vault, notes_indexed, writable}`.
+
 ## Claude Desktop config
 
-Add to `claude_desktop_config.json`:
+Start **without** a hardcoded vault — choose which vault to load at the beginning
+of each conversation via `switch_vault`:
 
 ```json
 {
   "mcpServers": {
     "mosaix": {
       "command": "python",
-      "args": ["-m", "mosaix_mcp", "/absolute/path/to/your/vault"]
+      "args": ["-m", "mosaix_mcp", "--writable"],
+      "cwd": "/path/to/repo/spec"
     }
   }
 }
 ```
 
-For write access:
+Or start with a default vault (still switchable at runtime):
 
 ```json
 {
   "mcpServers": {
     "mosaix": {
       "command": "python",
-      "args": ["-m", "mosaix_mcp", "/absolute/path/to/your/vault", "--writable"]
+      "args": ["-m", "mosaix_mcp", "/absolute/path/to/your/vault", "--writable"],
+      "cwd": "/path/to/repo/spec"
     }
   }
 }
 ```
 
-The working directory must be the repo root (where `mosaix_mcp/` lives), or add the
-repo to `PYTHONPATH`.
+The `cwd` must point to the directory where `mosaix_mcp/` lives, or add it
+to `PYTHONPATH`.
 
 ## Design notes
 
