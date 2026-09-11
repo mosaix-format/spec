@@ -138,7 +138,7 @@ def main():
         # refresh the copies the site serves (GitHub Pages publishes site/ only)
         site = HERE.parent / "site"
         if site.is_dir():
-            for f in ("audit_reference.py", "Mosaix-Format-v1.1.en.md", "Mosaix-Format-v1.1.it.md", "CHANGELOG.md", "LICENSE.md"):
+            for f in ("audit_reference.py", "Mosaix-Format-v1.2.en.md", "Mosaix-Format-v1.2.it.md", "CHANGELOG.md", "LICENSE.md"):
                 shutil.copy2(HERE.parent / f, site / f)
             shutil.copy2(zpath, site / zpath.name)
             # sync skill/ tree
@@ -154,7 +154,7 @@ def main():
             if llms_txt.exists():
                 sections = [
                     llms_txt.read_text(encoding="utf-8").rstrip("\n"),
-                    (HERE.parent / "Mosaix-Format-v1.1.en.md").read_text(encoding="utf-8").rstrip("\n"),
+                    (HERE.parent / "Mosaix-Format-v1.2.en.md").read_text(encoding="utf-8").rstrip("\n"),
                     (HERE.parent / "CHANGELOG.md").read_text(encoding="utf-8").rstrip("\n"),
                 ]
                 (site / "llms-full.txt").write_text(

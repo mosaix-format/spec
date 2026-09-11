@@ -8,9 +8,41 @@ from pathlib import Path
 from typing import Any
 
 PROTOCOL_VERSION = "2024-11-05"
-SERVER_INFO = {"name": "mosaix-mcp", "version": "1.0.0"}
+SERVER_INFO = {"name": "mosaix-mcp", "version": "1.2.0"}
+
+# Instructions sent to the AI on initialize — teaches the Mosaix Format rules
+# so the AI can write conformant notes without reading the spec externally.
+SERVER_INSTRUCTIONS = """\
+Mosaix Format vault server. ALWAYS load the "mosaix" skill before writing notes — it has the full rules.
+
+Quick ref (the skill has details):
+- Frontmatter REQUIRED: title, updated (YYYY-MM-DD), tags (list), summary (120-240 chars, declarative), keywords (6-8 terms), entities ({name,type} list), links (wikilink targets), rev (12 hex).
+- Optional: id (ULID), question (ends with ?), origin, as_of, type, status, relations, fragments.
+- Types: atomic (default), moc, synthesis, document, meta, ledger, log.
+- Vault needs: _meta/Conventions.md (type:meta, mosaix:"1.2"), _meta/Open questions.md (type:ledger), at least one MOC.
+- Rules: one idea per note (R1), no orphans (R3), supersede don't delete (R7).
+- Italian aliases accepted: titolo, riassunto, parole_chiave, aggiornato, domanda, entita, tipo, stato.
+- Always run check after writing. Call switch_vault first if no vault is loaded.
+"""
 
 TOOLS = [
+    {
+        "name": "switch_vault",
+        "description": (
+            "Load or switch to a different Mosaix vault. "
+            "Re-indexes the vault at the given path. All subsequent tool calls operate on this vault."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "vault_path": {
+                    "type": "string",
+                    "description": "Absolute path to the vault directory.",
+                }
+            },
+            "required": ["vault_path"],
+        },
+    },
     {
         "name": "read_note",
         "description": "Read a Mosaix note. Returns parsed frontmatter, body, and path.",
@@ -109,14 +141,41 @@ class _ToolError(Exception):
     """Errors returned to the client as isError:true tool results."""
 
 
-def run(vault_path: Path, writable: bool = False, verbose: bool = False) -> None:
-    """Index the vault then serve MCP requests on stdin/stdout until EOF."""
-    from .vault import VaultIndex
+class _ServerState:
+    """Mutable server state holding the current vault index."""
 
-    print(f"mosaix-mcp: indexing {vault_path} …", file=sys.stderr)
-    index = VaultIndex(vault_path)
-    mode = "writable" if writable else "read-only"
-    print(f"mosaix-mcp: ready — {len(index)} notes indexed ({mode})", file=sys.stderr)
+    def __init__(self, vault_path: Path | None, writable: bool) -> None:
+        self.writable = writable
+        self.index = None
+        self.vault_path: Path | None = None
+        if vault_path is not None:
+            self.load_vault(vault_path)
+
+    def load_vault(self, vault_path: Path) -> int:
+        from .vault import VaultIndex
+        vault_path = vault_path.resolve()
+        if not vault_path.is_dir():
+            raise _ToolError(f"Directory not found: {vault_path}")
+        print(f"mosaix-mcp: indexing {vault_path} …", file=sys.stderr)
+        self.index = VaultIndex(vault_path)
+        self.vault_path = vault_path
+        count = len(self.index)
+        mode = "writable" if self.writable else "read-only"
+        print(f"mosaix-mcp: ready — {count} notes indexed ({mode})", file=sys.stderr)
+        return count
+
+    def require_index(self):
+        if self.index is None:
+            raise _ToolError("No vault loaded. Call switch_vault first with the path to your vault.")
+        return self.index
+
+
+def run(vault_path: Path | None = None, writable: bool = False, verbose: bool = False) -> None:
+    """Optionally index a vault, then serve MCP requests on stdin/stdout until EOF."""
+    state = _ServerState(vault_path, writable)
+
+    if vault_path is None:
+        print("mosaix-mcp: started without vault — use switch_vault to load one", file=sys.stderr)
 
     for raw in sys.stdin:
         line = raw.strip()
@@ -136,7 +195,7 @@ def run(vault_path: Path, writable: bool = False, verbose: bool = False) -> None
             continue  # notifications need no response
 
         try:
-            result = _dispatch(method, params, index, writable)
+            result = _dispatch(method, params, state)
             if req_id is not None:
                 _send({"jsonrpc": "2.0", "id": req_id, "result": result})
         except _ToolError as exc:
@@ -157,12 +216,13 @@ def _send(obj: Any) -> None:
     sys.stdout.flush()
 
 
-def _dispatch(method: str, params: dict, index: Any, writable: bool) -> Any:
+def _dispatch(method: str, params: dict, state: _ServerState) -> Any:
     if method == "initialize":
         return {
             "protocolVersion": PROTOCOL_VERSION,
             "capabilities": {"tools": {}},
             "serverInfo": SERVER_INFO,
+            "instructions": SERVER_INSTRUCTIONS,
         }
     if method == "ping":
         return {}
@@ -171,25 +231,39 @@ def _dispatch(method: str, params: dict, index: Any, writable: bool) -> Any:
     if method == "tools/call":
         name = params.get("name", "")
         args = params.get("arguments") or {}
-        return _call_tool(name, args, index, writable)
+        return _call_tool(name, args, state)
     raise Exception(f"Method not found: {method}")
 
 
-def _call_tool(name: str, args: dict, index: Any, writable: bool) -> dict:
+def _call_tool(name: str, args: dict, state: _ServerState) -> dict:
     try:
-        if name == "read_note":
+        if name == "switch_vault":
+            vault_path = Path(args["vault_path"])
+            count = state.load_vault(vault_path)
+            result = {
+                "vault": str(state.vault_path),
+                "notes_indexed": count,
+                "writable": state.writable,
+            }
+        elif name == "read_note":
+            index = state.require_index()
             result = index.read_note(args["path"])
         elif name == "write_note":
-            if not writable:
+            if not state.writable:
                 raise _ToolError("Server is read-only. Restart with --writable to enable writes.")
+            index = state.require_index()
             result = index.write_note(args["path"], args["frontmatter"], args["body"])
         elif name == "search":
+            index = state.require_index()
             result = index.search(args["query"], field=args.get("field"))
         elif name == "compose":
+            index = state.require_index()
             result = index.compose(args["path"])
         elif name == "check":
+            index = state.require_index()
             result = index.check(args.get("path"))
         elif name == "list_notes":
+            index = state.require_index()
             result = index.list_notes(tag=args.get("tag"), note_type=args.get("type"))
         else:
             raise _ToolError(f"Unknown tool: {name}")
