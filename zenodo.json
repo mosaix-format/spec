@@ -1,0 +1,37 @@
+{
+  "upload_type": "software",
+  "title": "Mosaix Format Specification v1.2.0",
+  "description": "Mosaix Format v1.2.0 introduces three optional CORE keys: question (the single question a note answers, enforcing atomicity rule R1), origin (who wrote the note: human, distilled, or observed), and as_of (when the described fact was true, distinct from the last-edit date). The reference auditor now uses graduated exit codes (0 = clean, 1 = errors, 2 = warnings only), supports extensible entity types via the meta note's entity_registry, resolves Obsidian-aware paths, and handles ULID id-first link resolution. The format is also available as a Python library on PyPI (pip install mosaix) with CLI commands for checking, scaffolding, and migrating vaults — stdlib-only, zero external dependencies.",
+  "creators": [
+    {
+      "name": "Fiorino, Andrea",
+      "affiliation": "Independent"
+    }
+  ],
+  "license": "cc-by-sa-4.0",
+  "keywords": [
+    "knowledge management",
+    "structured notes",
+    "MCP",
+    "Model Context Protocol",
+    "AI retrieval",
+    "Obsidian",
+    "knowledge vault",
+    "semantic enrichment",
+    "open specification"
+  ],
+  "version": "1.2.0",
+  "publication_date": "2026-09-09",
+  "language": "eng",
+  "related_identifiers": [
+    {
+      "relation": "isSupplementTo",
+      "identifier": "https://mosaixformat.org"
+    },
+    {
+      "relation": "isSupplementTo",
+      "identifier": "https://pypi.org/project/mosaix/",
+      "resource_type": "software"
+    }
+  ]
+}
