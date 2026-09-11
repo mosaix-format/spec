@@ -138,7 +138,7 @@ def main():
         # refresh the copies the site serves (GitHub Pages publishes site/ only)
         site = HERE.parent / "site"
         if site.is_dir():
-            for f in ("audit_reference.py", "Mosaix-Format-v1.2.en.md", "Mosaix-Format-v1.2.it.md", "CHANGELOG.md", "LICENSE.md"):
+            for f in ("audit_reference.py", "Mosaix-Format-v1.2.en.md", "Mosaix-Format-v1.2.it.md", "CHANGELOG.md", "LICENSE.md", "spec.yaml", "CONTRIBUTING.md"):
                 shutil.copy2(HERE.parent / f, site / f)
             shutil.copy2(zpath, site / zpath.name)
             # sync skill/ tree
