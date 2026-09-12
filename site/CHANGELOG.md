@@ -1,8 +1,21 @@
 # Changelog — Mosaix Format
 
+## 1.2.1 — 2026-09-12
+
+- **MCP server enhancements:**
+  - `compose` tool now supports three modes: `text` (default, returns full text), `structure` (returns metadata only: bytes, words per fragment), and `file` (writes to `_composed/<stem>.txt` with SHA256 hash).
+  - Added `fragments` parameter to `compose` for selective fragment inclusion.
+  - UTF-8 encoding fix for Windows stdio (`_configure_stdio()`) — resolves `UnicodeEncodeError` on characters outside cp1252.
+- **Zenodo archival metadata** (`zenodo.json`, `ZENODO-UPLOAD-INSTRUCTIONS.md`) for persistent DOI assignment.
+- **Multiagent integration guides** (`MULTIAGENT-INTEGRATION.md`) — best practices for using Mosaix vaults in multi-agent systems with MCP.
+- **MCP tool surface documentation** (`MCP-TOOL-SURFACE.md`) — complete tool schemas, examples, and error handling for the six MCP tools.
+
 ## 1.2.0 — 2026-09-09
 
 - **`question` — optional CORE key.** A string field that records the single question this note answers (R1: atomicity). MUST end with `?`. Alias: `domanda`. Positioned before `summary` in canonical order; if present, `summary` SHOULD answer it. Documentation-only in v1.2: the checker does not validate it.
+- **`origin` — optional, recommended CORE key.** Enum string: `human` (written by a person), `distilled` (synthesised or generated from other notes/sources), `observed` (captured from an external system or event). Records who wrote the note. Default alias: `origine`. Not validated by the checker in v1.2.
+- **`as_of` — optional, recommended CORE key.** Date `YYYY-MM-DD`. When the described fact was true, distinct from `updated` which records when the note was last edited. Useful for market data, prices, decisions, and anything that changes over time. Default alias: `data_fatto`. Not validated by the checker in v1.2.
+- Both `origin` and `as_of` sit after `rev` in the canonical key order: `title · id · updated · [domain keys] · question · summary · keywords · entities · relations · links · rev · origin · as_of`.
 
 ## 1.1.0 — 2026-09-08
 

@@ -1,6 +1,6 @@
 ﻿# Mosaix Format
 
-[![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey.svg)](LICENSE.md) [![Version](https://img.shields.io/badge/version-v1.2.0-blue.svg)](CHANGELOG.md) ![Mosaix 1.2 conformant](https://mosaixformat.org/badge.svg)
+[![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey.svg)](LICENSE.md) [![Version](https://img.shields.io/badge/version-v1.2.1-blue.svg)](CHANGELOG.md) ![Mosaix 1.2 conformant](https://mosaixformat.org/badge.svg)
 
 **A file-level format for knowledge vaults made of atomic, self-describing notes — retrievable one at a time by machines, readable as composed documents by people.**
 
@@ -88,7 +88,7 @@ A minimal MCP server (JSON-RPC 2.0 over stdio, stdlib-only Python) that exposes 
 
 ## Status
 
-v1.2.0 — September 2026. Extracted from three vaults in production use (code documentation, industrial market intelligence, education marketing).
+v1.2.1 — September 2026. Extracted from three vaults in production use (code documentation, industrial market intelligence, education marketing).
 
 Mosaix is an open format. The specification is open (CC BY-SA 4.0); how vaults are produced, enriched, searched or composed is out of scope by design (§8) and not part of this repository. `skill/` is the one exception: optional, non-normative instructions for one agent (Claude) to read and write conformant notes. Nothing in the specification or the checker depends on it.
 
@@ -105,7 +105,7 @@ jobs:
     permissions: { contents: read, pull-requests: write }
     steps:
       - uses: actions/checkout@v4
-      - uses: mosaix-format/spec@v1.2.0
+      - uses: mosaix-format/spec@v1.2.1
         with: { vault: ., exclude: "exports/" }
 ```
 
@@ -137,7 +137,7 @@ jobs:
       - run: python audit_reference.py . --json
 ```
 
-The workflow downloads `audit_reference.py` from the Mosaix spec repository via the composite action `mosaix-format/spec@v1.2.0`, or you can copy `audit_reference.py` directly alongside your notes and run it from there — it has no dependencies beyond the Python standard library.
+The workflow downloads `audit_reference.py` from the Mosaix spec repository via the composite action `mosaix-format/spec@v1.2.1`, or you can copy `audit_reference.py` directly alongside your notes and run it from there — it has no dependencies beyond the Python standard library.
 
 ### Exit codes and CI policy
 
@@ -200,6 +200,6 @@ Open an issue with a concrete case, then a pull request against the English file
 
 ## Citing
 
-> Fiorino, A. (2026). *Mosaix Format — Specification v1.2.0*. https://mosaixformat.org — source: `mosaix-format/spec@v1.2.0`
+> Fiorino, A. (2026). *Mosaix Format — Specification v1.2.1*. https://mosaixformat.org — source: `mosaix-format/spec@v1.2.1`
 
 Cite the tag, not the branch: tags are immutable.

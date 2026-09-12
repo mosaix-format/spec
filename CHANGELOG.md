@@ -1,5 +1,15 @@
 # Changelog — Mosaix Format
 
+## 1.2.1 — 2026-09-12
+
+- **MCP server enhancements:**
+  - `compose` tool now supports three modes: `text` (default, returns full text), `structure` (returns metadata only: bytes, words per fragment), and `file` (writes to `_composed/<stem>.txt` with SHA256 hash).
+  - Added `fragments` parameter to `compose` for selective fragment inclusion.
+  - UTF-8 encoding fix for Windows stdio (`_configure_stdio()`) — resolves `UnicodeEncodeError` on characters outside cp1252.
+- **Zenodo archival metadata** (`zenodo.json`, `ZENODO-UPLOAD-INSTRUCTIONS.md`) for persistent DOI assignment.
+- **Multiagent integration guides** (`MULTIAGENT-INTEGRATION.md`) — best practices for using Mosaix vaults in multi-agent systems with MCP.
+- **MCP tool surface documentation** (`MCP-TOOL-SURFACE.md`) — complete tool schemas, examples, and error handling for the six MCP tools.
+
 ## 1.2.0 — 2026-09-09
 
 - **`question` — optional CORE key.** A string field that records the single question this note answers (R1: atomicity). MUST end with `?`. Alias: `domanda`. Positioned before `summary` in canonical order; if present, `summary` SHOULD answer it. Documentation-only in v1.2: the checker does not validate it.

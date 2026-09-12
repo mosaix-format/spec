@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "If you use this specification, please cite it as below."
 type: dataset
 title: "Mosaix Format — Specification"
-version: 1.2.0
-date-released: 2026-09-09
+version: 1.2.1
+date-released: 2026-09-12
 authors:
   - family-names: Fiorino
     given-names: Andrea
