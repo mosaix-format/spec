@@ -97,12 +97,15 @@ TOOLS = [
         "name": "compose",
         "description": (
             "Assemble a composed document (type: document) from its fragments. "
+            "Supports three modes: 'text' (default), 'structure', and 'file'. "
             "Returns the concatenated body text and the list of fragment paths."
         ),
         "inputSchema": {
             "type": "object",
             "properties": {
-                "path": {"type": "string", "description": "Path or stem of the document note"}
+                "path": {"type": "string", "description": "Path or stem of the document note"},
+                "mode": {"type": "string", "enum": ["text", "structure", "file"], "default": "text", "description": "Mode of composition: text, structure, or file"},
+                "fragments": {"type": "array", "items": {"type": "string"}, "description": "Optional list of stems to compose; if provided, only these fragments are used"}
             },
             "required": ["path"],
         },
@@ -170,8 +173,27 @@ class _ServerState:
         return self.index
 
 
+def _configure_stdio() -> None:
+    """Force UTF-8 on the stdio transport.
+
+    On Windows a child process launched without PYTHONIOENCODING/PYTHONUTF8
+    inherits the legacy ANSI code page (cp1252) for its pipes. Any response
+    containing a character outside that code page ('→', 'à', '×', emoji)
+    would then raise UnicodeEncodeError inside _send(), and the client would
+    receive a JSON-RPC error instead of the tool result. The same applies in
+    the opposite direction: incoming UTF-8 arguments would be decoded as
+    cp1252 and arrive mojibake'd.
+    """
+    for stream in (sys.stdin, sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass  # stream already detached or not reconfigurable
+
+
 def run(vault_path: Path | None = None, writable: bool = False, verbose: bool = False) -> None:
     """Optionally index a vault, then serve MCP requests on stdin/stdout until EOF."""
+    _configure_stdio()
     state = _ServerState(vault_path, writable)
 
     if vault_path is None:
@@ -258,7 +280,9 @@ def _call_tool(name: str, args: dict, state: _ServerState) -> dict:
             result = index.search(args["query"], field=args.get("field"))
         elif name == "compose":
             index = state.require_index()
-            result = index.compose(args["path"])
+            mode = args.get("mode", "text")
+            fragments = args.get("fragments")
+            result = index.compose(args["path"], mode, fragments)
         elif name == "check":
             index = state.require_index()
             result = index.check(args.get("path"))

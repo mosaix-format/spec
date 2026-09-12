@@ -1,6 +1,7 @@
 """Vault operations for Mosaix Format: read, write, search, compose, check, list."""
 from __future__ import annotations
 
+import hashlib
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -434,8 +435,7 @@ class VaultIndex:
         out.sort(key=lambda x: x["updated"] or "", reverse=True)
         return out
 
-    def compose(self, path: str) -> dict:
-        """Assemble a composed document from its fragment notes."""
+    def compose(self, path: str, mode: str = "text", fragments: list[str] | None = None) -> dict:
         stem, n = self._resolve(path)
         fm = n["fm"] or {}
         if str(fm.get("type", "")).lower() != "document":
@@ -443,27 +443,56 @@ class VaultIndex:
         frags = fm.get("fragments", []) or []
         if not frags:
             raise ValueError(f"{n['rel']}: no fragments declared")
-
+        if fragments is not None:
+            for f in fragments:
+                if f not in frags:
+                    raise ValueError(f"Fragment not requested by document: {f!r}")
+        target_frags = fragments if fragments is not None else frags
         parts: list[str] = []
         frag_paths: list[str] = []
-        for frag_name in frags:
+        frag_meta: list[dict] = []
+        total_bytes = 0
+        total_words = 0
+        for frag_name in target_frags:
             frag_stem = str(frag_name).strip()
             if frag_stem in self._notes:
                 frag_n = self._notes[frag_stem]
                 frag_paths.append(frag_n["rel"])
-                parts.append(frag_n["body"].strip())
+                body = frag_n["body"].strip()
+                parts.append(body)
+                b = len(body.encode("utf-8"))
+                w = len(body.split())
+                total_bytes += b
+                total_words += w
+                frag_meta.append({
+                    "stem": frag_stem,
+                    "rel": frag_n["rel"],
+                    "title": (frag_n["fm"] or {}).get("title", frag_stem),
+                    "bytes": b,
+                    "words": w,
+                })
             elif frag_stem in self._all_stems:
                 raise ValueError(f"Fragment {frag_name!r} exists but is in an excluded directory")
             else:
                 raise ValueError(f"Fragment not found: {frag_name!r}")
-
-        return {
-            "path": n["rel"],
-            "title": fm.get("title", stem),
-            "fragments": frag_paths,
-            "composed_text": "\n\n---\n\n".join(parts),
-        }
-
+        composed_text = "\n\n---\n\n".join(parts)
+        if mode == "text":
+            return {"path": n["rel"], "title": fm.get("title", stem),
+                    "fragments": frag_paths, "composed_text": composed_text}
+        if mode == "structure":
+            return {"path": n["rel"], "title": fm.get("title", stem),
+                    "fragments": frag_meta, "total_bytes": total_bytes,
+                    "total_words": total_words}
+        if mode == "file":
+            out_dir = self.root / "_composed"
+            out_dir.mkdir(parents=True, exist_ok=True)
+            file_path = out_dir / f"{stem}.txt"
+            file_path.write_text(composed_text, encoding="utf-8", newline="")
+            return {"path": n["rel"], "title": fm.get("title", stem),
+                    "fragments": frag_paths, "composed_path": str(file_path),
+                    "bytes": len(composed_text.encode("utf-8")),
+                    "sha256": hashlib.sha256(composed_text.encode("utf-8")).hexdigest()}
+        raise ValueError(f"unknown mode: {mode!r}")
     def check(self, path: str | None = None) -> dict:
         """Run §10 conformance check on one note or the entire vault."""
         target_rel: str | None = None

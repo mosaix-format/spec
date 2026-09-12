@@ -83,13 +83,18 @@ Returns up to 20 results: `[{path, title, summary, score}]`.
 
 ### `compose`
 
-```json
-{"path": "Mosaix for a new team"}
-```
+Assembles a `type: document` note by concatenating its `fragments` bodies, separated by a blank line with three dashes.
 
-Assembles a `type: document` note by concatenating its `fragments` bodies,
-separated by `\n\n---\n\n`.  
-Returns `{path, title, fragments: [...], composed_text: "..."}`.
+**Modes:**
+- **`text`** (default): Unchanged behavior. Returns `{path, title, fragments: [...], composed_text: "..."}`.
+- **`structure`**: Returns `{path, title, fragments: [{stem, rel, title, bytes, words}], total_bytes, total_words}` without the text content.
+- **`file`**: Writes the composed document to `<vault>/_composed/<stem>.txt` and returns `{path, title, fragments: [...], composed_path, bytes, sha256}`.
+
+**Parameters:**
+- `fragments`: A list of fragment stems to include (e.g., `["stem1", "stem2"]`). If omitted, all fragments are used.
+- `mode`: Must be one of "text", "structure", or "file". Unknown modes raise a `ValueError`.
+
+**Examples:**
 
 ### `check`
 
