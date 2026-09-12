@@ -1,7 +1,7 @@
 {
   "upload_type": "software",
   "title": "Mosaix Format Specification v1.2.1",
-  "description": "Mosaix Format v1.2.1 includes MCP server enhancements (compose tool now supports three modes: text, structure, and file; UTF-8 encoding fix for Windows), Zenodo archival metadata, and multiagent integration guides. Based on v1.2.0 which introduced optional CORE keys (question, origin, as_of), graduated auditor exit codes, extensible entity types, and the Python library on PyPI (pip install mosaix) with CLI commands for checking, scaffolding, and migrating vaults.",
+  "description": "Mosaix Format v1.2.1 includes MCP server enhancements (compose tool now supports three modes: text, structure, and file; UTF-8 encoding fix for Windows), Zenodo archival metadata, and multiagent integration guides. Based on v1.2.0 which introduced optional CORE keys (question, origin, as_of), graduated auditor exit codes, extensible entity types, and the Python library on PyPI (pip install mosaix-format) with CLI commands for checking, scaffolding, and migrating vaults.",
   "creators": [
     {
       "name": "Fiorino, Andrea",
@@ -30,7 +30,7 @@
     },
     {
       "relation": "isSupplementTo",
-      "identifier": "https://pypi.org/project/mosaix/",
+      "identifier": "https://pypi.org/project/mosaix-format/",
       "resource_type": "software"
     }
   ]
