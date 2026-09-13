@@ -1,4 +1,4 @@
-﻿---
+---
 title: Mosaix Format — Specification v1.2
 version: 1.2.0
 status: published
@@ -101,13 +101,14 @@ A vault MAY add any keys it needs (`campaign`, `client`, `country`, `reliability
 
 ### 3.4 Note types
 
-The `type` key (or a `#type/...` tag) MAY classify notes. Three types have format-level meaning:
+The `type` key (or a `#type/...` tag) MAY classify notes. Four types have format-level meaning:
 
 | `type` | Role |
 |---|---|
 | `moc` | *Map of Content*: an entry point that narrates an area and lists its notes. A vault MUST have at least one, usually `Home` or `00-Index`. |
 | `synthesis` | a synthesis written to be read alone as context for a task; lives in `_synthesis/` (§5.2) |
 | `document` | a **composed document**: a note whose frontmatter lists the notes it is assembled from (§6) |
+| `log` | a **chronological record**: one note that accumulates dated entries over time — what happened, in order. Append rather than rewrite; `updated` tracks the latest entry. Distinct from the open-questions ledger (§5.3), which records contradictions and unknowns, and from the supersession arcs (R7), which record how a single note changed. |
 
 Default aliases: `tipo` → `type`; `sintesi` → `synthesis`; `documento` → `document`.
 

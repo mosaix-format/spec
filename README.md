@@ -1,4 +1,4 @@
-﻿# Mosaix Format
+# Mosaix Format
 
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey.svg)](LICENSE.md) [![Version](https://img.shields.io/badge/version-v1.2.1-blue.svg)](CHANGELOG.md) ![Mosaix 1.2 conformant](https://mosaixformat.org/badge.svg)
 
@@ -11,7 +11,7 @@ Every note is a tile that stands on its own. The picture exists only in the whol
 - Machine-readable spec: [`spec.yaml`](spec.yaml) — every CORE key, rule, conformance check and alias in one parseable file
 - Reference conformance checker: [`audit_reference.py`](audit_reference.py) — Python 3.10+, standard library only, read-only, offline
 - Conformance test corpus: [`tests/conformance/`](tests/conformance/) — 39 test cases with expected results and a runner
-- Reference MCP server: [`mosaix_mcp/`](mosaix_mcp/) — stdlib-only, JSON-RPC 2.0 over stdio, 6 tools
+- Reference MCP server: [`mosaix_mcp/`](mosaix_mcp/) — stdlib-only, JSON-RPC 2.0 over stdio, 6 core tools + 5 extensions
 - Vault scaffolding: [`mosaix_init.py`](mosaix_init.py) — create a new vault with the standard structure
 - Vault migration: [`mosaix_migrate.py`](mosaix_migrate.py) — bring existing Markdown vaults toward Mosaix conformance
 - Example vault (the specification itself, as a conformant vault): [`example-vault/`](example-vault/)
@@ -35,7 +35,7 @@ Mosaix-Format-v1.2.it.md   courtesy translation
 spec.yaml                  machine-readable spec: keys, rules, conformance checks, aliases
 audit_reference.py         reference checker, stdlib only
 tests/conformance/         39 test cases + runner for the checker
-mosaix_mcp/                reference MCP server (6 tools, stdlib only, JSON-RPC 2.0)
+mosaix_mcp/                reference MCP server (6 core tools + 5 extensions, stdlib only)
 mosaix_init.py             scaffold a new vault
 mosaix_migrate.py          migrate an existing Markdown vault toward conformance
 action.yml                 GitHub Action wrapping the checker
@@ -84,7 +84,7 @@ Reads every `.md` file, preserves existing frontmatter, and adds the missing COR
 python -m mosaix_mcp /path/to/vault
 ```
 
-A minimal MCP server (JSON-RPC 2.0 over stdio, stdlib-only Python) that exposes six tools: `read_note`, `write_note`, `search`, `compose`, `check`, `list_notes`. Writes validate against §10 before persisting. No external dependencies, no vector DB, no network — the "SQLite" of Mosaix, not the "PostgreSQL".
+A minimal MCP server (JSON-RPC 2.0 over stdio, stdlib-only Python) that exposes six core tools — `read_note`, `search`, `list_notes`, `write_note`, `move_note`, `delete_note` — plus five implementation extensions: `switch_vault`, `reindex`, `compose`, `check`, `history`. The core six are the portable contract, defined in [`MCP-TOOL-SURFACE.md`](MCP-TOOL-SURFACE.md); the extensions are documented there too, in their own section. Writes validate against §10 before persisting. No external dependencies, no vector DB, no network — the "SQLite" of Mosaix, not the "PostgreSQL".
 
 ## Status
 
@@ -105,7 +105,7 @@ jobs:
     permissions: { contents: read, pull-requests: write }
     steps:
       - uses: actions/checkout@v4
-      - uses: mosaix-format/spec@v1.2.1
+      - uses: mosaix-format/spec@v1.2.2
         with: { vault: ., exclude: "exports/" }
 ```
 

@@ -1,4 +1,4 @@
-﻿---
+---
 title: Mosaix Format — Specifica v1.2
 version: 1.2.0
 status: pubblicata
@@ -101,13 +101,14 @@ Un vault PUÒ aggiungere le chiavi che gli servono (`campaign`, `client`, `count
 
 ### 3.4 Tipi di nota
 
-La chiave `type` (o un tag `#type/...`) PUÒ classificare le note. Tre tipi hanno significato a livello di formato:
+La chiave `type` (o un tag `#type/...`) PUÒ classificare le note. Quattro tipi hanno significato a livello di formato:
 
 | `type` | Ruolo |
 |---|---|
 | `moc` | *Map of Content*: punto d'ingresso che racconta un'area ed elenca le sue note. Un vault DEVE averne almeno uno, di solito `Home` o `00-Indice`. |
 | `synthesis` | sintesi scritta per essere letta da sola come contesto per un compito; vive in `_synthesis/` (§5.2) |
 | `document` | **documento composto**: nota il cui frontmatter elenca le note da cui è assemblata (§6) |
+| `log` | **registro cronologico**: una nota che accumula voci datate nel tempo — cosa è successo, in ordine. Si aggiunge invece di riscrivere; `updated` segna l'ultima voce. Distinto dal ledger delle domande aperte (§5.3), che registra contraddizioni e incognite, e dagli archi di supersessione (R7), che registrano come è cambiata una singola nota. |
 
 Alias di default: `tipo` → `type`; `sintesi` → `synthesis`; `documento` → `document`.
 
