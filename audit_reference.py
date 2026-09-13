@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-audit_reference.py — reference conformance checker for Mosaix Format v1.1 (§10).
+audit_reference.py — reference conformance checker for Mosaix Format v1.2 (§10).
 
 Standard library only. Read-only.
 
@@ -10,6 +10,7 @@ Exit codes:
     2 — acceptable with warnings: zero errors, at least one warning W
 
 CI can distinguish "clean" (0) from "acceptable but noisy" (2) from "broken" (1).
+INFO messages are shown with --verbose and do not affect the exit code.
 
 Usage:
     python audit_reference.py <vault_dir> [--json] [--check-rev] [--verbose] [--exclude=path1,path2]
@@ -102,32 +103,37 @@ _FALLBACK_E: dict[str, str] = {
 }
 
 _FALLBACK_W: dict[str, str] = {
-    "W001": "{rel}: {count} entities (>12); is this one question? (R1)",
     "W002": "{rel}: relation type `{type}` not in relation_types",
     "W003": "{rel}: missing `id` (required from v2.0; generate a ULID)",
     "W004": "{rel}: `id` is not a valid ULID: `{value}`",
-    "W005": "{rel}: tag #{tag} not declared in meta note",
     "W006": "meta note declares no tags: taxonomy check skipped",
-    "W007": "{rel}: no reliability marker",
     "W008": "{rel}: rev may be stale (hint only)",
+    "W009": "{rel}: entity type `{type}` not in base set nor declared in meta note",
+}
+
+_FALLBACK_I: dict[str, str] = {
+    "I001": "{rel}: {count} entities (>12); is this one question? (R1)",
+    "I002": "{rel}: no reliability marker",
+    "I003": "{rel}: tag #{tag} not declared in meta note",
 }
 
 
-def _parse_conformance(path: Path) -> tuple[dict[str, dict], dict[str, dict]]:
+def _parse_conformance(path: Path) -> tuple[dict[str, dict], dict[str, dict], dict[str, dict]]:
     """
-    Parse conformance.errors and conformance.warnings from spec.yaml.
+    Parse conformance.errors, conformance.warnings and conformance.info from spec.yaml.
 
     Stdlib-only parser: handles the flat-list structure (list of dicts with scalar
-    fields) without any external YAML library. Returns (errors_dict, warnings_dict)
-    each keyed by id (e.g. "E001"). Only extracts id, slug, message, severity, rule;
+    fields) without any external YAML library. Returns (errors_dict, warnings_dict, info_dict)
+    each keyed by id (e.g. "E001", "W002", "I001"). Only extracts id, slug, message, severity, rule;
     skips multi-line block scalars (description:, etc.) and all other fields.
     """
     errors_out: dict[str, dict] = {}
     warnings_out: dict[str, dict] = {}
+    info_out: dict[str, dict] = {}
     try:
         text = path.read_text(encoding="utf-8")
     except OSError:
-        return {}, {}
+        return {}, {}, {}
 
     in_conformance = False
     current_section: str | None = None  # "errors" or "warnings"
@@ -161,9 +167,9 @@ def _parse_conformance(path: Path) -> tuple[dict[str, dict], dict[str, dict]]:
             else:
                 continue
 
-        # Sub-section headers: "  errors:" or "  warnings:" at indent 2
-        if indent == 2 and stripped in ("errors:", "warnings:"):
-            current_section = stripped[:-1]  # "errors" → "errors", "warnings" → "warnings"
+        # Sub-section headers: "  errors:" or "  warnings:" or "  info:" at indent 2
+        if indent == 2 and stripped in ("errors:", "warnings:", "info:"):
+            current_section = stripped[:-1]  # "errors" → "errors", "warnings" → "warnings", "info" → "info"
             current_item = None
             continue
 
@@ -174,7 +180,12 @@ def _parse_conformance(path: Path) -> tuple[dict[str, dict], dict[str, dict]]:
         if indent == 4 and stripped.startswith("- id:"):
             item_id = stripped[5:].strip()
             current_item = {"id": item_id}
-            target = errors_out if current_section == "errors" else warnings_out
+            if current_section == "errors":
+                target = errors_out
+            elif current_section == "warnings":
+                target = warnings_out
+            else:
+                target = info_out
             target[item_id] = current_item
             continue
 
@@ -199,24 +210,25 @@ def _parse_conformance(path: Path) -> tuple[dict[str, dict], dict[str, dict]]:
             if k in _WANTED:
                 current_item[k] = v
 
-    return errors_out, warnings_out
+    return errors_out, warnings_out, info_out
 
 
-def _load_messages() -> tuple[dict[str, str], dict[str, str]]:
+def _load_messages() -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
     """
     Load message templates from spec.yaml if available.
-    Returns (errors_dict, warnings_dict) keyed by id, values are format strings.
-    Falls back to _FALLBACK_E / _FALLBACK_W with a stderr notice when spec.yaml
+    Returns (errors_dict, warnings_dict, info_dict) keyed by id, values are format strings.
+    Falls back to _FALLBACK_E / _FALLBACK_W / _FALLBACK_I with a stderr notice when spec.yaml
     is missing, so the checker works standalone without spec.yaml.
     """
     spec_path = Path(__file__).parent / "spec.yaml"
     if spec_path.exists():
         try:
-            raw_e, raw_w = _parse_conformance(spec_path)
+            raw_e, raw_w, raw_i = _parse_conformance(spec_path)
             if raw_e and raw_w:
                 return (
                     {eid: d["message"] for eid, d in raw_e.items() if "message" in d},
                     {wid: d["message"] for wid, d in raw_w.items() if "message" in d},
+                    {iid: d["message"] for iid, d in raw_i.items() if "message" in d},
                 )
         except Exception:
             pass
@@ -224,10 +236,10 @@ def _load_messages() -> tuple[dict[str, str], dict[str, str]]:
         "audit_reference: spec.yaml not found or unreadable; using built-in messages",
         file=sys.stderr,
     )
-    return dict(_FALLBACK_E), dict(_FALLBACK_W)
+    return dict(_FALLBACK_E), dict(_FALLBACK_W), dict(_FALLBACK_I)
 
 
-_SPEC_E, _SPEC_W = _load_messages()
+_SPEC_E, _SPEC_W, _SPEC_I = _load_messages()
 
 
 def _e(code: str, **kw: object) -> str:
@@ -242,6 +254,15 @@ def _e(code: str, **kw: object) -> str:
 def _w(code: str, **kw: object) -> str:
     """Format a warning message template by code, falling back to the hardcoded string."""
     tpl = _SPEC_W.get(code) or _FALLBACK_W.get(code, code)
+    try:
+        return tpl.format(**kw)
+    except (KeyError, IndexError):
+        return tpl
+
+
+def _i(code: str, **kw: object) -> str:
+    """Format an info message template by code, falling back to the hardcoded string."""
+    tpl = _SPEC_I.get(code) or _FALLBACK_I.get(code, code)
     try:
         return tpl.format(**kw)
     except (KeyError, IndexError):
@@ -383,6 +404,7 @@ def normalise(fm: dict, extra_key_aliases: dict | None = None) -> dict:
 def audit(vault: Path, check_rev: bool = False, exclude: tuple[str, ...] = ()):
     errors: list[str] = []
     warnings: list[str] = []
+    info: list[str] = []
     notes: dict[str, dict] = {}       # basename -> info
     all_md: dict[str, Path] = {}      # basename -> path (includes excluded dirs, for link resolution)
 
@@ -491,10 +513,16 @@ def audit(vault: Path, check_rev: bool = False, exclude: tuple[str, ...] = ()):
         if isinstance(ents, list) and ents:
             entity_count += 1
             if len(ents) > 12 and ntype != "moc" and not n["is_meta"]:
-                warnings.append(_w("W001", rel=rel, count=len(ents)))
+                info.append(_i("I001", rel=rel, count=len(ents)))
             for e in ents:
-                if isinstance(e, dict) and str(e.get("type", "")).lower() not in entity_types:
-                    errors.append(_e("E005", rel=rel, type=e.get("type")))
+                if isinstance(e, dict):
+                    etype = e.get("type", "")
+                    if not etype or not isinstance(etype, str):
+                        # Empty or non-string type is an error
+                        errors.append(_e("E005", rel=rel, type=etype))
+                    elif str(etype).lower() not in entity_types:
+                        # Type not in base set nor declared in meta note is a warning
+                        warnings.append(_w("W009", rel=rel, type=etype))
 
         if relation_types:
             for r in fm.get("relations", []) or []:
@@ -547,12 +575,12 @@ def audit(vault: Path, check_rev: bool = False, exclude: tuple[str, ...] = ()):
         if incoming.get(name, 0) == 0 and not n["is_meta"] and low not in LEDGER_NAMES and "moc" not in low and low not in MOC_NAMES:
             errors.append(_e("E007", rel=n["rel"]))
 
-    # taxonomy warnings
+    # taxonomy warnings/info
     if declared_tags:
         for name, n in notes.items():
             for t in n.get("tags", set()):
                 if t not in declared_tags and not t.startswith(("type/", "status/", "tipo/", "stato/")):
-                    warnings.append(_w("W005", rel=n["rel"], tag=t))
+                    info.append(_i("I003", rel=n["rel"], tag=t))
     else:
         warnings.append(_w("W006"))
 
@@ -565,7 +593,7 @@ def audit(vault: Path, check_rev: bool = False, exclude: tuple[str, ...] = ()):
     if notes and entity_count / len(notes) < 0.80:
         errors.append(_e("E015", n=entity_count, total=len(notes), pct=f"{entity_count/len(notes):.0%}"))
     for rel in reliability_missing:
-        warnings.append(_w("W007", rel=rel))
+        info.append(_i("I002", rel=rel))
 
     return {
         "vault": str(vault),
@@ -573,6 +601,7 @@ def audit(vault: Path, check_rev: bool = False, exclude: tuple[str, ...] = ()):
         "notes": len(notes),
         "errors": errors,
         "warnings": warnings,
+        "info": info,
         "conformant": not errors,
     }
 
@@ -597,10 +626,12 @@ def main(argv: list[str]) -> int:
     if as_json:
         print(json.dumps(r, ensure_ascii=False, indent=2))
     else:
-        print(f"Mosaix 1.1 audit — {r['vault']}")
-        print(f"notes: {r['notes']}  errors: {len(r['errors'])}  warnings: {len(r['warnings'])}")
+        print(f"Mosaix 1.2 audit — {r['vault']}")
+        print(f"notes: {r['notes']}  errors: {len(r['errors'])}  warnings: {len(r['warnings'])}  info: {len(r['info'])}")
         print("CONFORMANT" if r["conformant"] else "NOT CONFORMANT")
-        shown = r["errors"] if not verbose else r["errors"] + r["warnings"]
+        shown = r["errors"] + r["warnings"] if verbose else r["errors"]
+        if verbose:
+            shown += r["info"]
         for line in shown[:200]:
             print("  " + line)
         if len(shown) > 200:

@@ -11,7 +11,7 @@ entities:
   - {name: Andrea Fiorino, type: person}
 relations:
   - {from: Andrea Fiorino, type: authored, to: Mosaix Format}
-links: [fragment_1, fragment_2]
+links: [fragment_1, fragment_2, v12_origin_as_of]
 rev: deadbeef0004
 ---
 
@@ -19,4 +19,4 @@ rev: deadbeef0004
 
 A reference note that exercises every CORE key. ✅ sourced.
 
-See [[fragment_1]] and [[fragment_2]].
+See [[fragment_1]], [[fragment_2]], and [[v12_origin_as_of]] for v1.2 optional keys.
