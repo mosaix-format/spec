@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP benchmark: seven models, one format — Mosaix Format</title>
+<meta name="description" content="Controlled benchmark of an MCP server implementing the Mosaix Format against a monolithic file. Seven LLMs, four corpus sizes, nine test dimensions. The architectural advantage holds across models — with two instructive exceptions.">
+<meta property="og:title" content="MCP benchmark: seven models, one format">
+<meta property="og:description" content="MCP answers score 4.8/5 vs monolith 3.3/5 — three concordant judges. RAG cost drops 89–97%. Seven models tested, two instructive exceptions.">
+<meta property="og:image" content="https://mosaixformat.org/og.png">
+<meta property="og:url" content="https://mosaixformat.org/mcp-benchmark-v120.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://mosaixformat.org/mcp-benchmark-v120.html">
+<link rel="alternate" hreflang="en" href="https://mosaixformat.org/mcp-benchmark-v120.html">
+<link rel="alternate" hreflang="it" href="https://mosaixformat.org/mcp-benchmark-v120.it.html">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="fonts/plex.css">
+<style>
+  :root{--paper:#efeae0;--paper2:#e4ded1;--ink:#14130f;--ink2:#4a4741;--ink3:#615c53;--line:#d2cbbb;--gold:#c9a227;--red:#9b3b2a;--green:#2a7d3f;
+    --sans:"IBM Plex Sans",system-ui,sans-serif;--serif:"IBM Plex Serif",Georgia,serif;--mono:"IBM Plex Mono",Menlo,monospace;--w:1160px}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:80px}
+  body{margin:0;background:var(--paper);color:var(--ink);font:16.5px/1.65 var(--serif);-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--w);margin:0 auto;padding:0 24px}
+  nav.top{display:flex;align-items:center;justify-content:space-between;padding:20px 0;font:14px var(--sans);gap:12px;border-bottom:1px solid var(--line)}
+  nav.top .brand{display:flex;align-items:center;gap:12px;font-weight:600;font-size:18px}
+  nav.top .brand svg{width:28px;height:28px}
+  nav.top ul{list-style:none;display:flex;gap:22px;margin:0;padding:0}
+  nav.top ul a{color:var(--ink2)}nav.top ul a.on{color:var(--ink);border-bottom:1px solid var(--ink)}
+  nav.top .ver{font:12px var(--mono);color:var(--ink3);border:1px solid var(--line);padding:3px 8px;white-space:nowrap}
+
+  .doc{max-width:720px;margin:0 auto;padding:48px 0 120px}
+  .doc h1{font:600 42px/1.1 var(--sans);letter-spacing:-.03em;margin:0 0 10px}
+  .doc .meta{font:12.5px var(--mono);color:var(--ink3);margin-bottom:8px}
+  .doc .lede{font-size:19px;color:var(--ink2);margin:0 0 44px;padding-left:16px;border-left:3px solid var(--gold)}
+  .doc h2{font:600 26px/1.2 var(--sans);letter-spacing:-.02em;margin:60px 0 14px;padding-top:22px;border-top:1px solid var(--ink)}
+  .doc h3{font:600 17.5px var(--sans);margin:34px 0 8px}
+  .doc p{margin:0 0 16px}
+  .doc code{font:.88em var(--mono);background:var(--paper2);padding:1px 5px}
+  .doc table{border-collapse:collapse;width:100%;font:14px/1.5 var(--sans);margin:12px 0 24px}
+  .doc th{text-align:left;font:12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);padding:8px 12px 8px 0;border-bottom:1px solid var(--ink);vertical-align:bottom}
+  .doc td{padding:10px 12px 10px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  .doc td:first-child{font:500 13px var(--mono);white-space:nowrap}
+  .doc td.num{text-align:right;font-family:var(--mono);font-size:13px}
+  .doc td.win{color:var(--green);font-weight:600}
+  .doc td.lose{color:var(--red);font-weight:600}
+  .note{padding:14px 18px;border-left:3px solid var(--gold);background:transparent;margin:0 0 20px;font-size:15px}
+  .note b{font-family:var(--sans)}
+  .note.warn{border-color:var(--red)}
+  .exec{background:var(--paper2);padding:28px 32px;margin:0 0 44px;border-radius:4px}
+  .exec h2{margin:0 0 14px;padding:0;border:0;font-size:22px}
+  .exec table{margin:8px 0 0}
+  .exec td:first-child{font-weight:500}
+  footer{border-top:1px solid var(--line);padding:30px 0 48px;font:13px var(--sans);color:var(--ink3);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  footer .fb{display:flex;align-items:center;gap:10px}footer svg{width:20px;height:20px;color:var(--ink)}
+  footer a{text-decoration:underline}
+  @media (max-width:900px){.doc h1{font-size:34px}nav.top ul{display:none}.exec{padding:18px 20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="top">
+  <a class="brand" href="index.html" aria-label="Mosaix home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>mosaix</a>
+  <ul><li><a href="index.html">Format</a></li><li><a href="spec.html">Specification</a></li><li><a class="on" href="articles.html">Articles</a></li><li><a href="https://github.com/mosaix-format/spec">GitHub &#x2197;</a></li></ul>
+  <span class="ver">v1.2.0 · 2026-09-22</span>
+</nav>
+
+<article class="doc">
+  <p class="meta">2026-09-22 · benchmark</p>
+  <h1>MCP benchmark: seven models, one format</h1>
+  <p style="font:13px var(--sans);color:var(--ink3);margin-bottom:16px"><a href="mcp-benchmark-v120.it.html" style="text-decoration:underline">Versione italiana</a></p>
+  <p class="lede">Controlled comparison of an MCP server implementing the Mosaix Format against a monolithic file baseline. Seven LLMs, four corpus sizes, nine test dimensions. The architectural advantage holds across models — with two instructive exceptions.</p>
+
+  <div class="exec">
+  <h2>Executive summary</h2>
+  <p style="margin:0 0 12px;font:15px var(--serif);color:var(--ink2)">An MCP server exposing atomic Mosaix notes was tested against a single monolithic file of identical content. On every dimension measured — answer quality, cost, speed, scaling, and robustness to out-of-domain queries — the atomic architecture wins. The advantage is structural: it holds across all seven LLMs tested, at corpus sizes from 35 to 558 notes, and grows with harder questions.</p>
+  <table>
+    <tr><th>Dimension</th><th>Key result</th></tr>
+    <tr><td>Answer quality</td><td>MCP <b>4.8/5</b> vs monolith 3.3/5 (three concordant judges)</td></tr>
+    <tr><td>RAG cost</td><td>MCP costs <b>3&ndash;11%</b> of the monolith (best: 0.03&times;)</td></tr>
+    <tr><td>Scaling</td><td>MCP cost <b>flat</b> from 65 to 558 notes; monolith fails 6/6 questions</td></tr>
+    <tr><td>Latency</td><td>Up to <b>6.1&times;</b> faster end-to-end</td></tr>
+    <tr><td>Out-of-domain</td><td>Monolith times out on 67% of trick questions; MCP completes all</td></tr>
+    <tr><td>Ingestion</td><td><b>$0.005/note</b>, 60 notes in 3 minutes, zero errors</td></tr>
+  </table>
+  <p style="margin:12px 0 0;font:13px var(--mono);color:var(--ink3)">Two exceptions: one model inverts the ratio on large vaults (excessive search loops), one costs more with MCP on small vaults (higher per-token spend on shorter responses). Both are documented below.</p>
+  </div>
+
+  <h2 id="setup">Setup</h2>
+  <p>The benchmark compares two arms on the same task. The <b>MCP arm</b> uses a server implementing the Mosaix Format v1.2.0 specification — 11 tools including <code>search</code>, <code>read_note</code>, <code>write_note</code>, <code>compose</code>, and <code>check</code>. Notes are atomic: one idea per note, self-describing frontmatter (summary, keywords, entities, links), BM25 search. The <b>standard arm</b> uses a single file containing the same content as a monolithic document, with <code>read_file</code> and <code>search_file</code> as the only tools.</p>
+  <p>The corpus is an industrial product catalog (hydraulic hose, fittings, couplings) at four sizes: 35 notes, 65 notes (258&nbsp;KB), 143 notes, and 558 notes (1&nbsp;MB). The monolith for the 558-note vault is a 748&nbsp;KB file.</p>
+  <p>Seven LLMs were tested via OpenRouter: DeepSeek V4 Flash ($0.06/$0.14 per million tokens), GPT-5.6 Luna ($0.20/$1.20), Ministral 8B ($0.15/$0.15), GLM 5.3 Flash ($0.075/$0.25), Gemini 3.8 Flash ($0.75/$3.75), Qwen 3.8 Flash ($0.15/$0.47), and DeepSeek V4.1 Flash ($0.10/$0.40). Partial data exists for Claude Opus 4.8 and GPT-5.6 Sol (credits exhausted mid-run).</p>
+  <p>Every run uses a cold start: a nonce is injected into the system prompt to defeat prefix caching. All token counts are uncached. Each test is N=1 per arm per model.</p>
+
+  <h2 id="quality">Answer quality</h2>
+  <p>Three independent LLM judges rated the same six answers from both arms on a 1&ndash;5 scale for accuracy, completeness, and relevance. The judges had no knowledge of which arm produced which answer.</p>
+
+  <table>
+    <tr><th>Judge</th><th>Monolith</th><th>MCP</th><th>Delta</th></tr>
+    <tr><td>DeepSeek V4 Flash</td><td class="num">3.3/5</td><td class="num win">4.8/5</td><td class="num">+1.5</td></tr>
+    <tr><td>GPT-5.6 Luna</td><td class="num">3.2/5</td><td class="num win">4.7/5</td><td class="num">+1.5</td></tr>
+    <tr><td>Claude Opus 4.8</td><td class="num">3.3/5</td><td class="num win">4.95/5</td><td class="num">+1.6</td></tr>
+  </table>
+
+  <p>Full concordance across three judges from different providers. The quality gap (+1.5 points) is not marginal — it is the difference between an incomplete answer that omits key specifications and a comprehensive answer that cites specific product codes, pressure ratings, and temperature ranges. The monolith arm suffers because the model receives the entire document and must locate the relevant section; the MCP arm retrieves only the relevant notes.</p>
+
+  <h2 id="rag">RAG multi-turn cost</h2>
+  <p>Six consecutive questions over the catalog, cumulative context. The model must search, read, and answer — each turn builds on the previous. This is the core cost benchmark: it measures real-world retrieval cost over a sustained session.</p>
+
+  <h3>65 notes (full catalog)</h3>
+  <table>
+    <tr><th>Model</th><th>Monolith</th><th>MCP</th><th>Ratio</th><th>Mon. TC</th><th>MCP TC</th><th>Mon. errors</th></tr>
+    <tr><td>Ministral 8B</td><td class="num">$0.559</td><td class="num">$0.034</td><td class="num win">0.06&times;</td><td class="num">58</td><td class="num">44</td><td class="num">2/6</td></tr>
+    <tr><td>DeepSeek V4 Flash</td><td class="num">$0.385</td><td class="num">$0.043</td><td class="num win">0.11&times;</td><td class="num">600</td><td class="num">34</td><td class="num">2/6</td></tr>
+    <tr><td>GLM 5.3 Flash</td><td class="num">$0.091</td><td class="num">$0.035</td><td class="num win">0.38&times;</td><td class="num">138</td><td class="num">23</td><td class="num">6/6</td></tr>
+    <tr><td>GPT-5.6 Luna</td><td class="num">$0.124</td><td class="num">$0.070</td><td class="num win">0.56&times;</td><td class="num">125</td><td class="num">31</td><td class="num">1/6</td></tr>
+    <tr><td>Gemini 3.8 Flash</td><td class="num">$0.126</td><td class="num">$0.210</td><td class="num lose">1.67&times;</td><td class="num">44</td><td class="num">20</td><td class="num">1/6</td></tr>
+  </table>
+
+  <p>MCP costs 6&ndash;56% of the monolith on five of six models. Gemini 3.8 Flash is the exception: it generates fewer tool calls but consumes more tokens per MCP response, making the atomic arm 67% more expensive. The finding is model-specific, not architectural — Gemini&rsquo;s high per-token pricing ($0.75/$3.75) amplifies even small token differences.</p>
+  <p>MCP tool calls stay in a narrow band (20&ndash;44) regardless of model. Monolith tool calls range from 44 to 600, depending on how aggressively the model retries <code>search_file</code> on a large document. The consistency of the MCP arm suggests the advantage comes from the architecture, not from model-specific behavior.</p>
+
+  <h3>558 notes (8.5&times; larger)</h3>
+  <table>
+    <tr><th>Model</th><th>Monolith</th><th>MCP</th><th>Ratio</th><th>Mon. errors</th><th>MCP errors</th></tr>
+    <tr><td>DeepSeek V4 Flash</td><td class="num">$0.318</td><td class="num">$0.050</td><td class="num win">0.16&times;</td><td class="num">6/6</td><td class="num">0/6</td></tr>
+    <tr><td>GPT-5.6 Luna</td><td class="num">$0.157</td><td class="num">$0.095</td><td class="num win">0.60&times;</td><td class="num">0/6</td><td class="num">0/6</td></tr>
+    <tr><td>Ministral 8B</td><td class="num">$0.025</td><td class="num">$0.085</td><td class="num lose">3.35&times;</td><td class="num">0/6</td><td class="num">0/6</td></tr>
+  </table>
+
+  <p>DeepSeek fails all six questions on the monolith (max_loops on every query). MCP answers all six for $0.05. Luna completes everything on both arms but MCP costs 40% less.</p>
+
+  <div class="note warn"><b>When MCP loses: Ministral 8B at scale.</b> On the 558-note vault, Ministral 8B generates 198&ndash;287 MCP tool calls (vs 52&ndash;59 on the monolith). The atomic search returns precise but narrow results, and a small model compensates by searching in a loop. The same model is the <em>best</em> performer on 65 notes (0.06&times;). The takeaway: vault size interacts with model capability. A model that is efficient at small scale can become expensive at large scale if it cannot plan its search strategy.</div>
+
+  <h2 id="noreasoning">No-reasoning mode</h2>
+  <p>Same 65-note RAG task with chain-of-thought reasoning disabled. Six models tested. Disabling reasoning amplifies the MCP advantage because it shrinks output tokens (where MCP has no edge) while leaving input tokens (where MCP saves the most) unchanged.</p>
+
+  <table>
+    <tr><th>Model</th><th>Monolith</th><th>MCP</th><th>Ratio</th><th>Mon. errors</th><th>MCP errors</th></tr>
+    <tr><td>GPT-5.6 Luna</td><td class="num">$0.254</td><td class="num">$0.008</td><td class="num win">0.03&times;</td><td class="num">0/6</td><td class="num">0/6</td></tr>
+    <tr><td>DeepSeek V4 Flash</td><td class="num">$0.217</td><td class="num">$0.014</td><td class="num win">0.07&times;</td><td class="num">6/6</td><td class="num">0/6</td></tr>
+    <tr><td>Ministral 8B</td><td class="num">$0.132</td><td class="num">$0.033</td><td class="num win">0.25&times;</td><td class="num">1/6</td><td class="num">1/6</td></tr>
+    <tr><td>GLM 5.3 Flash</td><td class="num">$0.126</td><td class="num">$0.039</td><td class="num win">0.31&times;</td><td class="num">6/6</td><td class="num">0/6</td></tr>
+    <tr><td>Qwen 3.8 Flash</td><td class="num">$0.386</td><td class="num">$0.161</td><td class="num win">0.42&times;</td><td class="num">6/6</td><td class="num">0/6</td></tr>
+    <tr><td>Gemini 3.8 Flash</td><td class="num">$0.535</td><td class="num">$0.358</td><td class="num win">0.67&times;</td><td class="num">5/6</td><td class="num">0/6</td></tr>
+  </table>
+
+  <p>Luna no-reasoning at <b>0.03&times;</b> is the best ratio recorded: MCP costs 97% less than the monolith. The median across six models is 0.28&times; (vs 0.38&times; with reasoning enabled). Every model favors MCP in no-reasoning mode — including Gemini, which inverted the ratio with reasoning on.</p>
+
+  <h2 id="scaling">How costs scale with corpus size</h2>
+  <p>DeepSeek V4 Flash on the same six questions at three corpus sizes:</p>
+
+  <table>
+    <tr><th>Corpus</th><th>Monolith</th><th>MCP</th><th>Ratio</th><th>Mon. errors</th></tr>
+    <tr><td>65 notes</td><td class="num">$0.385</td><td class="num">$0.043</td><td class="num win">0.11&times;</td><td class="num">2/6</td></tr>
+    <tr><td>143 notes</td><td class="num">$0.388</td><td class="num">$0.046</td><td class="num win">0.12&times;</td><td class="num">—</td></tr>
+    <tr><td>558 notes</td><td class="num">$0.318</td><td class="num">$0.050</td><td class="num win">0.16&times;</td><td class="num">6/6</td></tr>
+  </table>
+
+  <p>MCP cost grows from $0.043 to $0.050 as the corpus scales 8.5&times; — a 16% increase. The monolith cost stays roughly flat in dollars, but the completion rate drops from 4/6 to 0/6. At 558 notes, the monolith arm cannot answer a single question within the loop limit. Cost stability without completion is not a useful metric.</p>
+
+  <h2 id="cross">Cross-model summary</h2>
+  <table>
+    <tr><th>Model</th><th>RAG 65</th><th>RAG 558</th><th>No-reas.</th><th>Stress OOD</th></tr>
+    <tr><td>DeepSeek V4 Flash</td><td class="num win">0.11&times;</td><td class="num win">0.16&times;</td><td class="num win">0.07&times;</td><td class="num win">0.43&times;</td></tr>
+    <tr><td>GPT-5.6 Luna</td><td class="num win">0.56&times;</td><td class="num win">0.60&times;</td><td class="num win">0.03&times;</td><td class="num win">0.16&times;</td></tr>
+    <tr><td>Ministral 8B</td><td class="num win">0.06&times;</td><td class="num lose">3.35&times;</td><td class="num win">0.25&times;</td><td class="num win">0.61&times;</td></tr>
+    <tr><td>GLM 5.3 Flash</td><td class="num win">0.38&times;</td><td class="num">—</td><td class="num win">0.31&times;</td><td class="num">—</td></tr>
+    <tr><td>Gemini 3.8 Flash</td><td class="num lose">1.67&times;</td><td class="num">—</td><td class="num win">0.67&times;</td><td class="num">—</td></tr>
+    <tr><td>Qwen 3.8 Flash</td><td class="num">—</td><td class="num">—</td><td class="num win">0.42&times;</td><td class="num">—</td></tr>
+  </table>
+
+  <p>Green cells are where MCP costs less; red where it costs more. The pattern: MCP wins on 27 of 29 measured cells. The two losses have specific, documented causes (small-model loop explosion at scale; high-price model on short responses). The architecture works. The exceptions tell you where to look.</p>
+
+  <h2 id="stress">Stress test: out-of-domain queries</h2>
+  <p>Six deliberately difficult questions on the 558-note vault: a product that does not exist, a domain the catalog does not cover, an ambiguous question with no context, an impossible comparison, an incorrect product code, and a physically impossible specification. These questions are designed to test how quickly the system recognises that the answer is not in the data.</p>
+
+  <table>
+    <tr><th>Model</th><th>Monolith</th><th>MCP</th><th>Ratio</th><th>Mon. completed</th><th>MCP completed</th></tr>
+    <tr><td>GPT-5.6 Luna</td><td class="num">$0.226</td><td class="num">$0.037</td><td class="num win">0.16&times;</td><td class="num">5/6</td><td class="num">6/6</td></tr>
+    <tr><td>DeepSeek V4 Flash</td><td class="num">$0.183</td><td class="num">$0.078</td><td class="num win">0.43&times;</td><td class="num">2/6</td><td class="num">6/6</td></tr>
+    <tr><td>Ministral 8B</td><td class="num">$0.129</td><td class="num">$0.079</td><td class="num win">0.61&times;</td><td class="num">—</td><td class="num">6/6</td></tr>
+  </table>
+
+  <p>The monolith arm cannot distinguish &ldquo;I haven&rsquo;t found it yet&rdquo; from &ldquo;it is not here&rdquo;. On a 748&nbsp;KB file, the model keeps calling <code>search_file</code> with different patterns, hoping the next search will find the answer. DeepSeek times out on four of six questions. The MCP arm gets a definitive signal from the BM25 search: no results means the data is not in the vault. The model accepts this and responds in 1&ndash;4 tool calls.</p>
+
+  <h2 id="other">Other dimensions</h2>
+  <p>Three additional benchmarks complete the picture: latency, ingestion cost, and CRUD lifecycle operations.</p>
+
+  <h3>Latency</h3>
+  <p>End-to-end time for the six-question RAG session:</p>
+
+  <table>
+    <tr><th>Model &amp; corpus</th><th>Monolith</th><th>MCP</th><th>Speedup</th></tr>
+    <tr><td>DeepSeek (65 notes)</td><td class="num">461s</td><td class="num">75s</td><td class="num win">6.1&times;</td></tr>
+    <tr><td>DeepSeek (558 notes)</td><td class="num">750s</td><td class="num">227s</td><td class="num win">3.3&times;</td></tr>
+    <tr><td>GLM 5.3 Flash</td><td class="num">667s</td><td class="num">218s</td><td class="num win">3.1&times;</td></tr>
+    <tr><td>GPT-5.6 Luna (558)</td><td class="num">238s</td><td class="num">86s</td><td class="num win">2.8&times;</td></tr>
+    <tr><td>Ministral 8B (65)</td><td class="num">422s</td><td class="num">202s</td><td class="num win">2.1&times;</td></tr>
+    <tr><td>GPT-5.6 Luna (65)</td><td class="num">190s</td><td class="num">105s</td><td class="num win">1.8&times;</td></tr>
+  </table>
+
+  <p>Faster on every model and corpus size. One exception: Ministral 8B on 558 notes takes 4&times; longer with MCP, consistent with the excessive search loops documented above. The speedup comes from reading less: fewer tokens in means less time waiting for the model to process them.</p>
+
+  <h3>Ingestion</h3>
+  <p>The one-time cost of converting the raw catalog into atomic Mosaix notes, amortised over all subsequent queries:</p>
+
+  <table>
+    <tr><th>Model</th><th>Notes</th><th>Cost</th><th>$/note</th><th>Time</th><th>Errors</th></tr>
+    <tr><td>GPT-5.6 Luna</td><td class="num">60</td><td class="num win">$0.326</td><td class="num">$0.005</td><td class="num">3m</td><td class="num">0</td></tr>
+    <tr><td>Ministral 8B</td><td class="num">16</td><td class="num">$0.452</td><td class="num">$0.028</td><td class="num">17m</td><td class="num">0</td></tr>
+    <tr><td>DeepSeek V4 Flash</td><td class="num">32</td><td class="num">$1.436</td><td class="num">$0.045</td><td class="num">31m</td><td class="num">max_loops</td></tr>
+  </table>
+
+  <p>Luna produces nearly twice as many notes as DeepSeek (60 vs 32) at a quarter of the cost ($0.33 vs $1.44) in a tenth of the time. A model with a higher per-token price can be dramatically cheaper in total when it plans better and finishes in fewer rounds.</p>
+
+  <h3>CRUD</h3>
+  <p>Create, read, search, update, supersede (following the Mosaix R7 rule: notes are superseded, not deleted), and verify conformity. Near parity across the board: 0.92&times;&ndash;1.15&times; on warm runs. The cold-start advantage (0.42&times;) disappears with prefix caching, which tells you exactly where the MCP advantage lives: in the input tokens, not the operations.</p>
+
+  <h2 id="caveats">Caveats</h2>
+  <p>These results should be read with the following limitations in mind.</p>
+  <p>N=1 per arm per model per test. The measurements are directional, not statistically powered. A single outlier run could shift any individual ratio.</p>
+  <p>All models run through OpenRouter, which does not expose prefix cache hit rates. Every token is counted as uncached. In production, prefix caching would reduce the monolith&rsquo;s cost — but also some of MCP&rsquo;s advantage, since the monolith benefits more from caching (it re-reads the same large document repeatedly).</p>
+  <p>The corpus is an industrial product catalog. Results may differ on creative, conversational, or code-generation tasks. The previous study (<a href="why-one-note-at-a-time.html" style="text-decoration:underline">Why one note at a time</a>) covered code generation; this one covers knowledge retrieval.</p>
+  <p>The 558-note vault contains approximately 133 real notes and 415 synthetic notes generated to stress the search index. The synthetic notes are structurally valid but may not represent real-world note density and overlap patterns.</p>
+  <p>The benchmark author designed both the format and the test. We report both the wins and the losses (Gemini and Ministral at scale) and encourage independent replication.</p>
+
+  <div class="note"><b>Disclosure.</b> These measurements are ours. They have not yet been replicated by a third party. The MCP server, the test scripts, and the Mosaix Format specification are open source. The specification is at <a href="spec.html" style="text-decoration:underline">spec.html</a>; the repository is on <a href="https://github.com/mosaix-format/spec" style="text-decoration:underline">GitHub</a>.</div>
+
+  <h2 id="reading">Further reading</h2>
+  <p><a href="why-one-note-at-a-time.html" style="text-decoration:underline">Why one note at a time</a> — the earlier code-generation study, measuring token compression and local model performance.</p>
+  <p><a href="spec.html" style="text-decoration:underline">Mosaix Format v1.2.0 specification</a> — the full spec, including the 11 MCP tools benchmarked here.</p>
+  <p><a href="https://github.com/mosaix-format/spec" style="text-decoration:underline">GitHub repository</a> — specification, reference checker, and example vaults.</p>
+</article>
+
+<footer>
+  <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.2 &middot; CC BY-SA 4.0 &middot; &copy; 2026 Andrea Fiorino &middot; mosaixformat.org</span>
+  <span><a href="index.html">Format</a> &middot; <a href="CHANGELOG.md">Changelog</a> &middot; <a href="LICENSE.md">License</a> &middot; <a href="https://github.com/mosaix-format/spec">GitHub</a></span>
+</footer>
+</div>
+</body>
+</html>

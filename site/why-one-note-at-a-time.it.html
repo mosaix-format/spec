@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perch&eacute; una nota alla volta — Mosaix Format</title>
+<meta name="description" content="Misurazioni empiriche sulle note atomiche auto-descrittive: il costo in token resta costante al crescere del corpus, e modelli locali su hardware consumer producono output corretto dove modelli cloud senza il formato falliscono.">
+<link rel="canonical" href="https://mosaixformat.org/why-one-note-at-a-time.it.html">
+<link rel="alternate" hreflang="en" href="https://mosaixformat.org/why-one-note-at-a-time.html">
+<link rel="alternate" hreflang="it" href="https://mosaixformat.org/why-one-note-at-a-time.it.html">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="fonts/plex.css">
+<style>
+  :root{--paper:#efeae0;--paper2:#e4ded1;--ink:#14130f;--ink2:#4a4741;--ink3:#615c53;--line:#d2cbbb;--gold:#c9a227;--red:#9b3b2a;--green:#2a7d3f;
+    --sans:"IBM Plex Sans",system-ui,sans-serif;--serif:"IBM Plex Serif",Georgia,serif;--mono:"IBM Plex Mono",Menlo,monospace;--w:1160px}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:80px}
+  body{margin:0;background:var(--paper);color:var(--ink);font:16.5px/1.65 var(--serif);-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--w);margin:0 auto;padding:0 24px}
+  nav.top{display:flex;align-items:center;justify-content:space-between;padding:20px 0;font:14px var(--sans);gap:12px;border-bottom:1px solid var(--line)}
+  nav.top .brand{display:flex;align-items:center;gap:12px;font-weight:600;font-size:18px}
+  nav.top .brand svg{width:28px;height:28px}
+  nav.top ul{list-style:none;display:flex;gap:22px;margin:0;padding:0}
+  nav.top ul a{color:var(--ink2)}nav.top ul a.on{color:var(--ink);border-bottom:1px solid var(--ink)}
+  nav.top .ver{font:12px var(--mono);color:var(--ink3);border:1px solid var(--line);padding:3px 8px;white-space:nowrap}
+
+  .doc{max-width:720px;margin:0 auto;padding:48px 0 120px}
+  .doc h1{font:600 42px/1.1 var(--sans);letter-spacing:-.03em;margin:0 0 10px}
+  .doc .meta{font:12.5px var(--mono);color:var(--ink3);margin-bottom:8px}
+  .doc .lede{font-size:19px;color:var(--ink2);margin:0 0 44px;padding-left:16px;border-left:3px solid var(--gold)}
+  .doc h2{font:600 26px/1.2 var(--sans);letter-spacing:-.02em;margin:60px 0 14px;padding-top:22px;border-top:1px solid var(--ink)}
+  .doc h3{font:600 17.5px var(--sans);margin:34px 0 8px}
+  .doc p{margin:0 0 16px}
+  .doc code{font:.88em var(--mono);background:var(--paper2);padding:1px 5px}
+  .doc table{border-collapse:collapse;width:100%;font:14px/1.5 var(--sans);margin:12px 0 24px}
+  .doc th{text-align:left;font:12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);padding:8px 12px 8px 0;border-bottom:1px solid var(--ink);vertical-align:bottom}
+  .doc td{padding:10px 12px 10px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  .doc td:first-child{font:500 13px var(--mono);white-space:nowrap}
+  .doc .lang{font:13px var(--sans);color:var(--ink3);margin-bottom:16px}
+  .doc .lang a{text-decoration:underline}
+  .note{padding:14px 18px;border-left:3px solid var(--gold);background:transparent;margin:0 0 20px;font-size:15px}
+  .note b{font-family:var(--sans)}
+  footer{border-top:1px solid var(--line);padding:30px 0 48px;font:13px var(--sans);color:var(--ink3);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  footer .fb{display:flex;align-items:center;gap:10px}footer svg{width:20px;height:20px;color:var(--ink)}
+  footer a{text-decoration:underline}
+  @media (max-width:900px){.doc h1{font-size:34px}nav.top ul{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="top">
+  <a class="brand" href="index.html" aria-label="Mosaix home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>mosaix</a>
+  <ul><li><a href="index.html">Formato</a></li><li><a href="spec.html">Specifica</a></li><li><a class="on" href="articles.it.html">Articoli</a></li><li><a href="https://github.com/mosaix-format/spec">GitHub &#x2197;</a></li></ul>
+  <span class="ver">v1.1.0 · 2026-09-08</span>
+</nav>
+
+<article class="doc">
+  <p class="meta">2026-09-04 · evidenze</p>
+  <h1>Perch&eacute; una nota alla volta</h1>
+  <p class="lang"><a href="why-one-note-at-a-time.html">English version</a></p>
+  <p class="lede">Misurazioni da uno studio sulla generazione di codice: quando ogni nota porta con s&eacute; il proprio contesto, l'input necessario a un modello per ogni task resta costante al crescere del corpus, e modelli locali su hardware consumer producono output corretto dove modelli cloud senza il formato falliscono.</p>
+
+  <h2 id="scene">Lo scenario</h2>
+  <p>Un team gestisce 200 note su un mercato. Un agente deve rispondere a una domanda: chi fornisce un componente specifico. La risposta &egrave; in una nota, e quella nota lo dichiara nel suo sommario. Ma l'agente non ha modo di sapere quale nota conta, quindi le riceve tutte e 200.</p>
+  <p>A 200 note il costo &egrave; tollerabile. A 2.000 no. L'input cresce linearmente con il corpus, la risposta non migliora e il conto s&igrave;. Peggio: pi&ugrave; il contesto &egrave; lungo, pi&ugrave; &egrave; probabile che il modello peschi un paragrafo obsoleto tre schermate pi&ugrave; in l&agrave; e contraddica la nota che effettivamente risponde alla domanda.</p>
+  <p>Non &egrave; un problema di retrieval. Un livello di retrieval pu&ograve; ridurre la finestra, ma seleziona comunque frammenti di testo privi di metadati su s&eacute; stessi &mdash; nessun sommario, nessuna entit&agrave; dichiarata, nessuna dipendenza esplicita. Il modello riceve testo grezzo e deve inferire di cosa si tratta. Il formato delle note non aiuta.</p>
+
+  <h2 id="hypothesis">L'ipotesi</h2>
+  <p>Se ogni nota porta con s&eacute; il proprio contesto &mdash; un sommario che dice cosa contiene, entit&agrave; che dicono di cosa tratta, relazioni tipizzate e link espliciti alle note da cui dipende &mdash; allora l'input necessario per un task su quella nota &egrave; la nota stessa pi&ugrave; le sue dipendenze dirette. Quell'input non cresce con la dimensione del corpus. &Egrave; delimitato dalla nota, non dal vault.</p>
+  <p>Il Mosaix Format prescrive esattamente questo: dieci chiavi frontmatter su ogni nota (<a href="spec.html#s31" style="text-decoration:underline">&sect;3.1</a> della specifica), un grafo di wikilink (<a href="spec.html#s4" style="text-decoration:underline">&sect;4</a>) e una regola che impone una nota per una domanda (R1). La questione &egrave; se la prescrizione funziona nella pratica e quanto costa.</p>
+
+  <h2 id="method">Come abbiamo misurato</h2>
+  <p>Abbiamo condotto uno studio sulla generazione di codice. Il compito era produrre un pacchetto Python completo &mdash; dieci dataclass, quattro enum, serializzazione, una suite di test, packaging &mdash; suddiviso in 28 task atomici. Ogni task aveva un contratto scritto che ne specificava scopo, input, file di output e dipendenze da altri task. Ogni task riceveva circa 600 token di contesto. Lo stesso pacchetto &egrave; stato generato anche con un singolo prompt contenente la specifica completa, circa 7.800 token.</p>
+  <p>Abbiamo misurato il rapporto di compressione dei token su un benchmark a 30 funzioni (TCG-30): il formato ha ottenuto una riduzione di 5,72&times; (&plusmn;0,20, N=5 esecuzioni, intervallo di confidenza al 95%). Il costo unitario &egrave; rimasto costante a circa 600 token per task indipendentemente dalla dimensione del corpus, mentre la baseline a contesto pieno cresceva da circa 544 token per una singola funzione a circa 4.055 per trenta.</p>
+
+  <div class="note"><b>Nota.</b> Queste misurazioni sono nostre. Non sono ancora state replicate da terze parti. Un benchmark pubblico &egrave; in preparazione (vedi <a href="index.html#next" style="text-decoration:underline">Prossimi passi</a> sulla home del progetto).</div>
+
+  <p><b>Cosa &egrave; stato controllato.</b> Il modello, l'endpoint API, la temperatura (0) e i criteri di valutazione (struttura corretta, test superati) sono stati mantenuti costanti tra tutte le esecuzioni. La variabile era l'input: un task alla volta rispetto alla specifica completa in un colpo solo. Nelle esecuzioni end-to-end dello stesso studio, 53 task su 56 sono stati completati correttamente (94,6%), 20 su 20 al primo tentativo; eseguire task indipendenti in parallelo ha dato uno speedup wall-clock di 1,79&times;.</p>
+  <p><b>Cosa non &egrave; stato controllato.</b> I contratti dei task sono stati scritti dalla stessa persona che ha progettato il formato. Lo studio copre la generazione di codice, non il recupero di conoscenza. I task sono deterministici (esiste un solo output corretto per task), il che favorisce il contesto limitato; task aperti o creativi potrebbero comportarsi diversamente.</p>
+
+  <div style="overflow-x:auto">
+  <table>
+    <tr><th>Condizione</th><th>Contesto per task</th><th>Task completati</th><th>Costo</th><th>Frozen corretto</th></tr>
+    <tr><td>Specifica completa, prompt singolo, 6 modelli cloud</td><td>~7.800 tok</td><td>variabile per modello</td><td>$0,002&ndash;0,233</td><td>0 su 6 modelli</td></tr>
+    <tr><td>Un task alla volta, stessi 6 modelli cloud</td><td>~600 tok</td><td>28/28, tutti i modelli</td><td>$0,003&ndash;0,319</td><td>6 su 6 modelli</td></tr>
+    <tr><td>Un task alla volta, 8 modelli 4B&ndash;Opus</td><td>~600 tok</td><td>28/28, tutti i modelli</td><td>$0,00&ndash;1,09</td><td>8 su 8 modelli</td></tr>
+  </table>
+  </div>
+
+  <h2 id="local">Il risultato pi&ugrave; importante: modelli locali</h2>
+  <p>Sei modelli cloud hanno ricevuto la specifica completa in un singolo prompt. Nessuno ha prodotto un pacchetto con annotazioni frozen/mutable corrette. Quattro su sei non hanno generato il file entry point. Il modello pi&ugrave; forte, DeepSeek V4 Flash, si &egrave; avvicinato di pi&ugrave; con 27 test su 28 superati, ma ha comunque mancato il vincolo frozen.</p>
+  <p>Gli stessi sei modelli, con un task alla volta e circa 600 token di contesto ciascuno, hanno tutti completato 28 task su 28 con annotazioni frozen corrette.</p>
+  <p>Poi abbiamo eseguito gli stessi task su modelli locali, su una GPU consumer con 12 GB di VRAM, a costo API zero. Qwen 3.5 9B ha ottenuto 40 su 40 su pytest (100%), il primo modello locale a raggiungere un punteggio perfetto su questa suite. Gemma 4 E2B, un modello da 2 miliardi di parametri, ha ottenuto 45 su 47 (96%); i due fallimenti erano un'annotazione frozen su un tipo e un test che il modello ha inventato con logica errata &mdash; il codice sorgente prodotto era strutturalmente corretto. Qwen 3.5 4B ha completato 28 task su 28. Otto modelli da 4B a Opus hanno tutti completato 28 su 28 sullo stesso set di task. Claude Opus 4.6 &egrave; costato $1,09 per esecuzione; DeepSeek V4 Flash $0,003 per un output identico.</p>
+  <p>Questa &egrave; la conseguenza pi&ugrave; importante. Quando il contesto per task &egrave; piccolo e auto-contenuto, il modello diventa una scelta per agente. Un modello da 4 miliardi di parametri su un laptop produce lo stesso pacchetto di un modello API flagship. I dati non escono dalla macchina. Il costo per esecuzione &egrave; zero.</p>
+  <p>Non affermiamo che i modelli piccoli siano sempre sufficienti. I task erano deterministici e ben specificati. Su task ambigui o creativi il vantaggio di un modello pi&ugrave; grande potrebbe riaffermarsi. Ci&ograve; che le misurazioni mostrano &egrave; che per task con un contratto chiaro, il contratto conta pi&ugrave; del numero di parametri. La causa dominante di fallimento nelle esecuzioni iniziali non erano i modelli &mdash; era un'ambiguit&agrave; nei nostri stessi contratti dei task. Quando abbiamo corretto quell'ambiguit&agrave;, modelli che prima fallivano hanno iniziato a produrre output corretto senza alcun cambiamento ai pesi o alla configurazione.</p>
+
+  <h2 id="limits">Cosa il formato non fa</h2>
+  <p>Il formato non rende un modello pi&ugrave; capace. Non sostituisce il retrieval: un vault da 10.000 note ha comunque bisogno di un modo per trovare quella giusta. Non rende i fatti veri: una nota marcata &ldquo;sourced&rdquo; con un numero sbagliato &egrave; comunque sbagliata. Non garantisce che un agente user&agrave; correttamente i metadati.</p>
+  <p>Quello che fa &egrave; rendere il contenuto di ogni nota verificabile dalla nota stessa. Il sommario dice cosa contiene la nota; le entit&agrave; dicono di cosa tratta; i link dicono da cosa dipende; l'hash rev dice se i metadati sono aggiornati. Un checker (<a href="spec.html#s10" style="text-decoration:underline">&sect;10</a>) pu&ograve; verificare tutto questo dai file, offline, senza dipendenze. Il formato trasforma convenzioni implicite in struttura esplicita e testabile.</p>
+
+  <h2 id="reading">Ulteriori letture</h2>
+  <p>La specifica completa &egrave; su <a href="spec.html" style="text-decoration:underline">spec.html</a>. Il checker di riferimento, <code>audit_reference.py</code>, &egrave; nel <a href="https://github.com/mosaix-format/spec" style="text-decoration:underline">repository</a>. Entrambi sono rilasciati sotto licenza CC BY-SA 4.0.</p>
+</article>
+
+<footer>
+  <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.1 &middot; CC BY-SA 4.0 &middot; &copy; 2026 Andrea Fiorino &middot; mosaixformat.org</span>
+  <span><a href="index.html">Formato</a> &middot; <a href="CHANGELOG.md">Changelog</a> &middot; <a href="LICENSE.md">Licenza</a> &middot; <a href="https://github.com/mosaix-format/spec">GitHub</a></span>
+</footer>
+</div>
+</body>
+</html>
