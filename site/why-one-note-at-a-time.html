@@ -6,6 +6,8 @@
 <title>Why one note at a time — Mosaix Format</title>
 <meta name="description" content="Empirical measurements on atomic, self-describing notes: token cost stays flat as the corpus grows, and local models on consumer hardware produce correct output where cloud models without the format fail.">
 <link rel="canonical" href="https://mosaixformat.org/why-one-note-at-a-time.html">
+<link rel="alternate" hreflang="en" href="https://mosaixformat.org/why-one-note-at-a-time.html">
+<link rel="alternate" hreflang="it" href="https://mosaixformat.org/why-one-note-at-a-time.it.html">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="fonts/plex.css">
 <style>
@@ -47,13 +49,14 @@
 <div class="wrap">
 <nav class="top">
   <a class="brand" href="index.html" aria-label="Mosaix home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>mosaix</a>
-  <ul><li><a href="index.html">Format</a></li><li><a href="spec.html">Specification</a></li><li><a href="spec.html#checker">Check a vault</a></li><li><a href="https://github.com/mosaix-format/spec">GitHub &#x2197;</a></li></ul>
+  <ul><li><a href="index.html">Format</a></li><li><a href="spec.html">Specification</a></li><li><a class="on" href="articles.html">Articles</a></li><li><a href="https://github.com/mosaix-format/spec">GitHub &#x2197;</a></li></ul>
   <span class="ver">v1.1.0 · 2026-09-08</span>
 </nav>
 
 <article class="doc">
   <p class="meta">2026-09-04 · evidence</p>
   <h1>Why one note at a time</h1>
+  <p style="font:13px var(--sans);color:var(--ink3);margin-bottom:16px"><a href="why-one-note-at-a-time.it.html" style="text-decoration:underline">Versione italiana</a></p>
   <p class="lede">Measurements from a code-generation study: when each note carries its own context, the input a model needs per task stays flat as the corpus grows, and small local models produce correct output where cloud models without the format fail.</p>
 
   <h2 id="scene">The scene</h2>

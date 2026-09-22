@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Articoli — Mosaix Format</title>
+<meta name="description" content="Articoli, benchmark e prove empiriche dal progetto Mosaix Format.">
+<meta property="og:title" content="Articoli — Mosaix Format">
+<meta property="og:description" content="Articoli, benchmark e prove empiriche dal progetto Mosaix Format.">
+<meta property="og:image" content="https://mosaixformat.org/og.png">
+<meta property="og:url" content="https://mosaixformat.org/articles.it.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://mosaixformat.org/articles.it.html">
+<link rel="alternate" hreflang="en" href="https://mosaixformat.org/articles.html">
+<link rel="alternate" hreflang="it" href="https://mosaixformat.org/articles.it.html">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="fonts/plex.css">
+<style>
+  :root{--paper:#efeae0;--paper2:#e4ded1;--ink:#14130f;--ink2:#4a4741;--ink3:#615c53;--line:#d2cbbb;--gold:#c9a227;--red:#9b3b2a;--green:#2a7d3f;
+    --sans:"IBM Plex Sans",system-ui,sans-serif;--serif:"IBM Plex Serif",Georgia,serif;--mono:"IBM Plex Mono",Menlo,monospace;--w:1160px}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font:16.5px/1.65 var(--serif);-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--w);margin:0 auto;padding:0 24px}
+  nav.top{display:flex;align-items:center;justify-content:space-between;padding:20px 0;font:14px var(--sans);gap:12px;border-bottom:1px solid var(--line)}
+  nav.top .brand{display:flex;align-items:center;gap:12px;font-weight:600;font-size:18px}
+  nav.top .brand svg{width:28px;height:28px}
+  nav.top ul{list-style:none;display:flex;gap:22px;margin:0;padding:0}
+  nav.top ul a{color:var(--ink2)}nav.top ul a.on{color:var(--ink);border-bottom:1px solid var(--ink)}
+  nav.top .ver{font:12px var(--mono);color:var(--ink3);border:1px solid var(--line);padding:3px 8px;white-space:nowrap}
+
+  .listing{max-width:720px;margin:0 auto;padding:48px 0 120px}
+  .listing h1{font:600 42px/1.1 var(--sans);letter-spacing:-.03em;margin:0 0 10px}
+  .listing .intro{font-size:19px;color:var(--ink2);margin:0 0 48px}
+  .lang{font:13px var(--sans);color:var(--ink3);margin-bottom:32px}
+  .lang a{text-decoration:underline}
+
+  .entry{padding:32px 0;border-top:1px solid var(--line)}
+  .entry:last-child{border-bottom:1px solid var(--line)}
+  .entry .date{font:12.5px var(--mono);color:var(--ink3);margin:0 0 6px}
+  .entry .tag{display:inline-block;font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);border:1px solid var(--line);padding:2px 7px;margin-left:10px;vertical-align:1px}
+  .entry h2{font:600 26px/1.2 var(--sans);letter-spacing:-.02em;margin:0 0 8px}
+  .entry h2 a{text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s}
+  .entry h2 a:hover{border-bottom-color:var(--ink)}
+  .entry p{margin:0;color:var(--ink2);font-size:16.5px}
+
+  footer{border-top:1px solid var(--line);padding:30px 0 48px;font:13px var(--sans);color:var(--ink3);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  footer .fb{display:flex;align-items:center;gap:10px}footer svg{width:20px;height:20px;color:var(--ink)}
+  footer a{text-decoration:underline}
+  @media (max-width:900px){.listing h1{font-size:34px}nav.top ul{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="top">
+  <a class="brand" href="index.html" aria-label="Mosaix home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>mosaix</a>
+  <ul><li><a href="index.html">Formato</a></li><li><a href="spec.html">Specifica</a></li><li><a class="on" href="articles.it.html">Articoli</a></li><li><a href="https://github.com/mosaix-format/spec">GitHub &#x2197;</a></li></ul>
+  <span class="ver">v1.2.0 · 2026-09-22</span>
+</nav>
+
+<div class="listing">
+  <h1>Articoli</h1>
+  <p class="intro">Articoli, benchmark e prove empiriche dal progetto Mosaix Format.</p>
+  <p class="lang"><a href="articles.html">English version</a></p>
+
+  <div class="entry">
+    <p class="date">2026-09-22 <span class="tag">benchmark</span></p>
+    <h2><a href="mcp-benchmark-v120.it.html">Benchmark MCP: sette modelli, un formato</a></h2>
+    <p>Confronto controllato tra un server MCP che implementa il Mosaix Format e un file monolitico. Sette LLM, quattro dimensioni di corpus, nove dimensioni di test. Le risposte MCP ottengono 4,8/5 contro 3,3/5 del monolite &mdash; con due eccezioni istruttive.</p>
+  </div>
+
+  <div class="entry">
+    <p class="date">2026-09-04 <span class="tag">evidenze</span></p>
+    <h2><a href="why-one-note-at-a-time.it.html">Perch&eacute; una nota alla volta</a></h2>
+    <p>Misurazioni empiriche sulle note atomiche auto-descrittive: il costo in token resta costante al crescere del corpus, e modelli locali su hardware consumer producono output corretto dove modelli cloud senza il formato falliscono.</p>
+  </div>
+</div>
+
+<footer>
+  <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.2 &middot; CC BY-SA 4.0 &middot; &copy; 2026 Andrea Fiorino &middot; mosaixformat.org</span>
+  <span><a href="index.html">Formato</a> &middot; <a href="CHANGELOG.md">Changelog</a> &middot; <a href="LICENSE.md">Licenza</a> &middot; <a href="https://github.com/mosaix-format/spec">GitHub</a></span>
+</footer>
+</div>
+</body>
+</html>
