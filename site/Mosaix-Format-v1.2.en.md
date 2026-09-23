@@ -288,7 +288,7 @@ A reference checker, `audit_reference.py`, accompanies this specification. It us
 
 Versions follow `MAJOR.MINOR.PATCH`. A MINOR version may add optional keys, note types or warnings; it never turns a conformant vault into a non-conformant one. A MAJOR version may. Vaults SHOULD state the version they target in their meta note (`mosaix: "1.2"`).
 
-Shipped in 1.1.0: `id` — the stable ULID identifier (tenth CORE key, warning until v2.0). Shipped in 1.2.0: `origin` (who wrote the note: `human`, `distilled`, or `observed`; alias `origine`) and `as_of` (when the described fact was true; alias `data_fatto`) — both optional, recommended. Under discussion for a future version: a `question` key recording the single question a note answers; a mandatory closed relation vocabulary; an entity registry with aliases.
+Shipped in 1.1.0: `id` — the stable ULID identifier (tenth CORE key, warning until v2.0). Shipped in 1.2.0: `origin` (who wrote the note: `human`, `distilled`, or `observed`; alias `origine`), `as_of` (when the described fact was true; alias `data_fatto`) — both optional, recommended — and `question` (the single question a note answers; alias `domanda`) — optional, recommended. Entity types are extensible via `entity_types` in the meta note (§5.4); unknown types produce a warning, not an error. Under discussion for a future version: a mandatory closed relation vocabulary; an entity registry with aliases.
 
 ## 12. Acknowledgements and provenance
 

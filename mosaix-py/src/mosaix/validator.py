@@ -284,7 +284,19 @@ def validate_vault(path: Path | str, *, check_rev: bool = False, exclude: tuple[
 
     for name, n in notes.items():
         low = name.lower()
-        if incoming.get(name, 0) == 0 and not n["is_meta"] and low not in LEDGER_NAMES and "moc" not in low and low not in MOC_NAMES:
+        # R7: le copie _superseded non hanno link entranti per costruzione.
+        # Esentarle da E007 evita il ciclo infinito di riparazione (ogni fix
+        # su Home.md crea una nuova copia _superseded di Home → nuovo orfano).
+        is_superseded = (
+            name.endswith("_superseded")
+            or (n["fm"] and str(n["fm"].get("status", "")).lower() == "superseded")
+        )
+        if (incoming.get(name, 0) == 0
+                and not n["is_meta"]
+                and low not in LEDGER_NAMES
+                and "moc" not in low
+                and low not in MOC_NAMES
+                and not is_superseded):
             report._e("E007", n["rel"], rel=n["rel"])
 
     if declared_tags:
