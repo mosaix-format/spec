@@ -44,6 +44,31 @@ TOOLS = [
         },
     },
     {
+        "name": "reindex",
+        "description": (
+            "Rebuild the in-memory index from disk. The server indexes once at switch_vault and "
+            "updates it only for notes it writes itself: after external writes, or after R7 "
+            "creates a superseded copy, check/search/list_notes describe a stale vault until "
+            "reindex is called."
+        ),
+        "inputSchema": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "history",
+        "description": (
+            "Version chain of a note, following the R7 supersession arcs backwards and "
+            "forwards. Returns metadata only (id, updated, status, title) — read the bodies "
+            "with read_note. Cheap by design: the chain costs a few hundred bytes."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string", "description": "Vault-relative path or stem"},
+            },
+            "required": ["path"],
+        },
+    },
+    {
         "name": "read_note",
         "description": "Read a Mosaix note. Returns parsed frontmatter, body, and path.",
         "inputSchema": {
@@ -61,8 +86,9 @@ TOOLS = [
         "name": "write_note",
         "description": (
             "Write a validated Mosaix note. Requires server started with --writable. "
-            "Validates §10 rules before writing. If the file already exists, applies R7: "
-            "renames the old file with _superseded suffix and marks it superseded."
+            "Validates §10 rules before writing. If the file already exists, applies R7 "
+            "(rename the old file with _superseded suffix and mark it superseded) unless "
+            "supersede is false, in which case the file is overwritten in place."
         ),
         "inputSchema": {
             "type": "object",
@@ -70,8 +96,45 @@ TOOLS = [
                 "path": {"type": "string", "description": "Relative path from vault root"},
                 "frontmatter": {"type": "object", "description": "Note frontmatter as a JSON object"},
                 "body": {"type": "string", "description": "Note body (Markdown, without frontmatter block)"},
+                "supersede": {"type": "boolean", "default": True,
+                              "description": "Keep the previous version as *_superseded (R7). "
+                                             "false overwrites in place, for corrections that "
+                                             "do not deserve a version."},
             },
             "required": ["path", "frontmatter", "body"],
+        },
+    },
+    {
+        "name": "move_note",
+        "description": (
+            "Move or rename a note. The server rewrites every incoming wikilink and `links` "
+            "entry that pointed to the old name. The destination must not already exist. "
+            "Does not version the note (use write_note for that)."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "from": {"type": "string", "description": "Current vault-relative path or stem"},
+                "to": {"type": "string", "description": "Target vault-relative path; must not exist"},
+            },
+            "required": ["from", "to"],
+        },
+    },
+    {
+        "name": "delete_note",
+        "description": (
+            "Delete a note from the vault. If other notes link to it, the server refuses "
+            "unless force is true. Per R7, prefer marking a note as status: superseded over "
+            "deleting it: deletion is not recoverable."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string", "description": "Vault-relative path or stem"},
+                "force": {"type": "boolean", "default": False,
+                          "description": "Delete even if incoming links exist."},
+            },
+            "required": ["path"],
         },
     },
     {
@@ -89,6 +152,9 @@ TOOLS = [
                     "description": "Restrict to one field: summary, keywords, entities, title, body",
                     "enum": ["summary", "keywords", "entities", "title", "body"],
                 },
+                "include_superseded": {"type": "boolean", "default": False,
+                                       "description": "Include retired notes (status: superseded). "
+                                                      "Excluded by default: they are history."},
             },
             "required": ["query"],
         },
@@ -134,6 +200,9 @@ TOOLS = [
             "properties": {
                 "tag": {"type": "string", "description": "Filter by tag value"},
                 "type": {"type": "string", "description": "Filter by note type (moc, synthesis, document, …)"},
+                "include_superseded": {"type": "boolean", "default": False,
+                                       "description": "Include retired notes (status: superseded). "
+                                                      "Excluded by default: they are history."},
             },
         },
     },
@@ -267,6 +336,14 @@ def _call_tool(name: str, args: dict, state: _ServerState) -> dict:
                 "notes_indexed": count,
                 "writable": state.writable,
             }
+        elif name == "reindex":
+            if state.vault_path is None:
+                raise _ToolError("No vault loaded. Call switch_vault first with the path to your vault.")
+            count = state.load_vault(state.vault_path)
+            result = {"vault": str(state.vault_path), "notes_indexed": count, "reindexed": True}
+        elif name == "history":
+            index = state.require_index()
+            result = index.history(args["path"])
         elif name == "read_note":
             index = state.require_index()
             result = index.read_note(args["path"])
@@ -274,10 +351,22 @@ def _call_tool(name: str, args: dict, state: _ServerState) -> dict:
             if not state.writable:
                 raise _ToolError("Server is read-only. Restart with --writable to enable writes.")
             index = state.require_index()
-            result = index.write_note(args["path"], args["frontmatter"], args["body"])
+            result = index.write_note(args["path"], args["frontmatter"], args["body"],
+                                      supersede=args.get("supersede", True))
+        elif name == "move_note":
+            if not state.writable:
+                raise _ToolError("Server is read-only. Restart with --writable to enable writes.")
+            index = state.require_index()
+            result = index.move_note(args["from"], args["to"])
+        elif name == "delete_note":
+            if not state.writable:
+                raise _ToolError("Server is read-only. Restart with --writable to enable writes.")
+            index = state.require_index()
+            result = index.delete_note(args["path"], force=bool(args.get("force", False)))
         elif name == "search":
             index = state.require_index()
-            result = index.search(args["query"], field=args.get("field"))
+            result = index.search(args["query"], field=args.get("field"),
+                                  include_superseded=bool(args.get("include_superseded", False)))
         elif name == "compose":
             index = state.require_index()
             mode = args.get("mode", "text")
@@ -288,7 +377,8 @@ def _call_tool(name: str, args: dict, state: _ServerState) -> dict:
             result = index.check(args.get("path"))
         elif name == "list_notes":
             index = state.require_index()
-            result = index.list_notes(tag=args.get("tag"), note_type=args.get("type"))
+            result = index.list_notes(tag=args.get("tag"), note_type=args.get("type"),
+                                      include_superseded=bool(args.get("include_superseded", False)))
         else:
             raise _ToolError(f"Unknown tool: {name}")
     except _ToolError:

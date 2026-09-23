@@ -40,7 +40,7 @@ mosaix_peer_review.py
 mosaix_potential_review.py
 
 # Harem review raw results (internal)
-reviews/
+# reviews/  ← removed 2026-09-13 (H2): deliberation docs now tracked
 
 # Example vault: generated syntheses
 example-vault/vault/_sintesi/

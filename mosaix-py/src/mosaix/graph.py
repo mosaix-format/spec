@@ -26,6 +26,7 @@ class VaultGraph:
         self._edges: dict[str, set[str]] = {}     # stem → {stem, ...} (outgoing)
         self._incoming: dict[str, set[str]] = {}  # stem → {stem, ...}
         self._types: dict[str, str | None] = {}   # stem → type field
+        self._statuses: dict[str, str | None] = {}  # stem → status field
         self._build()
 
     def _build(self) -> None:
@@ -44,6 +45,7 @@ class VaultGraph:
             if isinstance(fm.get("id"), str):
                 self._id_to_stem[fm["id"]] = stem
             self._types[stem] = (fm.get("type") or None)
+            self._statuses[stem] = (fm.get("status") or None)
             self._edges.setdefault(stem, set())
             self._incoming.setdefault(stem, set())
 
@@ -74,9 +76,15 @@ class VaultGraph:
     # ------------------------------------------------------------------
 
     def _is_structural(self, stem: str) -> bool:
-        """Return True if the note is a MOC, meta note, or ledger (excluded from orphan check)."""
+        """Return True if the note is a MOC, meta note, ledger, or superseded (excluded from orphan check)."""
         s = stem.lower()
         if s in META_NAMES or s in LEDGER_NAMES or s in MOC_NAMES:
+            return True
+        # R7: copie _superseded non hanno link entranti per costruzione.
+        if s.endswith("_superseded"):
+            return True
+        status = (self._statuses.get(stem) or "").lower()
+        if status == "superseded":
             return True
         path = self._stems[stem]
         if path.parent.name.lower() in META_DIRS:

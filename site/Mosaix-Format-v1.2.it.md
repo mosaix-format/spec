@@ -287,7 +287,7 @@ Un checker di riferimento, `audit_reference.py`, accompagna questa specifica. Us
 
 Le versioni seguono `MAJOR.MINOR.PATCH`. Una versione MINOR può aggiungere chiavi opzionali, tipi di nota o avvisi; non trasforma mai un vault conforme in uno non conforme. Una versione MAJOR può farlo. I vault DOVREBBERO dichiarare la versione a cui puntano nella nota meta (`mosaix: "1.2"`).
 
-Introdotto in 1.1.0: `id` — identificatore ULID stabile (decima chiave CORE, avviso fino alla v2.0). Introdotto in 1.2.0: `origin` (chi ha scritto la nota: `human`, `distilled` o `observed`; alias `origine`) e `as_of` (quando il fatto descritto era vero; alias `data_fatto`) — entrambi opzionali, raccomandati. In discussione per una versione futura: una chiave `question` che registra la singola domanda a cui la nota risponde; un vocabolario chiuso di relazioni obbligatorio; un registro delle entità con alias.
+Introdotto in 1.1.0: `id` — identificatore ULID stabile (decima chiave CORE, avviso fino alla v2.0). Introdotto in 1.2.0: `origin` (chi ha scritto la nota: `human`, `distilled` o `observed`; alias `origine`), `as_of` (quando il fatto descritto era vero; alias `data_fatto`) — entrambi opzionali, raccomandati — e `question` (la singola domanda a cui la nota risponde; alias `domanda`) — opzionale, raccomandata. I tipi entità sono estensibili tramite `entity_types` nella nota meta (§5.4); i tipi sconosciuti producono un avviso, non un errore. In discussione per una versione futura: un vocabolario chiuso di relazioni obbligatorio; un registro delle entità con alias.
 
 ## 12. Riconoscimenti e provenienza
 

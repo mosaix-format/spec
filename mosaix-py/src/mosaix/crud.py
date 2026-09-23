@@ -11,13 +11,21 @@ from ._yaml import parse_frontmatter
 _CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 
 
-def _generate_ulid() -> str:
-    """Generate a ULID: 48-bit ms timestamp + 80-bit random, Crockford Base32."""
+def generate_id() -> str:
+    """Generate a ULID: 48-bit ms timestamp + 80-bit random, Crockford Base32.
+
+    Public API — used by vault-mcp and any consumer that needs a Mosaix-format
+    note identifier.
+    """
     ts = int(time.time() * 1000) & 0xFFFFFFFFFFFF  # 48 bits
     rand = secrets.randbits(80)
     chars = [_CROCKFORD[(ts >> s) & 0x1F] for s in range(45, -1, -5)]
     chars += [_CROCKFORD[(rand >> s) & 0x1F] for s in range(75, -1, -5)]
     return "".join(chars)
+
+
+# backward compat alias — internal callers still reference this name
+_generate_ulid = generate_id
 
 
 def create_note(path: Path | str, frontmatter: dict[str, Any], body: str = "") -> Path:

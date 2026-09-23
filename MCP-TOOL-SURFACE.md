@@ -16,16 +16,26 @@ Implementations MAY additionally support **HTTP with Server-Sent Events (SSE)** 
 
 ## Error codes
 
-All tools return JSON-RPC 2.0 error responses with the following application-specific codes:
+How the **reference server** reports failures:
 
-| Code | Name | Meaning |
-|------|------|---------|
-| `-32001` | `NOT_FOUND` | The requested note does not exist at the given path. |
-| `-32002` | `VALIDATION_ERROR` | The note fails one or more conformance checks (§10). The `data` field contains the list of errors. |
-| `-32003` | `CONFLICT` | The note has been modified since the caller last read it. The `data` field contains the current `rev`. |
-| `-32004` | `PERMISSION_DENIED` | The operation is not permitted — e.g. writing to a read-only vault or deleting a note with incoming links without `force: true`. |
+- **Tool-level errors** are returned as a normal tool result with `isError: true` and a
+  human-readable message. When a client has to distinguish a case programmatically, the
+  message starts with a stable token: e.g. `PERMISSION_DENIED:` for deleting a note with
+  incoming links without `force: true`.
+- **Unexpected exceptions** are returned as a JSON-RPC error with code `-32000`.
+- **Malformed requests** use the standard JSON-RPC codes (`-32600`–`-32603`).
 
-Standard JSON-RPC 2.0 errors (`-32600` to `-32603`) apply for malformed requests, unknown methods, and invalid parameters.
+The names below are the error vocabulary implementations SHOULD use as the message token.
+The numeric `-320xx` codes are **reserved for HTTP/SSE deployments**, where an application
+error can be carried in the JSON-RPC error object itself; the stdio reference server does not
+emit them.
+
+| Name | Meaning |
+|------|---------|
+| `NOT_FOUND` | The requested note does not exist at the given path. |
+| `VALIDATION_ERROR` | The note fails one or more conformance checks (§10). |
+| `CONFLICT` | The note has been modified since the caller last read it. |
+| `PERMISSION_DENIED` | The operation is not permitted — e.g. writing to a read-only vault, or deleting a note with incoming links without `force: true`. |
 
 ---
 
@@ -251,6 +261,34 @@ Delete a note from the vault. If other notes link to this note (incoming wikilin
   "deleted": true
 }
 ```
+
+---
+
+## Implementation extensions
+
+The six tools above are the **portable core**: a client that speaks them can work against any
+conforming server. The reference implementation additionally exposes the tools below. They are
+not part of the portable contract — treat them as extensions, and do not assume another
+implementation has them.
+
+| Tool | Purpose |
+|------|---------|
+| `switch_vault` | Load or switch the active vault at runtime, re-indexing it. Session management, not knowledge. |
+| `reindex` | Rebuild the in-memory index from disk. Needed after writes made outside the server: the reference server indexes once at `switch_vault` and updates only the notes it writes itself. |
+| `compose` | Assemble a `type: document` note from its `fragments`. Modes: `text` (default), `structure` (metadata only, no text), `file` (write the text to `_composed/<stem>.txt`), plus an optional `fragments` selection. |
+| `check` | Run the §10 conformance check on one note or the whole vault. |
+| `history` | Version chain of a note, following the R7 supersession arcs. Metadata only — cheap by design. |
+
+Two consequences worth knowing when implementing a server:
+
+- **Retired notes are history, not content.** `search` and `list_notes` exclude notes marked
+  `status: superseded` by default; `include_superseded: true` includes them, and `history`
+  walks them explicitly.
+- **A new version is a new note.** R7 copies the previous frontmatter verbatim, so the caller
+  must give the new version a fresh `id`; otherwise both versions share a ULID and the
+  `superseded_by` arc becomes ambiguous. Arcs written as ULIDs survive renames by
+  construction; stem and path arcs are accepted for compatibility and `move_note` rewrites
+  them.
 
 ---
 
