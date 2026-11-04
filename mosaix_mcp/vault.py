@@ -26,7 +26,17 @@ KEY_ALIASES: dict[str, str] = {
     "parole_chiave": "keywords", "mcp_entita": "entities", "mcp_relazioni": "relations",
     "mcp_collegamenti": "links", "mcp_rev": "rev", "mcp_frammenti": "fragments",
     "mcp_pool": "pool", "mcp_layout": "layout", "tipo": "type", "stato": "status",
+    # §6.1 dossier, primo livello
+    "membri": "members", "aggiunte": "added", "esclusioni": "excluded", "link_esterni": "external_links",
 }
+# §6.1 dossier: le chiavi dentro la mappa `dossier` (e nel suo `criterion`), i valori di `origin`
+DOSSIER_ALIASES: dict[str, str] = {
+    "tipo": "kind", "criterio": "criterion", "descrizione": "description", "filtri": "filters",
+    "origine": "origin", "cartelle": "folders", "tipi": "types", "entita": "entities", "documenti": "documents",
+}
+DOSSIER_ORIGINS = {"document", "model", "owner"}
+DOSSIER_ORIGIN_ALIASES: dict[str, str] = {"documento": "document", "catalogo": "document", "modello": "model",
+                                          "proprietario": "owner", "titolare": "owner"}
 ITEM_ALIASES: dict[str, str] = {"nome": "name", "tipo": "type", "da": "from", "a": "to"}
 VALUE_ALIASES: dict[str, str] = {
     "persona": "person", "azienda": "company", "prodotto": "product", "progetto": "project",
@@ -60,8 +70,30 @@ def is_superseded(stem: str, fm: dict | None) -> bool:
 
 # ── Minimal YAML subset parser ───────────────────────────────────────────────
 
+def _split_flow(inner: str) -> list[str]:
+    """Spezza l'interno di una lista o mappa flow sulle virgole a profondita' 0, fuori dalle virgolette."""
+    parts, depth, cur, quote = [], 0, "", ""
+    for ch in inner:
+        if quote:
+            if ch == quote:
+                quote = ""
+        elif ch in "\"'" and (not cur.strip() or cur.rstrip().endswith((":", "[", "{", ","))):
+            quote = ch
+        elif ch in "{[":
+            depth += 1
+        elif ch in "}]":
+            depth -= 1
+        if ch == "," and depth == 0 and not quote:
+            parts.append(cur)
+            cur = ""
+        else:
+            cur += ch
+    parts.append(cur)
+    return parts
+
+
 def _scalar(s: str):
-    """Parse a YAML scalar: quoted string, inline list, inline dict, or plain string."""
+    """Parse a YAML scalar: quoted string, inline list, inline dict (nested), or plain string."""
     s = s.strip()
     if not s:
         return ""
@@ -71,32 +103,50 @@ def _scalar(s: str):
         inner = s[1:-1].strip()
         if not inner:
             return []
-        items, depth, cur, quote = [], 0, "", ""
-        for ch in inner:
-            if quote:
-                if ch == quote:
-                    quote = ""
-            elif ch in "\"'" and not cur.strip():
-                quote = ch
-            elif ch in "{[":
-                depth += 1
-            elif ch in "}]":
-                depth -= 1
-            if ch == "," and depth == 0 and not quote:
-                items.append(_scalar(cur))
-                cur = ""
-            else:
-                cur += ch
-        items.append(_scalar(cur))
-        return items
+        return [_scalar(x) for x in _split_flow(inner)]
     if s.startswith("{") and s.endswith("}"):
         d: dict = {}
-        for part in s[1:-1].split(","):
+        for part in _split_flow(s[1:-1]):
             if ":" in part:
                 k, v = part.split(":", 1)
-                d[k.strip()] = _scalar(v)
+                d[k.strip().strip("\"'")] = _scalar(v)
         return d
     return s
+
+
+def _indent(line: str) -> int:
+    return len(line) - len(line.lstrip(" \t"))
+
+
+def _block_map(lines: list[str], i: int, indent: int) -> tuple[dict, int]:
+    """Una mappa annidata in stile blocco (la `dossier:` del §6.1): le righe rientrate di almeno `indent` a
+    partire dalla riga `i`. Restituisce la mappa e l'indice della prima riga dopo."""
+    d: dict = {}
+    while i < len(lines):
+        line = lines[i]
+        if not line.strip() or line.lstrip().startswith("#"):
+            i += 1
+            continue
+        if _indent(line) < indent or ":" not in line or line.lstrip().startswith("- "):
+            break
+        k, _, v = line.strip().partition(":")
+        k, v = k.strip(), v.strip()
+        nxt = i + 1
+        while nxt < len(lines) and not lines[nxt].strip():
+            nxt += 1
+        if v == "" and nxt < len(lines) and _indent(lines[nxt]) > _indent(line):
+            if lines[nxt].lstrip().startswith("- "):
+                items, j = [], nxt
+                while j < len(lines) and lines[j].lstrip().startswith("- ") and _indent(lines[j]) > _indent(line):
+                    items.append(_scalar(lines[j].lstrip()[2:]))
+                    j += 1
+                d[k], i = items, j
+            else:
+                d[k], i = _block_map(lines, nxt, _indent(lines[nxt]))
+            continue
+        d[k] = _scalar(v)
+        i += 1
+    return d, i
 
 
 def parse_frontmatter(text: str) -> tuple[dict | None, str]:
@@ -121,6 +171,13 @@ def parse_frontmatter(text: str) -> tuple[dict | None, str]:
             key, _, val = line.partition(":")
             key = key.strip()
             val = val.strip()
+            nxt = i + 1
+            while nxt < len(lines) and not lines[nxt].strip():
+                nxt += 1
+            if (val == "" and nxt < len(lines) and lines[nxt].startswith((" ", "\t"))
+                    and not lines[nxt].lstrip().startswith("- ") and ":" in lines[nxt]):
+                fm[key], i = _block_map(lines, nxt, _indent(lines[nxt]))
+                continue
             fm[key] = [] if val == "" else ("" if val in ("|", ">") else _scalar(val))
         elif key is not None and line.lstrip().startswith("- "):
             item = line.lstrip()[2:].strip()
@@ -172,7 +229,41 @@ def normalise(fm: dict) -> dict:
         if key in out and isinstance(out[key], str):
             v = out[key].lower()
             out[key] = VALUE_ALIASES.get(v, v)
+    if isinstance(out.get("dossier"), dict):
+        out["dossier"] = _canon_dossier(out["dossier"])
     return out
+
+
+def _canon_dossier(d: dict) -> dict:
+    """La mappa `dossier` (§6.1) con chiavi e valori in alias resi canonici, a ogni livello."""
+    out: dict = {}
+    for k, v in d.items():
+        canon = DOSSIER_ALIASES.get(k, k)
+        if canon in out and canon != k:
+            continue
+        out[canon] = _canon_dossier(v) if isinstance(v, dict) else v
+    if isinstance(out.get("origin"), str):
+        o = out["origin"].lower()
+        out["origin"] = DOSSIER_ORIGIN_ALIASES.get(o, o)
+    return out
+
+
+def _names(fm: dict, key: str) -> list[str]:
+    v = fm.get(key) or []
+    return [str(x).strip() for x in (v if isinstance(v, list) else [v]) if str(x).strip()]
+
+
+def is_dossier(fm: dict | None) -> bool:
+    """Un dossier (§6.1): una nota con la mappa `dossier` nel frontmatter."""
+    return isinstance((fm or {}).get("dossier"), dict)
+
+
+def dossier_members(fm: dict, exists) -> list[str]:
+    """Le note di un dossier: `members` + `added` - `excluded`, quelle che esistono (`exists(stem)`).
+    Senza `members` (un dossier scritto a mano) valgono i suoi `fragments`, tolte le esclusioni."""
+    excluded = set(_names(fm, "excluded"))
+    base = _names(fm, "members") if "members" in fm else _names(fm, "fragments")
+    return [s for s in dict.fromkeys(base + _names(fm, "added")) if s not in excluded and exists(s)]
 
 
 def serialize_frontmatter(fm: dict) -> str:
@@ -344,6 +435,24 @@ def _check(
             for f in frags:
                 if str(f) not in all_stems:
                     errors.append({"id": "E011", "message": f"{rel}: fragment `{f}` does not exist"})
+
+        if is_dossier(fm):
+            dos = fm["dossier"]
+            crit = dos.get("criterion") if isinstance(dos.get("criterion"), dict) else {}
+            for key, val in (("dossier.kind", dos.get("kind")), ("dossier.criterion.description", crit.get("description"))):
+                if not str(val or "").strip():
+                    errors.append({"id": "E016", "message": f"{rel}: dossier without `{key}` (§6.1)"})
+            excluded = set(_names(fm, "excluded"))
+            for x in sorted(excluded & (set(_names(fm, "fragments")) | set(_names(fm, "links")))):
+                errors.append({"id": "E017",
+                               "message": f"{rel}: dossier lists excluded note `{x}` in fragments or links (§6.1)"})
+            if "members" in fm and set(_names(fm, "fragments")) != set(dossier_members(fm, lambda s: s in all_stems)):
+                warnings.append({"id": "W010",
+                                 "message": f"{rel}: dossier fragments differ from members + added - excluded (stale dossier)"})
+            origin = str(dos.get("origin") or "").strip()
+            if origin and origin not in DOSSIER_ORIGINS:
+                warnings.append({"id": "W011",
+                                 "message": f"{rel}: dossier origin `{origin}` not one of document, model, owner"})
 
     # Phase 3: vault-level checks (only when not checking a single note)
     if not target_rel:
@@ -653,9 +762,12 @@ class VaultIndex:
         _rel, n = self._resolve(path)
         stem = n["stem"]
         fm = n["fm"] or {}
-        if str(fm.get("type", "")).lower() != "document":
-            raise ValueError(f"{n['rel']!r} is not type: document")
-        frags = fm.get("fragments", []) or []
+        dossier = is_dossier(fm)
+        if str(fm.get("type", "")).lower() != "document" and not dossier:
+            raise ValueError(f"{n['rel']!r} is not type: document nor a dossier")
+        # un dossier si compone dai suoi membri risolti (§6.1), non da `fragments` che puo' essere vecchio
+        frags = (dossier_members(fm, lambda s: s in self._by_stem) if dossier
+                 else fm.get("fragments", []) or [])
         if not frags:
             raise ValueError(f"{n['rel']}: no fragments declared")
         if fragments is not None:
@@ -709,6 +821,54 @@ class VaultIndex:
                     "bytes": len(composed_text.encode("utf-8")),
                     "sha256": hashlib.sha256(composed_text.encode("utf-8")).hexdigest()}
         raise ValueError(f"unknown mode: {mode!r}")
+
+    def list_dossiers(self, kind: str | None = None) -> list[dict]:
+        """I dossier del vault (§6.1): titolo, tipo, criterio, origine, quante note raccolgono, se sono vecchi."""
+        out: list[dict] = []
+        for _rel, n in self._notes.items():
+            fm = n["fm"] or {}
+            if not is_dossier(fm):
+                continue
+            dos = fm["dossier"]
+            if kind and str(dos.get("kind", "")).lower() != kind.lower():
+                continue
+            crit = dos.get("criterion") if isinstance(dos.get("criterion"), dict) else {}
+            members = dossier_members(fm, lambda s: s in self._by_stem)
+            out.append({
+                "path": n["rel"], "title": fm.get("title", n["stem"]), "kind": dos.get("kind", ""),
+                "origin": dos.get("origin", ""), "criterion": crit.get("description", ""),
+                "notes": len(members), "stale": set(_names(fm, "fragments")) != set(members),
+                "updated": str(fm.get("updated", "")),
+            })
+        out.sort(key=lambda x: (str(x["kind"]).lower(), str(x["title"]).lower()))
+        return out
+
+    def read_dossier(self, path: str) -> dict:
+        """Un dossier (§6.1) con le sue note risolte: per ciascuna titolo, path e summary, cosi' una domanda che
+        attraversa molte note parte da un gruppo gia' fatto senza leggere i corpi."""
+        _rel, n = self._resolve(path)
+        fm = n["fm"] or {}
+        if not is_dossier(fm):
+            raise ValueError(f"{n['rel']!r} is not a dossier (no `dossier` map, §6.1)")
+        dos = fm["dossier"]
+        members = dossier_members(fm, lambda s: s in self._by_stem)
+        notes: list[dict] = []
+        for stem in members:
+            try:
+                rel = self._resolve_ref(stem)
+            except ValueError:
+                rel = None
+            m = self._notes.get(rel) if rel else None
+            mfm = (m or {}).get("fm") or {}
+            notes.append({"stem": stem, "path": rel, "title": mfm.get("title", stem),
+                          "summary": mfm.get("summary", ""), "status": mfm.get("status", "")})
+        return {
+            "path": n["rel"], "title": fm.get("title", n["stem"]), "summary": fm.get("summary", ""),
+            "kind": dos.get("kind", ""), "origin": dos.get("origin", ""), "criterion": dos.get("criterion", {}),
+            "added": _names(fm, "added"), "excluded": _names(fm, "excluded"),
+            "external_links": _names(fm, "external_links"), "notes": notes,
+            "stale": set(_names(fm, "fragments")) != set(members),
+        }
 
     def check(self, path: str | None = None) -> dict:
         """Run §10 conformance check on one note or the entire vault."""

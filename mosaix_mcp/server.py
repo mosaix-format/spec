@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 PROTOCOL_VERSION = "2024-11-05"
-SERVER_INFO = {"name": "mosaix-mcp", "version": "1.2.0"}
+SERVER_INFO = {"name": "mosaix-mcp", "version": "1.3.0"}
 
 # Instructions sent to the AI on initialize — teaches the Mosaix Format rules
 # so the AI can write conformant notes without reading the spec externally.
@@ -18,8 +18,9 @@ Mosaix Format vault server. ALWAYS load the "mosaix" skill before writing notes 
 Quick ref (the skill has details):
 - Frontmatter REQUIRED: title, updated (YYYY-MM-DD), tags (list), summary (120-240 chars, declarative), keywords (6-8 terms), entities ({name,type} list), links (wikilink targets), rev (12 hex).
 - Optional: id (ULID), question (ends with ?), origin, as_of, type, status, relations, fragments.
+- Dossiers (§6.1): notes in _dossier/ with a `dossier` map (kind, criterion.description, origin) that gather notes by a criterion; members + added - excluded = fragments. Never remove an entry from `excluded`. Start a cross-note question from list_dossiers / read_dossier.
 - Types: atomic (default), moc, synthesis, document, meta, ledger, log.
-- Vault needs: _meta/Conventions.md (type:meta, mosaix:"1.2"), _meta/Open questions.md (type:ledger), at least one MOC.
+- Vault needs: _meta/Conventions.md (type:meta, mosaix:"1.3"), _meta/Open questions.md (type:ledger), at least one MOC.
 - Rules: one idea per note (R1), no orphans (R3), supersede don't delete (R7).
 - Italian aliases accepted: titolo, riassunto, parole_chiave, aggiornato, domanda, entita, tipo, stato.
 - Always run check after writing. Call switch_vault first if no vault is loaded.
@@ -162,7 +163,7 @@ TOOLS = [
     {
         "name": "compose",
         "description": (
-            "Assemble a composed document (type: document) from its fragments. "
+            "Assemble a composed document (type: document) or a dossier (§6.1) from its fragments. "
             "Supports three modes: 'text' (default), 'structure', and 'file'. "
             "Returns the concatenated body text and the list of fragment paths."
         ),
@@ -173,6 +174,30 @@ TOOLS = [
                 "mode": {"type": "string", "enum": ["text", "structure", "file"], "default": "text", "description": "Mode of composition: text, structure, or file"},
                 "fragments": {"type": "array", "items": {"type": "string"}, "description": "Optional list of stems to compose; if provided, only these fragments are used"}
             },
+            "required": ["path"],
+        },
+    },
+    {
+        "name": "list_dossiers",
+        "description": (
+            "List the vault's dossiers (§6.1): notes that gather other notes by a saved criterion. "
+            "Returns path, title, kind, origin, criterion, number of notes and whether the dossier is stale."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {"kind": {"type": "string", "description": "Optional: only dossiers of this kind"}},
+        },
+    },
+    {
+        "name": "read_dossier",
+        "description": (
+            "Read one dossier with its resolved notes (members + added - excluded): title, path, summary "
+            "and status of each. Use it as the starting group for a question that spans many notes; "
+            "then read_note only the ones you need, or compose the dossier."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {"path": {"type": "string", "description": "Path or stem of the dossier note"}},
             "required": ["path"],
         },
     },
@@ -372,6 +397,12 @@ def _call_tool(name: str, args: dict, state: _ServerState) -> dict:
             mode = args.get("mode", "text")
             fragments = args.get("fragments")
             result = index.compose(args["path"], mode, fragments)
+        elif name == "list_dossiers":
+            index = state.require_index()
+            result = index.list_dossiers(kind=args.get("kind"))
+        elif name == "read_dossier":
+            index = state.require_index()
+            result = index.read_dossier(args["path"])
         elif name == "check":
             index = state.require_index()
             result = index.check(args.get("path"))

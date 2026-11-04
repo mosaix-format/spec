@@ -152,6 +152,32 @@
   .doc p small{display:block;font:11px var(--mono);color:var(--ink3);margin-top:2px}
   .doc .hint{font:12px var(--sans);color:var(--ink3);margin-top:6px}
 
+
+  /* ===== 04.1 DOSSIERS ===== */
+  .dos{display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:start}
+  .dos-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+  .dos-tabs button{font:13px var(--sans);padding:8px 12px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
+  .dos-tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+  .dmini{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;max-width:420px}
+  .dmini i{display:block;aspect-ratio:1;background:var(--paper);transition:background .25s,outline-color .25s,transform .25s;position:relative}
+  .dmini i.m{background:var(--ink)}
+  .dmini i.a{background:var(--gold)}
+  .dmini i.x{background:transparent;outline:2px solid var(--red);outline-offset:-2px}
+  .dmini i.x::after{content:"";position:absolute;left:15%;right:15%;top:50%;height:2px;background:var(--red);transform:rotate(-45deg)}
+  .dmini i.new{outline:3px solid var(--gold);outline-offset:-3px}
+  .dos-leg{display:flex;flex-wrap:wrap;gap:6px 16px;font:11.5px var(--mono);color:var(--ink3);margin-top:12px}
+  .dos-leg i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px;background:var(--ink)}
+  .dos-leg i.a{background:var(--gold)}.dos-leg i.x{background:transparent;outline:2px solid var(--red);outline-offset:-2px}
+  .dos-leg i.o{background:var(--paper);outline:1px solid var(--line)}
+  .dos-join{margin-top:16px}
+  .dos-fm{font:12.5px/1.6 var(--mono);background:var(--paper);border:1px solid var(--line);padding:18px 20px;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+  .dos-fm .k{color:var(--ink3)}.dos-fm .x{color:var(--red)}.dos-fm .a{color:#8a6d12}
+  .dos-rules{list-style:none;margin:28px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 28px}
+  .dos-rules li{padding:16px 0;border-top:1px solid var(--ink)}
+  .dos-rules b{display:block;font:600 16px var(--sans);margin-bottom:4px}
+  .dos-rules p{margin:0;font-size:15px;line-height:1.5;color:var(--ink2)}
+  @media (max-width:900px){.dos{grid-template-columns:1fr;gap:28px}.dos-rules{grid-template-columns:1fr}}
+
   /* ===== RULES ===== */
   .big3{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:0 0 3px;padding:0;list-style:none}
   .big3 li{background:var(--ink);color:var(--paper);padding:30px 26px;min-height:230px;display:flex;flex-direction:column;transform:rotate(var(--r));transition:transform .2s}
@@ -318,6 +344,14 @@
   .ev7-side b small{display:block;font:12px var(--mono);color:#8b8679;letter-spacing:0;margin-top:6px}
   .ev7-side > div > span{font-size:14.5px;line-height:1.5;color:rgba(239,234,224,.72)}
   .ev7 .lab{margin-top:6px}
+  /* the four numbers of 06: their own grid, so the media queries reach it (an inline 4-column grid did not,
+     and on a phone the section ran ~250px past the screen) */
+  .ev7-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px 32px;max-width:1140px;margin-top:32px}
+  .ev7-stats > div{min-width:0}
+  .ev7-stats .lab{font:11px var(--mono);color:#8b8679;margin:0 0 6px}
+  .ev7-stats b{display:block;font:600 34px/1 var(--sans);letter-spacing:-.03em}
+  .ev7-stats b .cnt{font:inherit;display:inline}
+  .ev7-stats b small{display:block;font:12px var(--mono);color:#8b8679;letter-spacing:0;margin-top:6px;overflow-wrap:anywhere}
 
   /* ===== 08: the agent system, full width ===== */
   .chain{display:grid;gap:40px}
@@ -363,8 +397,8 @@
   .chain-n b .cnt{display:inline!important;min-width:0!important;text-align:left}
   .chain-n b small{font-size:22px;color:var(--ink3);letter-spacing:0;margin-left:2px}
   .chain-p{margin:0;font-size:16.5px;color:var(--ink2);max-width:760px}
-  @media (max-width:900px){.ev7{grid-template-columns:1fr;gap:36px}.ev7-main b{font-size:96px}.ev7-side div{grid-template-columns:1fr;gap:6px}.cf-agents{grid-template-columns:1fr 1fr}.cf-agents::after,.cf-agent::after,.cf-agent::before,.cf-agents::before{display:none}.chain-n{grid-template-columns:1fr 1fr;gap:20px}.chain-n span+span{border-left:0;padding-left:0}}
-  @media (max-width:760px){.ev7-main b{font-size:72px}.cf-agents{grid-template-columns:1fr}.chain-n{grid-template-columns:1fr}.cf-vault{grid-template-columns:repeat(16,1fr);gap:2px;width:100%}.cf-vault i{width:auto;aspect-ratio:1;height:auto}}
+  @media (max-width:900px){nav .ver{display:none}.ev7-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.ev7{grid-template-columns:1fr;gap:36px}.ev7-main b{font-size:96px}.ev7-side div{grid-template-columns:1fr;gap:6px}.cf-agents{grid-template-columns:1fr 1fr}.cf-agents::after,.cf-agent::after,.cf-agent::before,.cf-agents::before{display:none}.chain-n{grid-template-columns:1fr 1fr;gap:20px}.chain-n span+span{border-left:0;padding-left:0}}
+  @media (max-width:760px){.ev7-stats{gap:24px 20px}.ev7-stats b{font-size:28px}.ev7-main b{font-size:72px}.cf-agents{grid-template-columns:1fr}.chain-n{grid-template-columns:1fr}.cf-vault{grid-template-columns:repeat(16,1fr);gap:2px;width:100%}.cf-vault i{width:auto;aspect-ratio:1;height:auto}}
 
 /* ===== 10: what's next ===== */
   .next{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:0 40px}
@@ -425,8 +459,8 @@
 <div class="wrap">
 <nav>
   <a class="brand" href="index.html" aria-label="Mosaix home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>mosaix</a>
-  <ul><li><a href="#tile">The tile</a></li><li><a href="#compose">Composition</a></li><li><a href="#rules">Rules</a></li><li><a href="#agents">Agents</a></li><li><a href="#check">Check a vault</a></li><li><a href="#next">What's next</a></li><li><a href="spec.html">Specification</a></li><li><a href="articles.html">Articles</a></li></ul>
-  <span class="ver">v1.2 · 2026-09</span>
+  <ul><li><a href="#tile">The tile</a></li><li><a href="#compose">Composition</a></li><li><a href="#dossier">Dossiers</a></li><li><a href="#rules">Rules</a></li><li><a href="#agents">Agents</a></li><li><a href="#check">Check a vault</a></li><li><a href="#next">What's next</a></li><li><a href="spec.html">Specification</a></li><li><a href="articles.html">Articles</a></li></ul>
+  <span class="ver">v1.3 · 2026-11</span>
 </nav>
 
 <!-- 1 HERO -->
@@ -573,11 +607,37 @@ documents. The format therefore defines …</span>
   </div>
 </section>
 
+<!-- 5b DOSSIERS (new in 1.3) -->
+<section class="sec band p2" id="dossier">
+  <div class="kick"><span><span class="no">04.1</span>Dossiers · new in 1.3</span></div>
+  <h2>A dossier gathers the tiles by a rule. A person keeps the last word.</h2>
+  <p class="sub">A composed document is a reading order someone chose. A dossier is chosen by a <b>criterion</b>: a customer, an application, a source document. A question that spans forty notes starts from a group already made. Links only, nothing is copied.</p>
+  <div class="dos">
+    <div>
+      <div class="dos-tabs" id="dosTabs" role="group" aria-label="Choose a dossier">
+        <button type="button" data-d="0" aria-pressed="true">Customer — Northline</button>
+        <button type="button" data-d="1" aria-pressed="false">Application — steam lines</button>
+        <button type="button" data-d="2" aria-pressed="false">Document — valve datasheet</button>
+      </div>
+      <div class="dmini" id="dmini" aria-hidden="true"></div>
+      <div class="dos-leg" aria-hidden="true"><span><i></i>member, by the criterion</span><span><i class="a"></i>added by a person</span><span><i class="x"></i>excluded by a person</span><span><i class="o"></i>elsewhere in the vault</span></div>
+      <button class="act dos-join" id="dosJoin" type="button">Import three new notes →</button>
+      <div class="cap" id="dosCap">New notes join the dossiers whose criterion they answer. The exclusion stays.</div>
+    </div>
+    <pre class="dos-fm" id="dosFm" aria-live="polite"></pre>
+  </div>
+  <ul class="dos-rules">
+    <li><b>An exclusion is a decision.</b><p>A note a person took out stays out. No automated step puts it back, at any later import.</p></li>
+    <li><b>New notes join, they don't rebuild.</b><p>An import adds each new note to the dossiers it answers. A new dossier, a union or a split is a proposal, with its reason (R8).</p></li>
+    <li><b>One per source document, for free.</b><p>Every imported PDF gets its dossier automatically: the notes made from it, in one place. <a href="spec.html#s61" style="text-decoration:underline">§6.1</a></p></li>
+  </ul>
+</section>
+
 <!-- 6 RULES -->
 <section class="sec tight" id="rules" style="border-top:1px solid var(--line)">
   <div class="kick"><span><span class="no">05</span>The rules</span></div>
   <h2>Seven rules. Two make the difference. Five are checked from files.</h2>
-  <p class="sub">A vault that obeys them can call itself Mosaix 1.1 conformant. Conformance is a property of the files, not of any tool.</p>
+  <p class="sub">A vault that obeys them can call itself Mosaix 1.3 conformant. Conformance is a property of the files, not of any tool.</p>
   <div class="rlab">The two that no other format has</div>
   <ul class="big3">
     <li style="--r:-.6deg"><div class="n">R6</div><b>Record, don't resolve</b><p>A contradiction between notes goes in the open-questions ledger with both versions, dates and consequence. Nobody picks a winner silently.</p><div class="ex">_meta/Open questions.md
@@ -615,11 +675,11 @@ Kept: 4 notes still link here.</div></li>
     <h2>The format does the work, not the model.</h2>
     <p class="sub">Same model, same task, same pass rate. Change the input structure, change everything.</p>
 
-    <div class="ev7-side" style="max-width:1140px;margin-top:32px;grid-template-columns:1fr 1fr 1fr 1fr;gap:0 32px">
-      <div style="border-top:0;padding:0;grid-template-columns:1fr;gap:6px"><div style="font:11px var(--mono);color:#8b8679;margin:0 0 6px">Data read per query</div><b><span class="cnt" data-n="5.2" data-dec="1">0</span>× <small>less data per query</small></b></div>
-      <div style="border-top:0;padding:0;grid-template-columns:1fr;gap:6px"><div style="font:11px var(--mono);color:#8b8679;margin:0 0 6px">Token reduction, CRUD cycle</div><b><span class="cnt" data-n="1.87" data-dec="2">0</span>× <small>fewer total tokens</small></b></div>
-      <div style="border-top:0;padding:0;grid-template-columns:1fr;gap:6px"><div style="font:11px var(--mono);color:#8b8679;margin:0 0 6px">Raw tokens used, CRUD cycle</div><b><span class="cnt" data-n="236">0</span>K <small>vs 443K tokens</small></b></div>
-      <div style="border-top:0;padding:0;grid-template-columns:1fr;gap:6px"><div style="font:11px var(--mono);color:#8b8679;margin:0 0 6px">Cost per CRUD cycle</div><b><span class="cnt" data-n="1.55" data-dec="2">0</span>× <small>$0.0064 vs $0.0099</small></b></div>
+    <div class="ev7-stats">
+      <div><div class="lab">Data read per query</div><b><span class="cnt" data-n="5.2" data-dec="1">0</span>× <small>less data per query</small></b></div>
+      <div><div class="lab">Token reduction, CRUD cycle</div><b><span class="cnt" data-n="1.87" data-dec="2">0</span>× <small>fewer total tokens</small></b></div>
+      <div><div class="lab">Raw tokens used, CRUD cycle</div><b><span class="cnt" data-n="236">0</span>K <small>vs 443K tokens</small></b></div>
+      <div><div class="lab">Cost per CRUD cycle</div><b><span class="cnt" data-n="1.55" data-dec="2">0</span>× <small>$0.0064 vs $0.0099</small></b></div>
     </div>
 
   </div>
@@ -694,7 +754,7 @@ python audit_reference.py <span id="tpath">~/vaults/example-vault</span>
   <p class="cap">Install any skill the same way. <code>~/.claude/skills/</code> for personal use, <code>.claude/skills/</code> for a project repo. Skills are non-normative: they encode the specification as agent instructions. Nothing in the checker depends on them.</p>
   <div class="rlab" style="margin-top:48px">Reference tools</div>
   <div class="skills-grid">
-    <a href="spec.html#mcp-server"><b>MCP server</b><small>Six tools over stdio: read, write, search, compose, check, list. Writes validate against §10. No dependencies, no network.</small></a>
+    <a href="spec.html#mcp-server"><b>MCP server</b><small>Tools over stdio: read, write, search, compose, dossiers, check, list. Writes validate against §10. No dependencies, no network.</small></a>
     <a href="spec.html#vault-scaffolding"><b>mosaix_init.py</b><small>Scaffold a new vault: standard folders, meta note, open-questions ledger, GitHub Actions workflow.</small></a>
     <a href="spec.html#vault-migration"><b>mosaix_migrate.py</b><small>Bring an existing Markdown vault toward conformance. Best-effort inference, body untouched, <code>--dry-run</code> first.</small></a>
   </div>
@@ -710,6 +770,7 @@ python mosaix_migrate.py ~/notes --dry-run       # preview migration</code></pre
   <h2>Open tiles. Announced, not promised.</h2>
   <p class="sub">The fourth tile of the mark is outlined and empty: it stands for what is decided but not built. These are the open tiles of the format itself. Each is recorded in the example vault's ledger with a status, like any other open question.</p>
   <ul class="next">
+    <li class="done"><i></i><div><b>Mosaix 1.3 — dossiers</b><p>A <a href="#dossier" style="text-decoration:underline">dossier</a> gathers notes by a saved criterion — a customer, an application, a source document — with additions and exclusions that no automated step undoes. Reserved folder <span class="mono">_dossier/</span>; the checker reports E016, E017, W010, W011; the MCP server gains <span class="mono">list_dossiers</span> and <span class="mono">read_dossier</span>. Every 1.2 vault stays conformant.</p><small>shipped in 1.3.0</small></div></li>
     <li class="done"><i></i><div><b>Mosaix 1.2 — question key</b><p>The <span class="mono">question</span> key records the single question a note answers (R1 atomicity). Documentation-only in v1.2: the checker does not validate it. The other proposals (origin, as_of, relation vocabulary, entity registry) remain under discussion for a future version.</p><small>shipped in 1.2.0</small></div></li>
     <li class="done"><i></i><div><b>Stable id (ULID) — shipped in 1.1.0</b><p>A stable <span class="mono">id</span> (ULID, 26 chars, Crockford Base32) so links survive renames. Missing <span class="mono">id</span> is a warning (W003) in 1.x; becomes an error in v2.0. Every 1.0 vault stays conformant.</p><small>shipped in 1.1.0</small></div></li>
     <li class="done"><i></i><div><b>Machine-readable spec and conformance corpus</b><p><a href="https://github.com/mosaix-format/spec" style="text-decoration:underline"><span class="mono">spec.yaml</span></a> encodes every CORE key, rule, alias, and conformance check in one parseable file. A test corpus of 39 cases — valid, invalid, warnings and edge-cases — with expected results and a runner verifies the checker against the spec. Both ship with 1.1.0.</p><small>shipped</small></div></li>
@@ -741,7 +802,7 @@ python mosaix_migrate.py ~/notes --dry-run       # preview migration</code></pre
 </section>
 
 <footer>
-  <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.2 · CC BY-SA 4.0 · © 2026 Andrea Fiorino · mosaixformat.org</span>
+  <span class="fb"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/></g><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="currentColor" stroke-width="4"/></svg>Mosaix Format v1.3 · CC BY-SA 4.0 · © 2026 Andrea Fiorino · mosaixformat.org</span>
   <span><a href="spec.html">Specification</a> · <a href="spec.html#checker">Checker</a> · <a href="GOVERNANCE.md">Governance</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE.md">License</a> · <a href="privacy.html">Privacy</a> · <a href="https://mosaixformat.org">mosaixformat.org</a></span>
 </footer>
 </div>
@@ -758,7 +819,10 @@ python mosaix_migrate.py ~/notes --dry-run       # preview migration</code></pre
   const fields=[['summary','One declarative sentence, 120–240 characters.'],['keywords','Six to eight terms, lowercase.'],['entities','Named things, typed.'],['relations','Typed links between entities.'],['links','Outbound wikilinks, machine-readable.'],['rev','Hash of the body when metadata was computed.'],['updated','Last substantive change.'],['tags','Taxonomy, declared in the meta note.'],['title','Name of the node.'],['id','ULID, stable across renames.']];
   const brief=[['Coatings consolidation 2025','Three acquisitions moved 18% of distribution under two groups.','→ paragraph 1 of the brief below'],['Westguard — player card','130+ countries, own-brand line, reference competitor for price.','→ paragraph 2'],['Open question #33','Romanian plant disputed between two sources.','→ paragraph 3 · ⚠ to confirm'],['Coatings trade fairs, Europe 2026','CoatExpo Munich is the most relevant fair.','→ paragraph 4'],['Strategic scenarios','Enter through marine coatings: 22–30% cost advantage.','→ paragraph 5']];
   const grid=document.getElementById('grid'), card=document.getElementById('card'), host=document.getElementById('mosaic');
-  grid.style.setProperty('--n',N); grid.style.setProperty('--s',S+'px');
+  /* the tile size fits the column: a fixed 13-14px ran past narrow phones and the 760-900px two-column layout */
+  const gap = mobile ? 2 : 3, room = (host.clientWidth || innerWidth) - 4;
+  const fitS = Math.max(6, Math.min(S, Math.floor((room - (N - 1) * gap) / N)));
+  grid.style.setProperty('--n',N); grid.style.setProperty('--s',fitS+'px');
   const cv=document.createElement('canvas'); cv.width=cv.height=N; const cx=cv.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,N,N);
   const img=new Image();
   img.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><g fill="#000"><polygon transform="translate(31 31) rotate(41)" points="-15,-13 13,-15 15,13 -13,15"/><polygon transform="translate(69 30) rotate(47)" points="-12,-13 13,-12 12,13 -13,12"/><polygon transform="translate(30 69) rotate(44)" points="-13,-12 12,-13 13,12 -12,13"/><polygon transform="translate(70 70) rotate(49)" points="-14,-14 14,-13 13,14 -14,13" fill="none" stroke="#000" stroke-width="5"/></g></svg>');
@@ -842,6 +906,40 @@ python mosaix_migrate.py ~/notes --dry-run       # preview migration</code></pre
   }
 
   /* ---------- COMPOSITION: paragraphs ↔ tiles ---------- */
+
+  /* ---------- 04.1 DOSSIERS ---------- */
+  (function(){
+    const dm=document.getElementById('dmini'), fm=document.getElementById('dosFm'), tabs=document.getElementById('dosTabs'), join=document.getElementById('dosJoin');
+    if(!dm||!fm||!tabs) return;
+    const D=[
+      {kind:'customer',title:'Customer — Northline Foods',crit:'Notes about Northline Foods as a customer: orders, offers, complaints, contacts.',filt:'{entities: [Northline Foods]}',origin:'owner',
+       m:[2,9,10,19,27,36],a:[44],x:[19],names:['Order 2026-03','Complaint — valve leak','Contacts','Offer 2026-118','Visit report','Price list 2026'],an:['Fair Bologna 2026'],nw:[51,52]},
+      {kind:'application',title:'Application — steam lines',crit:'Notes on components rated for saturated steam, any supplier.',filt:'{entities: [steam]}',origin:'model',
+       m:[5,12,13,21,22,30,38,47],a:[],x:[38],names:['Zone valve VVI46','Stainless tube 316L','Elbow 90 SxH','Gasket EPDM','Actuator SSB','Pressure rating','Seal kit (wrong medium)','Thermal insulation'],an:[],nw:[57]},
+      {kind:'document',title:'Siemens zone valves VVI46 / VXI46',crit:'The notes made from the document d0096 (datasheet, 19 notes).',filt:'{documents: [d0096]}',origin:'document',
+       m:[0,1,8,16,17,24,25,32,33,40,41],a:[],x:[],names:['Applications','Type overview','Ordering','Dimensioning','Valve design','Mounting','Maintenance','Disposal','Technical data','Dimensions','Spare parts'],an:[],nw:[48]}
+    ];
+    let cur=0, joined=false;
+    for(let i=0;i<64;i++){const s=document.createElement('i'); dm.appendChild(s);}
+    const list=a=>'['+a.join(', ')+']';
+    function draw(){
+      const d=D[cur], cells=dm.children, nw=joined?d.nw:[];
+      for(let i=0;i<64;i++){const c=cells[i]; c.className=''; if(d.m.includes(i)||nw.includes(i)) c.classList.add('m'); if(d.a.includes(i)) c.classList.add('a'); if(d.x.includes(i)) c.classList.add('x'); if(nw.includes(i)) c.classList.add('new');}
+      const xn=d.x.map(i=>d.names[d.m.indexOf(i)]);
+      const members=d.names.concat(joined?d.nw.map((_,k)=>'New note '+(k+1)):[]);
+      const frags=members.filter(n=>!xn.includes(n)).concat(d.an);
+      const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+      fm.innerHTML='<span class="k">---</span>\n<span class="k">title:</span> '+esc(d.title)+'\n<span class="k">type:</span> document\n<span class="k">dossier:</span>\n  <span class="k">kind:</span> '+d.kind+'\n  <span class="k">criterion:</span>\n    <span class="k">description:</span> '+esc(d.crit)+'\n    <span class="k">filters:</span> '+esc(d.filt)+'\n  <span class="k">origin:</span> '+d.origin+
+        '\n<span class="k">members:</span> '+esc(list(members))+
+        (d.an.length?'\n<span class="k a">added:</span> <span class="a">'+esc(list(d.an))+'</span>':'')+
+        (xn.length?'\n<span class="k x">excluded:</span> <span class="x">'+esc(list(xn))+'</span>':'')+
+        '\n<span class="k">fragments:</span> '+esc(list(frags))+'\n<span class="k">---</span>\n<span class="k"># '+frags.length+' notes · links only · '+(joined?'joined at import, exclusion kept':'members + added − excluded')+'</span>';
+      join.textContent=joined?'↻ reset':(d.nw.length===1?'Import one new note →':'Import '+d.nw.length+' new notes →');
+    }
+    tabs.addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; cur=+b.dataset.d; joined=false; tabs.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false')); draw();});
+    join.addEventListener('click',()=>{joined=!joined; draw();});
+    draw();
+  })();
   const mini=document.getElementById('mini'), doc=document.getElementById('doc'); const sel=[3,17,26,41,55];
   for(let i=0;i<64;i++){const s=document.createElement('i'); s.dataset.t=i; if(sel.includes(i)) s.classList.add('sel'); if(i===26) s.classList.add('open'); mini.appendChild(s);}
   const hi=t=>{mini.querySelectorAll('i').forEach(s=>s.classList.toggle('on',+s.dataset.t===t)); doc.querySelectorAll('p').forEach(p=>p.classList.toggle('on',+p.dataset.t===t));};

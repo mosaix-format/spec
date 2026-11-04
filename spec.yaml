@@ -1,20 +1,20 @@
 # Mosaix Format — machine-readable specification
-# Version: 1.2.0  |  Updated: 2026-09-09
+# Version: 1.3.0  |  Updated: 2026-11-04
 #
 # Purpose: single source of truth for rules, keys, and constraints.
 # Future use: the checker (audit_reference.py) will load rules from here
 # instead of having them hardcoded; Claude skills will be validated against
 # this file. For now it is read-only reference data.
 #
-# Authoritative source: Mosaix-Format-v1.2.en.md
+# Authoritative source: Mosaix-Format-v1.3.en.md
 # License: CC BY-SA 4.0
 
 spec:
   name: Mosaix Format
-  version: "1.2.0"
+  version: "1.3.0"
   status: published
-  updated: "2026-09-09"
-  authority: Mosaix-Format-v1.2.en.md
+  updated: "2026-11-04"
+  authority: Mosaix-Format-v1.3.en.md
 
 # ─────────────────────────────────────────────
 # §3.1  CORE frontmatter keys
@@ -71,7 +71,7 @@ core_keys:
     aliases: [domanda]
     constraints:
       must_end_with: "?"
-      semantics: The single question this note answers (R1: atomicity).
+      semantics: "The single question this note answers (R1: atomicity)."
     note: "If present, summary SHOULD answer this question."
 
   - key: summary
@@ -348,6 +348,36 @@ note_types:
       - layout
 
 # ─────────────────────────────────────────────
+# §6.1  Dossiers (introduced in 1.3.0)
+# ─────────────────────────────────────────────
+# A composed document whose fragments are chosen by a saved criterion.
+# Recognised by a `dossier` map in the frontmatter; lives in `_dossier/`.
+
+dossier:
+  introduced: "1.3.0"
+  folder: _dossier/
+  recommended_path: "_dossier/<kind>/<title>.md"
+  note_type: [document, moc]
+  map_keys:
+    kind: {type: string, required: true, description: "free word: what the dossier gathers around"}
+    criterion:
+      description: {type: string, required: true, description: "rule of membership in natural language"}
+      filters: {type: map, required: false, keys: [folders, types, entities, documents]}
+    origin: {type: enum, values: [document, model, owner], required: false}
+  list_keys:
+    members: "notes that answer the criterion, as last computed"
+    added: "notes a person added by hand"
+    excluded: "notes a person took out by hand; never undone by an automated step"
+    external_links: "URLs of resources outside the vault"
+  derived: "fragments = links = members + added - excluded, restricted to existing notes"
+  members_rev: "sha256 of the sorted resolved members, first 12 hex chars (optional)"
+  aliases:
+    map: {tipo: kind, criterio: criterion, descrizione: description, filtri: filters, origine: origin,
+          cartelle: folders, tipi: types, entita: entities, documenti: documents}
+    top_level: {membri: members, aggiunte: added, esclusioni: excluded, link_esterni: external_links}
+    origin_values: {documento: document, catalogo: document, modello: model, proprietario: owner, titolare: owner}
+
+# ─────────────────────────────────────────────
 # §3.2  Reliability axes
 # ─────────────────────────────────────────────
 # Two independent axes. Convention (key vs. tag vs. inline symbol) is chosen
@@ -600,6 +630,20 @@ conformance:
       description: Fewer than 80% of vault notes carry an `entities` list.
       scope: vault
 
+    - id: E016
+      slug: dossier_incomplete
+      message: "{rel}: dossier without `{key}` (§6.1)"
+      severity: error
+      rule: "§6.1"
+      description: A note with a `dossier` map lacks `dossier.kind` or `dossier.criterion.description`.
+
+    - id: E017
+      slug: dossier_excluded_listed
+      message: "{rel}: dossier lists excluded note `{note}` in fragments or links (§6.1)"
+      severity: error
+      rule: "§6.1"
+      description: A note listed in a dossier's `excluded` appears in its `fragments` or `links`.
+
   warnings:
 
     - id: W001
@@ -664,5 +708,26 @@ conformance:
         The stored `rev` does not match sha256(body)[:12]. Only emitted when
         the checker is run with --check-rev.
       requires_flag: --check-rev
+
+    - id: W009
+      slug: entity_type_undeclared
+      message: "{rel}: entity type `{type}` not in base set nor declared in meta note"
+      severity: warning
+      rule: "§3.1"
+      description: An entity type is neither in the base set nor declared in `entity_types`.
+
+    - id: W010
+      slug: dossier_stale
+      message: "{rel}: dossier fragments differ from members + added - excluded (stale dossier)"
+      severity: warning
+      rule: "§6.1"
+      description: The dossier's `fragments` are not members + added - excluded restricted to existing notes.
+
+    - id: W011
+      slug: dossier_origin_unknown
+      message: "{rel}: dossier origin `{value}` not one of document, model, owner"
+      severity: warning
+      rule: "§6.1"
+      description: The `dossier.origin` value is outside the allowed set (after aliases).
 
 

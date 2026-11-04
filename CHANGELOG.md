@@ -1,5 +1,14 @@
 # Changelog — Mosaix Format
 
+## 1.3.0 — 2026-11-04
+
+- **Dossiers (§6.1).** A dossier is a composed document whose fragments are chosen by a saved **criterion**: it gathers the notes around a topic, a customer, a project, an application or a source document. It lives in the new reserved folder `_dossier/` (recommended `_dossier/<kind>/<title>.md`) and carries a `dossier` map — `kind` (free word), `criterion.description` (+ optional `filters`: `folders`, `types`, `entities`, `documents`), `origin` (`document` · `model` · `owner`) — plus `members`, `added`, `excluded`, `external_links`, `members_rev`. `fragments` = `links` = members ∪ added − excluded, restricted to existing notes. An exclusion is a decision: no automated step undoes it. Italian aliases (`tipo`, `criterio`, `descrizione`, `filtri`, `origine`, `membri`, `aggiunte`, `esclusioni`, `link_esterni`, …) are defaults, so dossiers written by vault-mcp are conformant unchanged.
+- **Checker:** E016 (dossier without `kind` or criterion), E017 (excluded note listed in `fragments`/`links`), W010 (stale dossier), W011 (unknown `origin`). The frontmatter parser now reads nested maps, both flow (`{a: {b: "x, y"}}`) and block style; W009 is now listed in `spec.yaml`. Fixed a YAML error in `spec.yaml` (line 74).
+- **MCP server:** `list_dossiers` and `read_dossier`; `compose` accepts a dossier and uses its resolved notes; `check` reports the dossier codes. Server version 1.3.0.
+- **Conformance corpus:** `edge-cases/dossier_valid/` and `edge-cases/dossier_broken/`.
+- **Site:** new "Dossiers" section on the landing page and §6.1 in `spec.html`. Fixed the mobile layout: the four numbers of "Why it matters" were an inline 4-column grid that the media queries could not reach, and the page scrolled sideways on phones; the hero mosaic now sizes its tiles to the column.
+- Labelled MINOR per GOVERNANCE §1: a new optional note shape and reserved folder; no 1.2 vault loses conformance.
+
 ## 1.2.1 — 2026-09-12
 
 - **MCP server enhancements:**
