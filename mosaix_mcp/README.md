@@ -41,7 +41,9 @@ python -m mosaix_mcp /path/to/vault --verbose
 | `move_note` | Move or rename a note, rewriting every incoming wikilink and `links` entry |
 | `delete_note` | Delete a note; refuses if other notes link to it unless `force: true` |
 | `search` | Case-insensitive substring search across summary, keywords, title (or any field) |
-| `compose` | Assemble a `type: document` note from its fragments |
+| `compose` | Assemble a `type: document` note or a dossier (§6.1) from its fragments |
+| `list_dossiers` | List the dossiers (§6.1): kind, origin, criterion, number of notes, stale flag |
+| `read_dossier` | One dossier with its resolved notes (members + added − excluded): title, path, summary, status |
 | `check` | Run §10 conformance check on one note or the whole vault |
 | `list_notes` | List notes with optional `tag` / `type` filter, sorted by `updated` |
 
@@ -162,6 +164,20 @@ Assembles a `type: document` note by concatenating its `fragments` bodies, separ
 - `mode`: Must be one of "text", "structure", or "file". Unknown modes raise a `ValueError`.
 
 **Examples:**
+
+### `list_dossiers` / `read_dossier`
+
+A dossier (spec §6.1) is a note in `_dossier/` with a `dossier` map: `kind`, `criterion.description`
+(plus optional `filters`) and `origin` (`document`, `model`, `owner`). Its notes are
+`members` + `added` − `excluded`; an exclusion is a decision no automated step undoes. Italian aliases
+(`tipo`, `criterio`, `descrizione`, `membri`, `aggiunte`, `esclusioni`, `link_esterni`, …) are read
+as canonical, so dossiers written by vault-mcp work unchanged.
+
+- `list_dossiers({kind?})` → `[{path, title, kind, origin, criterion, notes, stale, updated}]`
+- `read_dossier({path})` → `{path, title, summary, kind, origin, criterion, added, excluded, external_links, notes: [{stem, path, title, summary, status}], stale}`
+
+`compose` on a dossier uses the resolved notes, not a possibly stale `fragments` list. `check`
+reports E016 (no `kind` / criterion), E017 (an excluded note listed), W010 (stale), W011 (unknown origin).
 
 ### `check`
 

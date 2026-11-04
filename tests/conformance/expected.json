@@ -49,5 +49,7 @@
   "edge-cases/heading_anchor/":        {"errors": ["E006"], "warnings": []},
   "edge-cases/italian_aliases/":       {"errors": [], "warnings": ["W003"]},
   "edge-cases/entity_registry/":      {"errors": [], "warnings": []},
-  "edge-cases/relation_vocabulary/":  {"errors": [], "warnings": ["W002"]}
+  "edge-cases/relation_vocabulary/":  {"errors": [], "warnings": ["W002"]},
+  "edge-cases/dossier_valid/":        {"errors": [], "warnings": []},
+  "edge-cases/dossier_broken/":       {"errors": ["E016", "E017"], "warnings": ["W010", "W011"]}
 }

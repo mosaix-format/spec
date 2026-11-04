@@ -65,6 +65,8 @@ CODE_SIG: dict[str, str] = {
     "E013": "no meta note",
     "E014": "no open-questions",
     "E015": "entities coverage",
+    "E016": "dossier without `",
+    "E017": "dossier lists excluded note",
     "W001": "entities (>12)",
     "W002": "relation type `",
     # W003 must come before E002: both contain "missing `" but W003 is more specific
@@ -74,6 +76,8 @@ CODE_SIG: dict[str, str] = {
     "W006": "meta note declares no tags",
     "W007": "no reliability marker",
     "W008": "rev may be stale",
+    "W010": "stale dossier",
+    "W011": "dossier origin `",
     # E002 must come last among these: "missing `" is a substring of W003's message
     "E002": "missing `",
 }

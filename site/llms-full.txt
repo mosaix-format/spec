@@ -6,8 +6,8 @@ Mosaix Format is a specification, not software: it defines what a note carries a
 
 ## Specification
 
-- [Specification v1.2 (English, normative)](https://mosaixformat.org/Mosaix-Format-v1.2.en.md): the full text of the format, in Markdown; the source of truth.
-- [Specifica v1.2 (italiano)](https://mosaixformat.org/Mosaix-Format-v1.2.it.md): courtesy translation; the English file prevails in case of discrepancy.
+- [Specification v1.3 (English, normative)](https://mosaixformat.org/Mosaix-Format-v1.3.en.md): the full text of the format, in Markdown; the source of truth.
+- [Specifica v1.3 (italiano)](https://mosaixformat.org/Mosaix-Format-v1.3.it.md): courtesy translation; the English file prevails in case of discrepancy.
 - [Changelog](https://mosaixformat.org/CHANGELOG.md): what changed at each version.
 
 ## Checker
@@ -35,21 +35,21 @@ Mosaix Format is a specification, not software: it defines what a note carries a
 ---
 
 ---
-title: Mosaix Format — Specification v1.2
-version: 1.2.0
+title: Mosaix Format — Specification v1.3
+version: 1.3.0
 status: published
-updated: 2026-09-09
+updated: 2026-11-04
 license: CC BY-SA 4.0
 author: Andrea Fiorino
 summary: "A file-level format for knowledge vaults made of atomic, self-describing notes that machines can retrieve one at a time and humans can read as composed documents."
 keywords: [knowledge vault, atomic notes, frontmatter, wikilinks, markdown, LLM context, bounded context, specification]
 ---
 
-# Mosaix Format — Specification v1.2
+# Mosaix Format — Specification v1.3
 
 ## 0. Status of this document
 
-This document specifies the **Mosaix Format**, version 1.2.0. The name comes from the mosaic: every note is a tile that stands on its own, and the picture exists only in the whole. It is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/): you may copy, adapt and redistribute it, including commercially, provided you credit the author and release derivatives under the same license. The name "Mosaix Format" and its version numbering are part of the specification: a vault may claim conformance to "Mosaix 1.0" only if it satisfies §10.
+This document specifies the **Mosaix Format**, version 1.3.0. The name comes from the mosaic: every note is a tile that stands on its own, and the picture exists only in the whole. It is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/): you may copy, adapt and redistribute it, including commercially, provided you credit the author and release derivatives under the same license. The name "Mosaix Format" and its version numbering are part of the specification: a vault may claim conformance to "Mosaix 1.0" only if it satisfies §10.
 
 The key words MUST, MUST NOT, SHOULD, SHOULD NOT and MAY are to be interpreted as described in RFC 2119.
 
@@ -143,7 +143,7 @@ The `type` key (or a `#type/...` tag) MAY classify notes. Four types have format
 |---|---|
 | `moc` | *Map of Content*: an entry point that narrates an area and lists its notes. A vault MUST have at least one, usually `Home` or `00-Index`. |
 | `synthesis` | a synthesis written to be read alone as context for a task; lives in `_synthesis/` (§5.2) |
-| `document` | a **composed document**: a note whose frontmatter lists the notes it is assembled from (§6) |
+| `document` | a **composed document**: a note whose frontmatter lists the notes it is assembled from (§6); a **dossier** is a composed document gathered by a criterion (§6.1) |
 | `log` | a **chronological record**: one note that accumulates dated entries over time — what happened, in order. Append rather than rewrite; `updated` tracks the latest entry. Distinct from the open-questions ledger (§5.3), which records contradictions and unknowns, and from the supersession arcs (R7), which record how a single note changed. |
 
 Default aliases: `tipo` → `type`; `sintesi` → `synthesis`; `documento` → `document`.
@@ -184,12 +184,13 @@ See [[Coatings consolidation 2025]] and [[Strategic scenarios]].
 
 ### 5.1 Free layout, reserved names
 
-Folders are free. Numbered prefixes (`00-Index`, `01-Company`, …) are a common convention and are read as a **reading order**, not a build order. Three folder names are reserved:
+Folders are free. Numbered prefixes (`00-Index`, `01-Company`, …) are a common convention and are read as a **reading order**, not a build order. Four folder names are reserved:
 
 | Folder | Content |
 |---|---|
 | `_meta/` | the vault's own governance: meta note, taxonomy, open questions (§5.4) |
 | `_synthesis/` | synthesis notes written to be consumed alone as context |
+| `_dossier/` | dossiers: notes that gather other notes by a criterion (§6.1) |
 | `_inbox/` | material that has entered the vault but has not yet been turned into notes; nothing in `_inbox/` counts toward conformance |
 
 `_sintesi/` is recognised as an alias of `_synthesis/`. A vault MAY additionally keep a `_private/` folder excluded from version control for personal working material. Nothing in `_private/` is part of the vault. Folders holding content exports that are not notes MAY be declared as **payload** in the meta note and are then excluded from the frontmatter check.
@@ -257,6 +258,54 @@ Its body MAY contain narrative connecting the fragments and MAY embed them with 
 
 Because the composed document is itself a note, it inherits versioning, review, search and linking for free. No second storage channel is needed.
 
+### 6.1 Dossiers
+
+A composed document is assembled by hand, in a reading order someone chose. A **dossier** is a composed document whose fragments are chosen by a **criterion**: it gathers the notes of the vault around something — a topic, a customer, a project, an application, a source document — so that a question that spans many notes starts from a group already made. A dossier holds **links only**. It never copies the text of its notes.
+
+A dossier is a note in the reserved folder `_dossier/`, RECOMMENDED at `_dossier/<kind>/<title>.md`, with `type: document` (or `type: moc` when it is also an entry point). It carries a `dossier` map and the membership lists:
+
+| Key | Type | Meaning |
+|---|---|---|
+| `dossier.kind` | string | what the dossier gathers around: a **free** word chosen by the owner or by the model (`customer`, `application`, `document`, …) |
+| `dossier.criterion.description` | string | the rule of membership in natural language, written so that it holds for notes that do not exist yet |
+| `dossier.criterion.filters` | map (optional) | machine filters, all of which must hold: `folders`, `types`, `entities`, `documents` (lists) |
+| `dossier.origin` | enum | who made it: `document` (automatic, one per source document), `model` (proposed by an automated process, approved by a person), `owner` (made by a person) |
+| `members` | list of note titles | the notes that answer the criterion, as last computed |
+| `added` | list of note titles (optional) | notes a person added by hand |
+| `excluded` | list of note titles (optional) | notes a person took out by hand |
+| `external_links` | list of URLs (optional) | resources outside the vault |
+| `members_rev` | 12 hex chars (optional) | hash of the sorted resolved members, so a tool sees that the group changed and the summary is stale |
+
+`fragments` and `links` of a dossier are **derived**: `members` ∪ `added` − `excluded`, restricted to notes that exist. The body SHOULD be the summary followed by the wikilinks of the fragments, grouped by folder, and the external links.
+
+The rules of a dossier:
+
+- **An exclusion is a decision.** No automated process may remove an entry from `excluded`, nor put an excluded note back in `fragments` or `links`. Likewise only a person adds to `added`.
+- **New notes join, they do not rebuild.** When notes enter the vault, an automated process SHOULD add each to the dossiers whose criterion it answers and SHOULD propose a new dossier only for notes that no dossier gathers. A new dossier, a union of two dossiers or a split of one is a proposal for review (R8), with its reason.
+- **The dossier of a source document is automatic** (`origin: document`): one per imported document, its members are the notes made from that document.
+- A dossier is a view (R5): when it disagrees with a note, the note wins.
+
+Default aliases, so that vaults written in Italian stay conformant unchanged: inside the `dossier` map, `tipo` → `kind`, `criterio` → `criterion`, `descrizione` → `description`, `filtri` → `filters`, `cartelle` → `folders`, `tipi` → `types`, `entita` → `entities`, `documenti` → `documents`, `origine` → `origin`; at the top level, `membri` → `members`, `aggiunte` → `added`, `esclusioni` → `excluded`, `link_esterni` → `external_links`; values `documento`/`catalogo` → `document`, `modello` → `model`, `proprietario` → `owner`.
+
+```yaml
+title: Customer — Northline Foods
+type: document
+tags: [dossier, dossier/customer]
+dossier:
+  kind: customer
+  criterion:
+    description: Notes about Northline Foods as a customer — orders, offers, complaints, contacts.
+    filters: {entities: [Northline Foods]}
+  origin: owner
+members: [Northline order 2026-03, Northline complaint — valve leak, Offer 2026-118]
+added: [Trade fair Bologna 2026]
+excluded: [Offer 2026-118]
+fragments: [Northline order 2026-03, Northline complaint — valve leak, Trade fair Bologna 2026]
+links: [Northline order 2026-03, Northline complaint — valve leak, Trade fair Bologna 2026]
+external_links: [https://northline.example/procurement]
+members_rev: 3f9c1a0b77e2
+```
+
 ## 7. Rules of the vault
 
 A conforming vault obeys the following. R1–R5 are verifiable from files; R6–R7 are process rules the meta note commits to.
@@ -315,16 +364,18 @@ A vault is **Mosaix 1.0 conformant** when a check over its files reports zero er
 | at least one `type: moc` note | §3.4 |
 | open-questions ledger and meta note exist | §5.3, §5.4 |
 | every `type: document` note lists ≥ 2 `fragments`, all resolving | §6 |
+| every dossier carries `dossier.kind` and `dossier.criterion.description` | §6.1 |
+| no note listed in a dossier's `excluded` appears in its `fragments` or `links` | §6.1 |
 
-and zero or more **warnings** for: tags not declared in the taxonomy, domain keys not declared, `rev` older than the body (stale metadata), notes without any reliability marker, more than 12 `entities` on a note that is not a MOC, `id` missing or invalid ULID (becomes an error in v2.0).
+and zero or more **warnings** for: tags not declared in the taxonomy, domain keys not declared, `rev` older than the body (stale metadata), notes without any reliability marker, more than 12 `entities` on a note that is not a MOC, `id` missing or invalid ULID (becomes an error in v2.0), a dossier whose `fragments` differ from `members` ∪ `added` − `excluded` (stale dossier), a dossier `origin` outside the allowed values.
 
 A reference checker, `audit_reference.py`, accompanies this specification. It uses only the Python standard library and produces the table above. Its output is the conformance report.
 
 ## 11. Versioning of this specification
 
-Versions follow `MAJOR.MINOR.PATCH`. A MINOR version may add optional keys, note types or warnings; it never turns a conformant vault into a non-conformant one. A MAJOR version may. Vaults SHOULD state the version they target in their meta note (`mosaix: "1.2"`).
+Versions follow `MAJOR.MINOR.PATCH`. A MINOR version may add optional keys, note types or warnings; it never turns a conformant vault into a non-conformant one. A MAJOR version may. Vaults SHOULD state the version they target in their meta note (`mosaix: "1.3"`).
 
-Shipped in 1.1.0: `id` — the stable ULID identifier (tenth CORE key, warning until v2.0). Shipped in 1.2.0: `origin` (who wrote the note: `human`, `distilled`, or `observed`; alias `origine`) and `as_of` (when the described fact was true; alias `data_fatto`) — both optional, recommended. Under discussion for a future version: a `question` key recording the single question a note answers; a mandatory closed relation vocabulary; an entity registry with aliases.
+Shipped in 1.1.0: `id` — the stable ULID identifier (tenth CORE key, warning until v2.0). Shipped in 1.2.0: `origin` (who wrote the note: `human`, `distilled`, or `observed`; alias `origine`) and `as_of` (when the described fact was true; alias `data_fatto`) — both optional, recommended. Shipped in 1.3.0: **dossiers** (§6.1) — composed documents gathered by a saved criterion, with manual additions and exclusions that no automated step undoes — and the reserved folder `_dossier/`. Under discussion for a future version: a `question` key recording the single question a note answers; a mandatory closed relation vocabulary; an entity registry with aliases.
 
 ## 12. Acknowledgements and provenance
 
@@ -332,9 +383,9 @@ The format was extracted from three vaults in production use (code documentation
 
 ---
 
-**Citing this specification.** Fiorino, A. (2026). *Mosaix Format — Specification v1.2.0*. https://mosaixformat.org — source tag `mosaix-format/spec@v1.2.0`.
+**Citing this specification.** Fiorino, A. (2026). *Mosaix Format — Specification v1.3.0*. https://mosaixformat.org — source tag `mosaix-format/spec@v1.3.0`.
 
-*Mosaix Format v1.2 — a format by SLIM — © 2026 Andrea Fiorino — CC BY-SA 4.0.*
+*Mosaix Format v1.3 — a format by SLIM — © 2026 Andrea Fiorino — CC BY-SA 4.0.*
 
 ---
 

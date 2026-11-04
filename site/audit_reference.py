@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-audit_reference.py — reference conformance checker for Mosaix Format v1.2 (§10).
+audit_reference.py — reference conformance checker for Mosaix Format v1.3 (§10).
 
 Standard library only. Read-only.
 
@@ -50,13 +50,22 @@ ENTITY_TYPES = {"person", "company", "product", "project", "tool", "place", "doc
 # Required on every note (§3.1, 10th CORE key); missing/invalid = warning until v2.0.
 ULID_RE = re.compile(r"^[0-7][0-9A-HJKMNP-TV-Z]{25}$")
 
-# Default aliases (§3.1, §3.2, §3.4, §6). A vault may declare more in its meta note.
+# Default aliases (§3.1, §3.2, §3.4, §6, §6.1). A vault may declare more in its meta note.
 KEY_ALIASES = {
     "titolo": "title", "aggiornato": "updated", "riassunto": "summary", "parole_chiave": "keywords",
     "mcp_entita": "entities", "mcp_relazioni": "relations", "mcp_collegamenti": "links", "mcp_rev": "rev",
     "mcp_frammenti": "fragments", "mcp_pool": "pool", "mcp_layout": "layout",
     "tipo": "type", "stato": "status",
+    # §6.1 dossiers, top level
+    "membri": "members", "aggiunte": "added", "esclusioni": "excluded", "link_esterni": "external_links",
 }
+# §6.1 dossiers: keys inside the `dossier` map, its `criterion` and its `filters`; values of `origin`
+DOSSIER_ALIASES = {"tipo": "kind", "criterio": "criterion", "descrizione": "description", "filtri": "filters",
+                   "origine": "origin", "cartelle": "folders", "tipi": "types", "entita": "entities",
+                   "documenti": "documents"}
+DOSSIER_ORIGINS = {"document", "model", "owner"}
+DOSSIER_ORIGIN_ALIASES = {"documento": "document", "catalogo": "document", "modello": "model",
+                          "proprietario": "owner", "titolare": "owner"}
 ITEM_ALIASES = {"nome": "name", "tipo": "type", "da": "from", "a": "to"}
 VALUE_ALIASES = {
     # entity types
@@ -100,6 +109,8 @@ _FALLBACK_E: dict[str, str] = {
     "E013": "vault: no meta note (§5.4)",
     "E014": "vault: no open-questions ledger (§5.3)",
     "E015": "vault: entities coverage {n}/{total} = {pct} (<80%)",
+    "E016": "{rel}: dossier without `{key}` (§6.1)",
+    "E017": "{rel}: dossier lists excluded note `{note}` in fragments or links (§6.1)",
 }
 
 _FALLBACK_W: dict[str, str] = {
@@ -109,6 +120,8 @@ _FALLBACK_W: dict[str, str] = {
     "W006": "meta note declares no tags: taxonomy check skipped",
     "W008": "{rel}: rev may be stale (hint only)",
     "W009": "{rel}: entity type `{type}` not in base set nor declared in meta note",
+    "W010": "{rel}: dossier fragments differ from members + added - excluded (stale dossier)",
+    "W011": "{rel}: dossier origin `{value}` not one of document, model, owner",
 }
 
 _FALLBACK_I: dict[str, str] = {
@@ -271,42 +284,84 @@ def _i(code: str, **kw: object) -> str:
 
 # ---------- minimal YAML subset (enough for the CORE keys) ----------
 
+def _split_flow(inner: str) -> list[str]:
+    """Split the inside of a flow list or map on the commas at depth 0, outside quotes."""
+    parts, depth, cur, quote = [], 0, "", ""
+    for ch in inner:
+        if quote:
+            if ch == quote:
+                quote = ""
+        elif ch in "\"'" and (not cur.strip() or cur.rstrip().endswith((":", "[", "{", ","))):
+            quote = ch
+        elif ch in "{[":
+            depth += 1
+        elif ch in "}]":
+            depth -= 1
+        if ch == "," and depth == 0 and not quote:
+            parts.append(cur)
+            cur = ""
+        else:
+            cur += ch
+    parts.append(cur)
+    return parts
+
+
 def _scalar(s: str):
     s = s.strip()
     if not s:
         return ""
-    if (s[0] == s[-1]) and s[0] in "\"'":
+    if (s[0] == s[-1]) and s[0] in "\"'" and len(s) > 1:
         return s[1:-1]
     if s.startswith("[") and s.endswith("]"):
         inner = s[1:-1].strip()
         if not inner:
             return []
-        items, depth, cur, quote = [], 0, "", ""
-        for ch in inner:
-            if quote:
-                if ch == quote:
-                    quote = ""
-            elif ch in "\"'" and not cur.strip():
-                quote = ch
-            elif ch in "{[":
-                depth += 1
-            elif ch in "}]":
-                depth -= 1
-            if ch == "," and depth == 0 and not quote:
-                items.append(_scalar(cur))
-                cur = ""
-            else:
-                cur += ch
-        items.append(_scalar(cur))
-        return items
+        return [_scalar(x) for x in _split_flow(inner)]
     if s.startswith("{") and s.endswith("}"):
         d = {}
-        for part in s[1:-1].split(","):
+        for part in _split_flow(s[1:-1]):
             if ":" in part:
                 k, v = part.split(":", 1)
-                d[k.strip()] = _scalar(v)
+                d[k.strip().strip("\"'")] = _scalar(v)
         return d
     return s
+
+
+def _indent(line: str) -> int:
+    return len(line) - len(line.lstrip(" \t"))
+
+
+def _block_map(lines: list[str], i: int, indent: int) -> tuple[dict, int]:
+    """A nested block mapping (§6.1 `dossier:` written in block style): the lines indented by `indent` or
+    more, from line `i`. Returns the map and the index of the first line after it."""
+    d: dict = {}
+    while i < len(lines):
+        line = lines[i]
+        if not line.strip() or line.lstrip().startswith("#"):
+            i += 1
+            continue
+        if _indent(line) < indent or ":" not in line or line.lstrip().startswith("- "):
+            break
+        k, _, v = line.strip().partition(":")
+        k, v = k.strip(), v.strip()
+        nxt = i + 1
+        while nxt < len(lines) and not lines[nxt].strip():
+            nxt += 1
+        if v == "" and nxt < len(lines) and _indent(lines[nxt]) > _indent(line):
+            if lines[nxt].lstrip().startswith("- "):
+                items = []
+                j = nxt
+                while j < len(lines) and lines[j].lstrip().startswith("- ") and _indent(lines[j]) > _indent(line):
+                    items.append(_scalar(lines[j].lstrip()[2:]))
+                    j += 1
+                d[k] = items
+                i = j
+            else:
+                d[k], i = _block_map(lines, nxt, _indent(lines[nxt]))
+            continue
+        d[k] = _scalar(v)
+        i += 1
+    return d, i
 
 
 def parse_frontmatter(text: str):
@@ -331,6 +386,13 @@ def parse_frontmatter(text: str):
             key, _, val = line.partition(":")
             key = key.strip()
             val = val.strip()
+            nxt = i + 1
+            while nxt < len(lines) and not lines[nxt].strip():
+                nxt += 1
+            if (val == "" and nxt < len(lines) and lines[nxt].startswith((" ", "\t"))
+                    and not lines[nxt].lstrip().startswith("- ") and ":" in lines[nxt]):
+                fm[key], i = _block_map(lines, nxt, _indent(lines[nxt]))
+                continue
             if val == "" or val in ("|", ">"):
                 fm[key] = [] if val == "" else ""
             else:
@@ -396,6 +458,22 @@ def normalise(fm: dict, extra_key_aliases: dict | None = None) -> dict:
         if k in out and isinstance(out[k], str):
             v = out[k].lower()
             out[k] = VALUE_ALIASES.get(v, v)
+    if isinstance(out.get("dossier"), dict):
+        out["dossier"] = _canon_dossier(out["dossier"])
+    return out
+
+
+def _canon_dossier(d: dict) -> dict:
+    """The `dossier` map (§6.1) with its aliased keys and values made canonical, at every level."""
+    out = {}
+    for k, v in d.items():
+        canon = DOSSIER_ALIASES.get(k, k)
+        if canon in out and canon != k:
+            continue
+        out[canon] = _canon_dossier(v) if isinstance(v, dict) else v
+    if isinstance(out.get("origin"), str):
+        o = out["origin"].lower()
+        out["origin"] = DOSSIER_ORIGIN_ALIASES.get(o, o)
     return out
 
 
@@ -557,6 +635,30 @@ def audit(vault: Path, check_rev: bool = False, exclude: tuple[str, ...] = ()):
                 if str(f) not in all_md:
                     errors.append(_e("E011", rel=rel, fragment=f))
 
+        if isinstance(fm.get("dossier"), dict):
+            dos = fm["dossier"]
+            crit = dos.get("criterion") if isinstance(dos.get("criterion"), dict) else {}
+            if not str(dos.get("kind") or "").strip():
+                errors.append(_e("E016", rel=rel, key="dossier.kind"))
+            if not str(crit.get("description") or "").strip():
+                errors.append(_e("E016", rel=rel, key="dossier.criterion.description"))
+            origin = str(dos.get("origin") or "").strip()
+            if origin and origin not in DOSSIER_ORIGINS:
+                warnings.append(_w("W011", rel=rel, value=origin))
+
+            def names(k):
+                v = fm.get(k) or []
+                return [str(x).strip() for x in (v if isinstance(v, list) else [v]) if str(x).strip()]
+            excluded = set(names("excluded"))
+            frags, links = names("fragments"), names("links")
+            for x in sorted(excluded & (set(frags) | set(links))):
+                errors.append(_e("E017", rel=rel, note=x))
+            if "members" in fm:
+                expected = {x for x in dict.fromkeys(names("members") + names("added"))
+                            if x not in excluded and x in all_md}
+                if set(frags) != expected:
+                    warnings.append(_w("W010", rel=rel))
+
         if n["is_meta"]:
             declared_tags |= {str(t) for t in (fm.get("tags", []) or [])}
         n["tags"] = set(BODY_TAG.findall(body)) | {str(t) for t in (fm.get("tags", []) or [])}
@@ -626,7 +728,7 @@ def main(argv: list[str]) -> int:
     if as_json:
         print(json.dumps(r, ensure_ascii=False, indent=2))
     else:
-        print(f"Mosaix 1.2 audit — {r['vault']}")
+        print(f"Mosaix 1.3 audit — {r['vault']}")
         print(f"notes: {r['notes']}  errors: {len(r['errors'])}  warnings: {len(r['warnings'])}  info: {len(r['info'])}")
         print("CONFORMANT" if r["conformant"] else "NOT CONFORMANT")
         shown = r["errors"] + r["warnings"] if verbose else r["errors"]

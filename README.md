@@ -1,13 +1,13 @@
 # Mosaix Format
 
-[![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey.svg)](LICENSE.md) [![Version](https://img.shields.io/badge/version-v1.2.1-blue.svg)](CHANGELOG.md) ![Mosaix 1.2 conformant](https://mosaixformat.org/badge.svg)
+[![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey.svg)](LICENSE.md) [![Version](https://img.shields.io/badge/version-v1.3.0-blue.svg)](CHANGELOG.md) ![Mosaix 1.3 conformant](https://mosaixformat.org/badge.svg)
 
 **A file-level format for knowledge vaults made of atomic, self-describing notes — retrievable one at a time by machines, readable as composed documents by people.**
 
 Every note is a tile that stands on its own. The picture exists only in the whole.
 
-- Specification (normative, English): [`Mosaix-Format-v1.2.en.md`](Mosaix-Format-v1.2.en.md)
-- Specifica (italiano): [`Mosaix-Format-v1.2.it.md`](Mosaix-Format-v1.2.it.md)
+- Specification (normative, English): [`Mosaix-Format-v1.3.en.md`](Mosaix-Format-v1.3.en.md)
+- Specifica (italiano): [`Mosaix-Format-v1.3.it.md`](Mosaix-Format-v1.3.it.md)
 - Machine-readable spec: [`spec.yaml`](spec.yaml) — every CORE key, rule, conformance check and alias in one parseable file
 - Reference conformance checker: [`audit_reference.py`](audit_reference.py) — Python 3.10+, standard library only, read-only, offline
 - Conformance test corpus: [`tests/conformance/`](tests/conformance/) — 39 test cases with expected results and a runner
@@ -30,8 +30,8 @@ Any Markdown tool can read a Mosaix vault. Obsidian is the reference host, not a
 ## Repository layout
 
 ```
-Mosaix-Format-v1.2.en.md   the specification (normative)
-Mosaix-Format-v1.2.it.md   courtesy translation
+Mosaix-Format-v1.3.en.md   the specification (normative)
+Mosaix-Format-v1.3.it.md   courtesy translation
 spec.yaml                  machine-readable spec: keys, rules, conformance checks, aliases
 audit_reference.py         reference checker, stdlib only
 tests/conformance/         39 test cases + runner for the checker
@@ -88,7 +88,7 @@ A minimal MCP server (JSON-RPC 2.0 over stdio, stdlib-only Python) that exposes 
 
 ## Status
 
-v1.2.1 — September 2026. Extracted from three vaults in production use (code documentation, industrial market intelligence, education marketing).
+v1.3.0 — November 2026 (dossiers, §6.1). Extracted from three vaults in production use (code documentation, industrial market intelligence, education marketing).
 
 Mosaix is an open format. The specification is open (CC BY-SA 4.0); how vaults are produced, enriched, searched or composed is out of scope by design (§8) and not part of this repository. `skill/` is the one exception: optional, non-normative instructions for one agent (Claude) to read and write conformant notes. Nothing in the specification or the checker depends on it.
 
